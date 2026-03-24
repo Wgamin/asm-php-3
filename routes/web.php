@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as PublicProductController;
+use App\Http\Controllers\Admin\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,10 +63,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     // quản lý danh mục (Dùng link này cho menu "Danh mục")
     Route::resource('categories', CategoryController::class);
     // Quản lý người dùng (Dùng link này cho menu "Người dùng")
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    
+    Route::resource('users', UserController::class);
     // Quản lý vai trò (Nếu bạn muốn tách riêng trang Roles)
     Route::get('/roles', [UserController::class, 'index'])->name('roles.index'); 
+    // Quản lý cài đặt (Nếu bạn muốn tách riêng trang Settings)
+    Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
 
 });
 

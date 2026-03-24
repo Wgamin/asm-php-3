@@ -57,7 +57,7 @@
         <div class="border-t border-slate-100 my-4"></div>
         
         <!-- Cài đặt -->
-        <a href="#"
+        <a href="{{ route('admin.settings.index') }}"
            class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50">
             <i class="fas fa-cogs w-5 text-center text-slate-400"></i>
             <span>Cài đặt hệ thống</span>
