@@ -74,6 +74,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
         Route::get('/orders', 'index')->name('orders.index');
         Route::get('/orders/{id}', 'show')->name('orders.show');
         Route::post('/orders/{id}/status', 'updateStatus')->name('orders.updateStatus');
+        Route::delete('/orders/{id}', 'destroy')->name('orders.destroy');
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

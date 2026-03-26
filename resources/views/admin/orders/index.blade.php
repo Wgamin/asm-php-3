@@ -41,11 +41,27 @@
                             {{ strtoupper($order->status_text) }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                    
+                                        <td class="px-6 py-4 text-sm text-gray-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                     <td class="px-6 py-4 text-right">
                         <a href="{{ route('admin.orders.show', $order->id) }}" class="text-gray-400 hover:text-emerald-600 transition">
                             <i class="fas fa-eye"></i> Chi tiết
                         </a>
+                    </td>
+                    <td class="px-6 py-4 text-right flex justify-end gap-3">
+                        {{-- Nút Xem --}}
+                        <a href="{{ route('admin.orders.show', $order->id) }}" class="text-gray-400 hover:text-emerald-600 transition">
+                            <i class="fas fa-eye"></i> Chi tiết
+                        </a>
+
+                        {{-- Nút Xóa mới bổ sung --}}
+                        <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này? Hành động này không thể hoàn tác.')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-gray-400 hover:text-red-600 transition">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach

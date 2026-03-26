@@ -30,4 +30,17 @@ class OrderController extends Controller
         
         return back()->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
     }
+    
+    public function destroy($id)
+    {
+        $order = Order::findOrFail($id);
+        
+        // Xóa các chi tiết đơn hàng trước (nếu database chưa thiết lập xóa tự động)
+        $order->items()->delete(); 
+        
+        // Xóa đơn hàng
+        $order->delete();
+        
+        return redirect()->route('admin.orders.index')->with('success', 'Xóa đơn hàng thành công!');
+    }
 }
