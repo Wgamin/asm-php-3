@@ -10,6 +10,9 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +22,21 @@ use App\Http\Controllers\Admin\SettingController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
 Route::get('/san-pham/{id}', [PublicProductController::class, 'show'])->name('product.detail');
+route::get('/lien-he', function() {
+    return view('contact');
+})->name('contact');
 
+// Nhóm Route cho Giỏ hàng (Sử dụng AJAX)
+Route::prefix('cart')->as('cart.')->group(function () {
+    // Thêm vẫn giữ nguyên vì thường dùng ở trang danh sách sản phẩm
+    Route::post('/add/{id}', [CartController::class, 'add'])->name('add');
+    
+    // Hai dòng "thần thánh" để làm CRUD ở Checkout đây:
+    Route::patch('/update', [CartController::class, 'update'])->name('update'); 
+    Route::delete('/remove', [CartController::class, 'remove'])->name('remove');
+    
+    Route::get('/clear', [CartController::class, 'clear'])->name('clear');
+});
 
 // Nhóm dành riêng cho khách CHƯA đăng nhập (Guest)
 Route::middleware(['guest'])->group(function () {
@@ -45,6 +62,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
+    Route::get('/order-success', function() {
+        return view('order_success');
+    })->name('order.success');
+});
 });
 
 
@@ -54,7 +79,14 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
-    
+    // Controller cho đơn hàng
+    Route::controller(AdminOrderController::class)->group(function () {
+        Route::get('/orders', 'index')->name('orders.index');
+        Route::get('/orders/{id}', 'show')->name('orders.show');
+        Route::post('/orders/{id}/status', 'updateStatus')->name('orders.updateStatus');
+    });
+
+
     // Trang chủ Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     

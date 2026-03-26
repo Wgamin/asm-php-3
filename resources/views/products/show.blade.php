@@ -56,14 +56,15 @@
                         <p>{{ $product->description }}</p>
                     </div>
 
-                    <form action="#" method="POST" class="space-y-6">
+                    <form action="{{ route('cart.add', $product->id) }}" method="POST" class="space-y-6">
                         @csrf
                         <div class="flex items-center gap-4">
                             <div class="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-                                <button type="button" class="px-4 py-3 hover:bg-slate-200 transition">-</button>
-                                <input type="number" name="quantity" value="1" min="1" 
-                                       class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold">
-                                <button type="button" class="px-4 py-3 hover:bg-slate-200 transition">+</button>
+                                {{-- Dùng JavaScript để tăng giảm số lượng --}}
+                                <button type="button" onclick="decreaseQty()" class="px-4 py-3 hover:bg-slate-200 transition">-</button>
+                                <input type="number" name="quantity" id="product_qty" value="1" min="1" 
+                                    class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold">
+                                <button type="button" onclick="increaseQty()" class="px-4 py-3 hover:bg-slate-200 transition">+</button>
                             </div>
                             <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition flex items-center justify-center gap-3">
                                 <i class="fas fa-shopping-cart"></i>
@@ -71,6 +72,19 @@
                             </button>
                         </div>
                     </form>
+
+                        <script>
+                            function increaseQty() {
+                                let input = document.getElementById('product_qty');
+                                input.value = parseInt(input.value) + 1;
+                            }
+                            function decreaseQty() {
+                                let input = document.getElementById('product_qty');
+                                if (parseInt(input.value) > 1) {
+                                    input.value = parseInt(input.value) - 1;
+                                }
+                            }
+                        </script>
 
                     <div class="mt-8 pt-6 border-t border-slate-100 space-y-2 text-sm">
                         <p><span class="text-slate-400 font-medium">Mã sản phẩm:</span> <span class="text-slate-800">NS-{{ $product->id + 1000 }}</span></p>

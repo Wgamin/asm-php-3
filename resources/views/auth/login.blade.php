@@ -39,10 +39,10 @@
                     </div>
                 </div>
 
-                <div class="flex items-center">
+                {{-- <div class="flex items-center">
                     <input type="checkbox" name="remember" id="remember" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                     <label for="remember" class="ml-2 text-sm text-slate-600 italic">Ghi nhớ đăng nhập</label>
-                </div>
+                </div> --}}
 
                 <button type="submit" 
                     class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all transform hover:-translate-y-1">

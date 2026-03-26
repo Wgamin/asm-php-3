@@ -49,7 +49,7 @@
                             <i class="fas fa-newspaper text-sm"></i>
                             <span>Tin tức</span>
                         </a>
-                        <a href="#" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                        <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
                             <i class="fas fa-phone-alt text-sm"></i>
                             <span>Liên hệ</span>
                         </a>
@@ -77,16 +77,22 @@
                     </div>
 
                     <!-- Cart -->
-                    <a href="#" class="relative p-2 hover:bg-gray-100 rounded-full group">
+                    {{-- <a href="" class="relative p-2 hover:bg-gray-100 rounded-full group">
                         <i class="fas fa-shopping-bag text-gray-500 group-hover:text-primary-green text-lg"></i>
                         <span class="absolute -top-1 -right-1 bg-primary-green text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">3</span>
+                    </a> --}}
+                    <a href="{{ route('checkout') }}" class="relative p-2 hover:bg-gray-100 rounded-full group">
+                        <i class="fas fa-shopping-bag text-gray-500 group-hover:text-primary-green text-lg"></i>
+                        <span class="absolute -top-1 -right-1 bg-primary-green text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                            {{ session('cart') ? count(session('cart')) : 0 }}
+                        </span>
                     </a>
 
                     <!-- User Menu -->
                     @guest
                         <div class="flex items-center space-x-3">
                             <a href="{{ route('login') }}" class="text-gray-700 hover:text-primary-green text-sm font-bold px-4 py-2 rounded-lg hover:bg-gray-50">Đăng nhập</a>
-                            <a href="{{ route('register') }}" class="bg-gradient-to-r from-primary-green to-dark-green hover:from-dark-green hover:to-primary-green text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition transform hover:scale-105">Đăng ký</a>
+                            <a href="{{ route('register') }}" class=" bg-[#28a745] to-dark-green hover:from-dark-green hover:to-primary-green text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition transform hover:scale-105">Đăng ký</a>
                         </div>
                     @else
                         <div class="relative" x-data="{ open: false }">

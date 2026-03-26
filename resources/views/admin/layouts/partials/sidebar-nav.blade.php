@@ -16,12 +16,12 @@
             <span>Quản lý người dùng</span>
         </a> --}}
         
-        <!-- Phân quyền -->
+        <!-- người dùng -->
         <a href="{{ route('admin.users.index') }}"
            class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200
                   {{ request()->routeIs('admin.users.*') ? 'bg-emerald-50 text-emerald-600 font-medium' : 'text-slate-600 hover:bg-slate-50' }}">
             <i class="fas fa-user-shield w-5 text-center {{ request()->routeIs('admin.users.*') ? 'text-emerald-500' : 'text-slate-400' }}"></i>
-            <span>Phân quyền</span>
+            <span>Người dùng</span>
         </a>
         
         <!-- Sản phẩm -->
@@ -40,7 +40,7 @@
             <span>Danh mục</span>
         
         <!-- Đơn hàng -->
-        <a href="#"
+        <a href="{{ route('admin.orders.index') }}"
            class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50">
             <i class="fas fa-shopping-bag w-5 text-center text-slate-400"></i>
             <span>Đơn hàng</span>

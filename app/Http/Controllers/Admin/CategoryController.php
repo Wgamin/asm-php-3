@@ -19,9 +19,6 @@ class CategoryController extends Controller
         return back()->with('success', 'Thêm danh mục thành công!');
     }
 
-    public function edit(Category $category) {
-        return view('admin.categories.edit', compact('category'));
-    }
 
     public function update(Request $request, Category $category) {
         $request->validate(['name' => 'required|unique:categories,name,' . $category->id]);
