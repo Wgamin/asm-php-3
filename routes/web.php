@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\AuthController; // Controller tự tạo
+use App\Http\Controllers\AuthController; 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
@@ -22,37 +22,32 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
 Route::get('/san-pham/{id}', [PublicProductController::class, 'show'])->name('product.detail');
-route::get('/lien-he', function() {
+Route::get('/lien-he', function() {
     return view('contact');
 })->name('contact');
+Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
 
-// Nhóm Route cho Giỏ hàng (Sử dụng AJAX)
+// --- CẬP NHẬT: Nhóm Route cho Giỏ hàng (KHÔNG DÙNG AJAX) ---
 Route::prefix('cart')->as('cart.')->group(function () {
-    // Thêm vẫn giữ nguyên vì thường dùng ở trang danh sách sản phẩm
     Route::post('/add/{id}', [CartController::class, 'add'])->name('add');
     
-    // Hai dòng "thần thánh" để làm CRUD ở Checkout đây:
-    Route::patch('/update', [CartController::class, 'update'])->name('update'); 
-    Route::delete('/remove', [CartController::class, 'remove'])->name('remove');
+    // Thay đổi PATCH/DELETE thành GET để dùng thẻ <a> truyền thống
+    Route::get('/update/{id}/{quantity}', [CartController::class, 'updateQuantity'])->name('update_quantity'); 
+    Route::get('/remove/{id}', [CartController::class, 'removeItem'])->name('remove_item');
     
     Route::get('/clear', [CartController::class, 'clear'])->name('clear');
 });
 
 // Nhóm dành riêng cho khách CHƯA đăng nhập (Guest)
 Route::middleware(['guest'])->group(function () {
-    // Đăng ký
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
-    // Đăng nhập
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-
-// Đăng xuất (Phải đăng nhập mới logout được)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -63,15 +58,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::middleware(['auth'])->group(function () {
+    // Chuyển checkout vào chung nhóm auth
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
     Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
-    Route::get('/order-success', function() {
-        return view('order_success');
-    })->name('order.success');
+    Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
 });
-});
-
 
 /*
 |--------------------------------------------------------------------------
@@ -79,42 +70,28 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
-    // Controller cho đơn hàng
     Route::controller(AdminOrderController::class)->group(function () {
         Route::get('/orders', 'index')->name('orders.index');
         Route::get('/orders/{id}', 'show')->name('orders.show');
         Route::post('/orders/{id}/status', 'updateStatus')->name('orders.updateStatus');
     });
 
-
-    // Trang chủ Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
-    // Quản lý sản phẩm
     Route::resource('products', ProductController::class);
-    // quản lý danh mục (Dùng link này cho menu "Danh mục")
     Route::resource('categories', CategoryController::class);
-    // Quản lý người dùng (Dùng link này cho menu "Người dùng")
     Route::resource('users', UserController::class);
-    // Quản lý vai trò (Nếu bạn muốn tách riêng trang Roles)
     Route::get('/roles', [UserController::class, 'index'])->name('roles.index'); 
-    // Quản lý cài đặt (Nếu bạn muốn tách riêng trang Settings)
-    Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
-
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 });
 
 // --- AUTH CHO ADMIN ---
 Route::prefix('admin')->as('admin.')->group(function () {
     Route::middleware('guest')->group(function () {
-        // Form đăng nhập admin: domain.com/admin/login
         Route::get('/login', [AuthController::class, 'showAdminLogin'])->name('login');
         Route::post('/login', [AuthController::class, 'adminLogin']);
-
-        // Form đăng ký admin (Nếu bạn muốn cho phép đăng ký trực tiếp quyền admin)
         Route::get('/register', [AuthController::class, 'showAdminRegister'])->name('register');
         Route::post('/register', [AuthController::class, 'adminRegister']);
     });
-
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+    // Không cần định nghĩa logout ở đây nếu đã có ở trên, trừ khi logic khác biệt hoàn toàn
 });

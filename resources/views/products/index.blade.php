@@ -36,7 +36,7 @@
             
             <div>
                 <h4 class="font-semibold text-slate-800 mb-3 text-sm">Khoảng giá (VNĐ)</h4>
-                <div class="flex gap-2 flex-col">
+                <div class="flex gap-2 flex-col ">
                     <input type="number" name="min_price" value="{{ request('min_price') }}" placeholder="Từ" 
                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500">
                     <input type="number" name="max_price" value="{{ request('max_price') }}" placeholder="Đến" 

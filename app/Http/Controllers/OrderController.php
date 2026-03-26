@@ -69,9 +69,18 @@ class OrderController extends Controller
         }
     }
     // Tìm đến hàm success trong OrderController
-    public function success($order_number)
+
+    public function success()
     {
-        // Phải có compact('order_number') để biến này tồn tại ngoài View
+        // Lấy số đơn hàng vừa lưu từ session
+        $order_number = session('success_order');
+
+        // Nếu không có (truy cập thủ công), có thể chuyển hướng về trang chủ
+        if (!$order_number) {
+            return redirect()->route('home');
+        }
+
+        // Truyền biến ra view
         return view('order_success', compact('order_number'));
     }
 }
