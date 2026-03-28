@@ -13,7 +13,8 @@ class Product extends Model
     protected $fillable = [
         'category_id', 
         'name', 
-        'price', 
+        'price',
+        'content',
         'description', 
         'image'
     ];
@@ -22,5 +23,16 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+    // Một sản phẩm có nhiều biến thể
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    // Kiểm tra xem sản phẩm có phải hàng biến thể không
+    public function isVariable()
+    {
+        return $this->product_type === 'variable';
     }
 }

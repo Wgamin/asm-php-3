@@ -42,12 +42,7 @@
                         </span>
                     </td>
                     
-                                        <td class="px-6 py-4 text-sm text-gray-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                    <td class="px-6 py-4 text-right">
-                        <a href="{{ route('admin.orders.show', $order->id) }}" class="text-gray-400 hover:text-emerald-600 transition">
-                            <i class="fas fa-eye"></i> Chi tiết
-                        </a>
-                    </td>
+                     <td class="px-6 py-4 text-sm text-gray-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                     <td class="px-6 py-4 text-right flex justify-end gap-3">
                         {{-- Nút Xem --}}
                         <a href="{{ route('admin.orders.show', $order->id) }}" class="text-gray-400 hover:text-emerald-600 transition">

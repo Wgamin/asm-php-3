@@ -371,6 +371,40 @@
             </div>
         </div>
     </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).on('click', '.toggle-wishlist', function(e) {
+            e.preventDefault(); // Ngăn trang bị reload
+            
+            let btn = $(this);
+            let productId = btn.data('id');
+            let icon = btn.find('i');
+
+            $.ajax({
+                url: "/wishlist/toggle/" + productId,
+                method: "POST",
+                data: {
+                    _token: '{{ csrf_token() }}' // Rất quan trọng!
+                },
+                success: function(response) {
+                    if (response.status === 'added') {
+                        icon.removeClass('far text-gray-400').addClass('fas text-red-500');
+                    } else {
+                        icon.removeClass('fas text-red-500').addClass('far text-gray-400');
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        alert('Vui lòng đăng nhập để thực hiện!');
+                        window.location.href = "{{ route('login') }}";
+                    } else {
+                        console.error(xhr.responseText);
+                        alert('Lỗi hệ thống, kiểm tra console log!');
+                    }
+                }
+            });
+        });
+    </script>   
 
 </body>
 </html>

@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+    public function wishlists()
+    {
+        // 'wishlists' là tên bảng trung gian bạn đã tạo ở Migration
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id')->withTimestamps();
+    }
 }
