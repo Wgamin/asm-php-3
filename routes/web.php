@@ -15,6 +15,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\WishlistController;
 
+use App\Http\Controllers\CompareController;
 /*
 |--------------------------------------------------------------------------
 | 1. DÀNH CHO TẤT CẢ MỌI NGƯỜI (PUBLIC & GUEST)
@@ -101,3 +102,12 @@ Route::prefix('admin')->as('admin.')->group(function () {
     });
     // Không cần định nghĩa logout ở đây nếu đã có ở trên, trừ khi logic khác biệt hoàn toàn
 });
+//so sánh sản phẩm 
+Route::get('/so-sanh', [CompareController::class, 'index'])->name('compare.index');
+Route::post('/so-sanh/{product}', [CompareController::class, 'add'])->name('compare.add');
+Route::delete('/so-sanh/{product}', [CompareController::class, 'remove'])->name('compare.remove');
+Route::delete('/so-sanh', [CompareController::class, 'clear'])->name('compare.clear');
+
+
+
+
