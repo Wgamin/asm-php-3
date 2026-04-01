@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite; // THÊM DÒNG NÀY
+use Illuminate\Support\Str; // THÊM DÒNG NÀY ĐỂ TẠO MẬT KHẨU ẢO
 
 class AuthController extends Controller
 {
@@ -115,20 +117,61 @@ class AuthController extends Controller
     }
 
     public function storeAdmin(Request $request) 
-{
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:6',
-    ]);
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+        ]);
 
-    User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => 'admin', // Xác định đây là tài khoản quản trị
-    ]);
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin', // Xác định đây là tài khoản quản trị
+        ]);
 
-    return redirect()->back()->with('success', 'Đã tạo tài khoản Admin mới thành công!');
-}
+        return redirect()->back()->with('success', 'Đã tạo tài khoản Admin mới thành công!');
+    }
+    // --- BỔ SUNG ĐĂNG NHẬP GOOGLE ---
+
+    // 1. Chuyển hướng người dùng sang trang đăng nhập của Google
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    // 2. Xử lý thông tin Google trả về sau khi đăng nhập thành công
+    public function handleGoogleCallback()
+    {
+        try {
+            // Lấy thông tin user từ Google
+            $googleUser = Socialite::driver('google')->user();
+
+            // Kiểm tra xem email này đã tồn tại trong DB chưa
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if ($user) {
+                // Nếu đã có tài khoản (có thể tạo bằng tay trước đó), cập nhật thêm google_id và đăng nhập
+                $user->update(['google_id' => $googleUser->getId()]);
+                Auth::login($user);
+            } else {
+                // Nếu chưa có, tạo tài khoản mới tự động
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'password' => Hash::make(Str::random(24)), // Đặt mật khẩu ảo cho an toàn
+                    'role' => 'user' // Mặc định là khách hàng
+                ]);
+                Auth::login($user);
+            }
+
+            // Chuyển hướng về trang chủ sau khi thành công
+            return redirect('/')->with('success', 'Đăng nhập bằng Google thành công!');
+
+        } catch (\Exception $e) {
+            return redirect()->route('login')->withErrors(['email' => 'Có lỗi xảy ra khi đăng nhập bằng Google. Vui lòng thử lại!']);
+        }
+    }
 }

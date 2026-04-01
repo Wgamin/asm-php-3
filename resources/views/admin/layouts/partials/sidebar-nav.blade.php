@@ -32,6 +32,14 @@
             <span>Sản phẩm</span>
         </a>
 
+        <a href="{{ route('admin.attributes.index') }}"
+           class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200
+                  {{ request()->routeIs('admin.attributes.*') ? 'bg-emerald-50 text-emerald-600 font-medium' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-tags w-5 text-center {{ request()->routeIs('admin.attributes.*') ? 'text-emerald-500' : 'text-slate-400' }}"></i>
+            <span>Thuộc tính</span>
+        </a>
+
+
             <!-- Danh mục -->
         <a href="{{ route('admin.categories.index') }}"
            class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl  transition-all duration-200
@@ -44,9 +52,9 @@
            class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50">
             <i class="fas fa-shopping-bag w-5 text-center text-slate-400"></i>
             <span>Đơn hàng</span>
-            <span class="ml-auto bg-amber-100 text-amber-600 text-xs px-2 py-0.5 rounded-full">12</span>
         </a>
-        
+
+
         <!-- Tin tức -->
         <a href="#"
            class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50">

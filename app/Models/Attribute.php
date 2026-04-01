@@ -1,15 +1,22 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Attribute extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['name'];
 
-    // Lấy các giá trị cụ thể của thuộc tính này (Ví dụ: Đỏ, Xanh)
-    public function values()
+    /**
+     * Một thuộc tính có nhiều giá trị con
+     */
+    public function attributeValues()
     {
-        return $this->hasMany(AttributeValue::class);
+        // Lưu ý: Tên hàm phải khớp với tên bạn gọi trong Controller (attributeValues)
+        return $this->hasMany(AttributeValue::class, 'attribute_id', 'id');
     }
 }

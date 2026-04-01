@@ -56,10 +56,9 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        // Eager load 'category' để tránh lỗi N+1 query khi hiển thị tên danh mục
-        $product = Product::with('category')->findOrFail($id);
+        // Load thêm variants để lấy thông tin giá và các tùy chọn
+        $product = Product::with(['category', 'variants'])->findOrFail($id);
 
-        // Lấy 4 sản phẩm liên quan (cùng danh mục, trừ chính nó)
         $relatedProducts = Product::where('category_id', $product->category_id)
                                     ->where('id', '!=', $id)
                                     ->limit(4)
@@ -67,4 +66,6 @@ class ProductController extends Controller
 
         return view('products.show', compact('product', 'relatedProducts'));
     }
+
+    
 }

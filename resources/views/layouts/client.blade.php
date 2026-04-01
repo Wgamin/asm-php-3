@@ -53,6 +53,10 @@
                             <i class="fas fa-phone-alt text-sm"></i>
                             <span>Liên hệ</span>
                         </a>
+                        <a href="{{ route('about') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                            <i class="fas fa-info-circle text-sm"></i>
+                            <span>Giới thiệu</span>
+                        </a>
                     </div>
                 </div>
 

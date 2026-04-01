@@ -14,7 +14,7 @@
             {{ $product->category->name ?? 'Nông sản' }}
         </span>
 
-        {{-- NÚT WISHLIST (Cập nhật vị trí & Style) --}}
+        {{-- NÚT WISHLIST --}}
         @php
             $isFavorite = false;
             if(auth()->check()) {
@@ -39,18 +39,34 @@
         
         <div class="mt-auto pt-3 flex items-center justify-between">
             <div class="flex flex-col">
-                <span class="text-emerald-600 font-extrabold text-lg">
-                    {{ number_format($product->price, 0, ',', '.') }}đ
-                </span>
+                {{-- LOGIC HIỂN THỊ GIÁ CẬP NHẬT --}}
+                @if($product->isVariable() && $product->variants->count() > 0)
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Giá từ</span>
+                    <span class="text-emerald-600 font-extrabold text-lg">
+                        {{ number_format($product->variants->min('price'), 0, ',', '.') }}đ
+                    </span>
+                @else
+                    <span class="text-[10px] text-transparent select-none">Dãn cách</span> {{-- Giữ layout đều nhau --}}
+                    <span class="text-emerald-600 font-extrabold text-lg">
+                        {{ number_format($product->price, 0, ',', '.') }}đ
+                    </span>
+                @endif
             </div>
 
-            {{-- Nút Thêm nhanh vào giỏ --}}
-            <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                @csrf
-                <button type="submit" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 flex items-center justify-center">
-                    <i class="fas fa-plus text-sm"></i>
-                </button>
-            </form>
+            {{-- Nút Thêm nhanh / Xem chi tiết --}}
+            @if($product->isVariable())
+                {{-- Với sản phẩm biến thể, nút "+" nên dẫn vào trang chi tiết để khách chọn loại --}}
+                <a href="{{ route('product.detail', $product->id) }}" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 flex items-center justify-center">
+                    <i class="fas fa-eye text-sm"></i>
+                </a>
+            @else
+                <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 flex items-center justify-center">
+                        <i class="fas fa-plus text-sm"></i>
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 </div>

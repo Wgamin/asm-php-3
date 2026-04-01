@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->string('sku')->unique()->nullable(); // Mã quản lý kho riêng
             $table->decimal('price', 15, 2)->default(0); // Giá riêng cho biến thể
+            $table->string('image')->nullable(); // Ảnh riêng cho biến thể
             $table->decimal('sale_price', 15, 2)->nullable(); // Giá khuyến mãi riêng
             $table->integer('stock')->default(0); // Số lượng trong kho
-            
+
             // Lưu tổ hợp thuộc tính dưới dạng JSON (Ví dụ: {"Màu": "Đỏ", "Size": "L"})
             $table->json('variant_values')->nullable(); 
             
