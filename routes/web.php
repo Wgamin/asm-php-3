@@ -12,6 +12,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CompareController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
 Route::get('/san-pham/{id}', [PublicProductController::class, 'show'])->name('product.detail');
+Route::get('/tin-tuc', [NewsController::class, 'index'])->name('news.index');
+Route::get('/tin-tuc/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/lien-he', function () {
     return view('contact');
 })->name('contact');
@@ -67,6 +70,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('coupons', AdminCouponController::class)->except(['show']);
+    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class)->except(['show']);
     Route::resource('users', UserController::class);
     Route::get('/roles', [UserController::class, 'index'])->name('roles.index');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
