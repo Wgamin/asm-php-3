@@ -28,6 +28,12 @@
                         <p class="text-gray-400">Địa chỉ:</p>
                         <p class="font-bold text-gray-800">{{ $order->address }}</p>
                     </div>
+                    @if($order->note)
+                    <div class="col-span-2">
+                        <p class="text-gray-400">Ghi chú:</p>
+                        <p class="font-bold text-gray-800">{{ $order->note }}</p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -77,10 +83,22 @@
             </div>
 
             <div class="bg-slate-800 text-white p-6 rounded-2xl shadow-xl">
+                @php
+                    $subtotal = $order->subtotal_amount ?? $order->total_amount;
+                @endphp
+
                 <div class="flex justify-between text-slate-400 text-sm mb-2">
                     <span>Tạm tính:</span>
-                    <span>{{ number_format($order->total_amount) }}đ</span>
+                    <span>{{ number_format($subtotal) }}đ</span>
                 </div>
+
+                @if(($order->discount_amount ?? 0) > 0)
+                <div class="flex justify-between text-slate-400 text-sm mb-2">
+                    <span>Coupon{{ $order->coupon_code ? ' (' . $order->coupon_code . ')' : '' }}:</span>
+                    <span>-{{ number_format($order->discount_amount) }}đ</span>
+                </div>
+                @endif
+
                 <div class="flex justify-between text-slate-400 text-sm mb-4">
                     <span>Phí vận chuyển:</span>
                     <span>0đ</span>

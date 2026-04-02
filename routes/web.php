@@ -1,30 +1,30 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\AuthController; 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProductController as PublicProductController;
-use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\CartController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CompareController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController as PublicProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\AttributeController; 
 
-/*
-|--------------------------------------------------------------------------
-| 1. DÀNH CHO TẤT CẢ MỌI NGƯỜI (PUBLIC & GUEST)
-|--------------------------------------------------------------------------
-*/
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
 Route::get('/san-pham/{id}', [PublicProductController::class, 'show'])->name('product.detail');
-Route::get('/lien-he', function() {
+Route::get('/tin-tuc', [NewsController::class, 'index'])->name('news.index');
+Route::get('/tin-tuc/{slug}', [NewsController::class, 'show'])->name('news.show');
+Route::get('/lien-he', function () {
     return view('contact');
 })->name('contact');
 Route::get('/gioi-thieu', function() {
@@ -35,16 +35,12 @@ Route::get('/order-success', [OrderController::class, 'success'])->name('order.s
 // --- CẬP NHẬT: Nhóm Route cho Giỏ hàng (KHÔNG DÙNG AJAX) ---
 Route::prefix('cart')->as('cart.')->group(function () {
     Route::post('/add/{id}', [CartController::class, 'add'])->name('add');
-    
-    // Thay đổi PATCH/DELETE thành GET để dùng thẻ <a> truyền thống
-    Route::get('/update/{id}/{quantity}', [CartController::class, 'updateQuantity'])->name('update_quantity'); 
+    Route::get('/update/{id}/{quantity}', [CartController::class, 'updateQuantity'])->name('update_quantity');
     Route::get('/remove/{id}', [CartController::class, 'removeItem'])->name('remove_item');
-    
     Route::get('/clear', [CartController::class, 'clear'])->name('clear');
 });
 
-// Nhóm dành riêng cho khách CHƯA đăng nhập (Guest)
-Route::middleware(['guest'])->group(function () {
+Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
@@ -58,18 +54,14 @@ Route::middleware(['guest'])->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-/*
-|--------------------------------------------------------------------------
-| 2. DÀNH CHO NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP (USER & ADMIN)
-|--------------------------------------------------------------------------
-*/
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Chuyển checkout vào chung nhóm auth
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
     Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
+    Route::post('/checkout/coupon', [CouponController::class, 'apply'])->name('checkout.coupon.apply');
+    Route::delete('/checkout/coupon', [CouponController::class, 'remove'])->name('checkout.coupon.remove');
     Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
 
     // --- Wishlist ---
@@ -92,11 +84,6 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| 3. DÀNH RIÊNG CHO QUẢN TRỊ VIÊN (ADMIN)
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::controller(AdminOrderController::class)->group(function () {
         Route::get('/orders', 'index')->name('orders.index');
@@ -110,13 +97,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
             
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('coupons', AdminCouponController::class)->except(['show']);
+    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class)->except(['show']);
     Route::resource('users', UserController::class);
-    Route::get('/roles', [UserController::class, 'index'])->name('roles.index'); 
+    Route::get('/roles', [UserController::class, 'index'])->name('roles.index');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 });
 
-// --- AUTH CHO ADMIN ---
 Route::prefix('admin')->as('admin.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::get('/login', [AuthController::class, 'showAdminLogin'])->name('login');

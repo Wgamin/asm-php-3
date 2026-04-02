@@ -2,41 +2,68 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\CouponService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    // Hiển thị trang Checkout
-    public function checkout()
+    public function checkout(CouponService $couponService)
     {
         $cart = session()->get('cart', []);
+
         if (empty($cart)) {
             return redirect()->route('products.index')->with('error', 'Giỏ hàng trống!');
         }
-        return view('checkout', compact('cart'));
+
+        $appliedCoupon = $couponService->getAppliedCouponFromSession($cart);
+        $summary = $couponService->summarize($cart, $appliedCoupon);
+
+        return view('checkout', compact('cart', 'summary', 'appliedCoupon'));
     }
 
-    // Xử lý lưu đơn hàng
-    public function store(Request $request)
+    public function store(Request $request, CouponService $couponService)
     {
         $request->validate([
             'full_name' => 'required',
             'phone' => 'required',
             'address' => 'required',
             'payment_method' => 'required',
+            'note' => 'nullable|string',
         ]);
 
         $cart = session()->get('cart', []);
-        $total = 0;
-        foreach($cart as $item) { $total += $item['price'] * $item['quantity']; }
 
-        // Dùng DB Transaction để đảm bảo nếu lỗi thì không lưu gì cả
+        if (empty($cart)) {
+            return redirect()->route('products.index')->with('error', 'Giỏ hàng trống!');
+        }
+
+        $summary = $couponService->summarize($cart);
+
         DB::beginTransaction();
+
         try {
+            $coupon = null;
+            $appliedCouponSession = session('applied_coupon');
+
+            if ($appliedCouponSession) {
+                $coupon = Coupon::whereKey($appliedCouponSession['id'] ?? null)->lockForUpdate()->first();
+                $couponError = $couponService->getCouponError($coupon, $summary['subtotal']);
+
+                if ($couponError !== null) {
+                    DB::rollBack();
+                    $couponService->clearAppliedCoupon();
+
+                    return back()->with('error', $couponError)->withInput();
+                }
+
+                $summary = $couponService->summarize($cart, $coupon);
+            }
+
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'order_number' => 'ORD-' . strtoupper(uniqid()),
@@ -45,7 +72,11 @@ class OrderController extends Controller
                 'email' => Auth::user()->email,
                 'address' => $request->address,
                 'note' => $request->note,
-                'total_amount' => $total,
+                'subtotal_amount' => $summary['subtotal'],
+                'discount_amount' => $summary['discount'],
+                'coupon_id' => $coupon?->id,
+                'coupon_code' => $coupon?->code,
+                'total_amount' => $summary['total'],
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
             ]);
@@ -59,28 +90,32 @@ class OrderController extends Controller
                 ]);
             }
 
+            if ($coupon) {
+                $coupon->increment('used_count');
+            }
+
             DB::commit();
-            session()->forget('cart'); // Xóa giỏ hàng sau khi đặt thành công
+
+            session()->forget('cart');
+            $couponService->clearAppliedCoupon();
 
             return redirect()->route('order.success')->with('success_order', $order->order_number);
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại!');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại!')->withInput();
         }
     }
-    // Tìm đến hàm success trong OrderController
 
     public function success()
     {
-        // Lấy số đơn hàng vừa lưu từ session
-        $order_number = session('success_order');
+        $orderNumber = session('success_order');
 
-        // Nếu không có (truy cập thủ công), có thể chuyển hướng về trang chủ
-        if (!$order_number) {
+        if (! $orderNumber) {
             return redirect()->route('home');
         }
 
-        // Truyền biến ra view
-        return view('order_success', compact('order_number'));
+        return view('order_success', ['order_number' => $orderNumber]);
     }
 }
