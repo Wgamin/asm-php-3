@@ -95,6 +95,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
             
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('coupons', AdminCouponController::class)->except(['show']);
