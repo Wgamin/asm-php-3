@@ -17,7 +17,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AttributeController; 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
@@ -27,6 +27,12 @@ Route::get('/tin-tuc/{slug}', [NewsController::class, 'show'])->name('news.show'
 Route::get('/lien-he', function () {
     return view('contact');
 })->name('contact');
+Route::get('/gioi-thieu', function() {
+    return view('about');
+})->name('about');
+Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
+
+// --- CẬP NHẬT: Nhóm Route cho Giỏ hàng (KHÔNG DÙNG AJAX) ---
 Route::prefix('cart')->as('cart.')->group(function () {
     Route::post('/add/{id}', [CartController::class, 'add'])->name('add');
     Route::get('/update/{id}/{quantity}', [CartController::class, 'updateQuantity'])->name('update_quantity');
@@ -40,6 +46,10 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // --- MỚI BỔ SUNG: ĐĂNG NHẬP BẰNG GOOGLE ---
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.login');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
@@ -54,8 +64,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('/checkout/coupon', [CouponController::class, 'remove'])->name('checkout.coupon.remove');
     Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
 
+    // --- Wishlist ---
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/toggle/{id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+    // --- QUẢN LÝ THUỘC TÍNH (BỔ SUNG ĐẦY ĐỦ) ---
+    // Sử dụng prefix 'attributes' để tránh xung đột URL
+    Route::prefix('attributes')->name('admin.attributes.')->group(function () {
+        // Thuộc tính chính (Màu sắc, Size...)
+        Route::get('/', [AttributeController::class, 'index'])->name('index');         // Danh sách
+        Route::post('/', [AttributeController::class, 'store'])->name('store');        // Lưu tên mới
+        Route::put('/{id}', [AttributeController::class, 'update'])->name('update');   // Cập nhật tên
+        Route::delete('/{id}', [AttributeController::class, 'destroy'])->name('destroy'); // Xóa cả bộ
+
+        // Giá trị thuộc tính con (Đỏ, Xanh, L, XL...)
+        Route::post('/{attributeId}/values', [AttributeController::class, 'storeValue'])->name('storeValue');
+        Route::put('/values/{id}', [AttributeController::class, 'updateValue'])->name('updateValue');
+        Route::delete('/values/{id}', [AttributeController::class, 'destroyValue'])->name('destroyValue');
+    });
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
@@ -67,6 +93,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+            
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('coupons', AdminCouponController::class)->except(['show']);
@@ -85,8 +113,3 @@ Route::prefix('admin')->as('admin.')->group(function () {
         Route::post('/register', [AuthController::class, 'adminRegister']);
     });
 });
-
-Route::get('/so-sanh', [CompareController::class, 'index'])->name('compare.index');
-Route::post('/so-sanh/{product}', [CompareController::class, 'add'])->name('compare.add');
-Route::delete('/so-sanh/{product}', [CompareController::class, 'remove'])->name('compare.remove');
-Route::delete('/so-sanh', [CompareController::class, 'clear'])->name('compare.clear');

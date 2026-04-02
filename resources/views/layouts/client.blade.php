@@ -79,12 +79,29 @@
                             <span class="hidden lg:block text-[10px] uppercase tracking-wider text-gray-400">Tinh hoa đất Việt</span>
                         </div>
                     </a>
-
-                    <div class="hidden md:flex items-center gap-1">
-                        <a href="{{ route('home') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition">Trang chủ</a>
-                        <a href="{{ route('products.index') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition">Sản phẩm</a>
-                        <a href="{{ route('news.index') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition">Tin tức</a>
-                        <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition">Liên hệ</a>
+                    
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:ml-10 md:flex md:space-x-1">
+                        <a href="/" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                            <i class="fas fa-home text-sm"></i>
+                            <span>Trang chủ</span>
+                        </a>
+                        <a href="{{ route('products.index') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                            <i class="fas fa-apple-alt text-sm"></i>
+                            <span>Sản phẩm</span>
+                        </a>
+                        <a href="#" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                            <i class="fas fa-newspaper text-sm"></i>
+                            <span>Tin tức</span>
+                        </a>
+                        <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                            <i class="fas fa-phone-alt text-sm"></i>
+                            <span>Liên hệ</span>
+                        </a>
+                        <a href="{{ route('about') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                            <i class="fas fa-info-circle text-sm"></i>
+                            <span>Giới thiệu</span>
+                        </a>
                     </div>
                 </div>
 

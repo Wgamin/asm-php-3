@@ -9,49 +9,49 @@
         
         <!-- Sidebar Filters -->
         <form action="{{ route('products.index') }}" method="GET">
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 sticky top-24">
-        <div class="p-5 border-b border-slate-200">
-            <h3 class="font-bold text-lg text-slate-800 flex items-center justify-between">
-                <span><i class="fas fa-filter mr-2 text-emerald-600"></i> Bộ lọc</span>
-                <a href="{{ route('products.index') }}" class="text-sm text-emerald-600 hover:text-emerald-700">
-                    Xóa tất cả
-                </a>
-            </h3>
-        </div>
-        
-        <div class="p-5 space-y-6">
-            <div>
-                <h4 class="font-semibold text-slate-800 mb-3">Danh mục</h4>
-                <div class="space-y-2">
-                    @foreach($categories as $cat)
-                        <label class="flex items-center cursor-pointer">
-                            <input type="checkbox" name="categories[]" value="{{ $cat->id }}" 
-                                {{ is_array(request('categories')) && in_array($cat->id, request('categories')) ? 'checked' : '' }}
-                                class="w-4 h-4 text-emerald-600 rounded border-slate-300">
-                            <span class="ml-3 text-slate-600">{{ $cat->name }}</span>
-                        </label>
-                    @endforeach
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 sticky top-24">
+                <div class="p-5 border-b border-slate-200">
+                    <h3 class="font-bold text-lg text-slate-800 flex items-center justify-between">
+                        <span><i class="fas fa-filter mr-2 text-emerald-600"></i> Bộ lọc</span>
+                        <a href="{{ route('products.index') }}" class="text-sm text-emerald-600 hover:text-emerald-700">
+                            Xóa tất cả
+                        </a>
+                    </h3>
+                </div>
+                
+                <div class="p-5 space-y-6">
+                    <div>
+                        <h4 class="font-semibold text-slate-800 mb-3">Danh mục</h4>
+                        <div class="space-y-2">
+                            @foreach($categories as $cat)
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="categories[]" value="{{ $cat->id }}" 
+                                        {{ is_array(request('categories')) && in_array($cat->id, request('categories')) ? 'checked' : '' }}
+                                        class="w-4 h-4 text-emerald-600 rounded border-slate-300">
+                                    <span class="ml-3 text-slate-600">{{ $cat->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-slate-800 mb-3 text-sm">Khoảng giá (VNĐ)</h4>
+                        <div class="flex gap-2 flex-col ">
+                            <input type="number" name="min_price" value="{{ request('min_price') }}" placeholder="Từ" 
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500">
+                            <input type="number" name="max_price" value="{{ request('max_price') }}" placeholder="Đến" 
+                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-5 border-t border-slate-200">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition font-bold">
+                        Áp dụng bộ lọc
+                    </button>
                 </div>
             </div>
-            
-            <div>
-                <h4 class="font-semibold text-slate-800 mb-3 text-sm">Khoảng giá (VNĐ)</h4>
-                <div class="flex gap-2 flex-col ">
-                    <input type="number" name="min_price" value="{{ request('min_price') }}" placeholder="Từ" 
-                           class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500">
-                    <input type="number" name="max_price" value="{{ request('max_price') }}" placeholder="Đến" 
-                           class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500">
-                </div>
-            </div>
-        </div>
-        
-        <div class="p-5 border-t border-slate-200">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition font-bold">
-                Áp dụng bộ lọc
-            </button>
-        </div>
-    </div>
-</form>
+        </form>
         
         <!-- Product List -->
         <div class="flex-1">

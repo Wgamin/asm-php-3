@@ -21,6 +21,15 @@
             <span>Sản phẩm</span>
         </a>
 
+        <a href="{{ route('admin.attributes.index') }}"
+           class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200
+                  {{ request()->routeIs('admin.attributes.*') ? 'bg-emerald-50 text-emerald-600 font-medium' : 'text-slate-600 hover:bg-slate-50' }}">
+            <i class="fas fa-tags w-5 text-center {{ request()->routeIs('admin.attributes.*') ? 'text-emerald-500' : 'text-slate-400' }}"></i>
+            <span>Thuộc tính</span>
+        </a>
+
+
+            <!-- Danh mục -->
         <a href="{{ route('admin.categories.index') }}"
            class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200
                   {{ request()->routeIs('admin.categories.*') ? 'bg-emerald-50 text-emerald-600 font-medium' : 'text-slate-600 hover:bg-slate-50' }}">
@@ -42,10 +51,11 @@
             <span>Đơn hàng</span>
         </a>
 
-        <a href="{{ route('admin.news.index') }}"
-           class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200
-                  {{ request()->routeIs('admin.news.*') ? 'bg-emerald-50 text-emerald-600 font-medium' : 'text-slate-600 hover:bg-slate-50' }}">
-            <i class="fas fa-newspaper w-5 text-center {{ request()->routeIs('admin.news.*') ? 'text-emerald-500' : 'text-slate-400' }}"></i>
+
+        <!-- Tin tức -->
+        <a href="#"
+           class="flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 text-slate-600 hover:bg-slate-50">
+            <i class="fas fa-newspaper w-5 text-center text-slate-400"></i>
             <span>Tin tức</span>
         </a>
 
