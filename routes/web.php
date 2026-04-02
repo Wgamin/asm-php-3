@@ -107,7 +107,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-        
+            
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('users', UserController::class);
