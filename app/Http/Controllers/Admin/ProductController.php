@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Imports\ProductsImport;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class ProductController extends Controller
@@ -27,6 +29,38 @@ class ProductController extends Controller
         $products = $query->latest()->paginate(10);
         return view('admin.products.index', compact('products'));
     }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file_excel' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
+        ], [
+            'file_excel.required' => 'Vui lòng chọn file Excel để nhập dữ liệu.',
+            'file_excel.mimes' => 'File phải có định dạng .xlsx hoặc .csv.',
+        ]);
+
+        $import = new ProductsImport();
+        $uploadedFile = $request->file('file_excel');
+
+        try {
+            Excel::import($import, $uploadedFile);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Không thể đọc file import: ' . $e->getMessage());
+        }
+
+
+        $message = 'Đã nhập ' . $import->importedCount() . ' sản phẩm.';
+
+        if ($import->failedCount() > 0) {
+            $message .= ' Có ' . $import->failedCount() . ' dòng lỗi.';
+        }
+
+        return redirect()
+            ->route('admin.products.index')
+            ->with('success', $message)
+            ->with('import_failures', $import->failures());
+    }
+
     public function show($id)
     {
         // Thêm with('variants') để lấy các biến thể của sản phẩm đó

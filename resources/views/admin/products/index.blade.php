@@ -9,6 +9,13 @@
         <span class="font-medium">{{ session('success') }}</span>
     </div>
 @endif
+
+@if(session('error'))
+    <div class="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-100 flex items-center shadow-sm">
+        <i class="fas fa-exclamation-triangle mr-3"></i>
+        <span class="font-medium">{{ session('error') }}</span>
+    </div>
+@endif
         <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2 mb-4">
             @csrf
             <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required 
@@ -18,6 +25,34 @@
                 Nhập dữ liệu
             </button>
         </form>
+
+        <div class="mb-6 p-4 rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/50 text-sm text-emerald-900">
+            <p class="font-bold mb-1">Cột hỗ trợ trong file import</p>
+            <p class="leading-6">
+                <code>name</code>, <code>category_id</code> hoặc <code>category</code>, <code>product_type</code>,
+                <code>price</code>, <code>sale_price</code>, <code>description</code>, <code>content</code>,
+                <code>image</code>, <code>gallery_images</code>.
+            </p>
+            <p class="leading-6 mt-2 text-emerald-800">
+                Ảnh có thể là đường dẫn trong storage, URL ảnh, hoặc để trống để hệ thống tự tạo ảnh mặc định.
+            </p>
+        </div>
+
+        @if(session('import_failures') && count(session('import_failures')))
+            <div class="mb-6 p-4 bg-amber-50 text-amber-900 rounded-2xl border border-amber-100 shadow-sm">
+                <div class="font-bold mb-2">Một số dòng bị lỗi khi import</div>
+                <ul class="space-y-2 text-sm">
+                    @foreach(array_slice(session('import_failures'), 0, 5) as $failure)
+                        <li class="p-3 rounded-xl bg-white/70 border border-amber-100">
+                            <div class="font-semibold">Dòng {{ $failure['row'] }} - {{ $failure['name'] }}</div>
+                            <div class="mt-1 text-amber-800">
+                                {{ implode(' | ', $failure['errors']) }}
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     
     {{-- header --}}

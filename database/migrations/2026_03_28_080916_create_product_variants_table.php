@@ -22,8 +22,7 @@ return new class extends Migration
 
             // Lưu tổ hợp thuộc tính dưới dạng JSON (Ví dụ: {"Màu": "Đỏ", "Size": "L"})
             $table->json('variant_values')->nullable(); 
-            
-            $table->string('image')->nullable(); // Ảnh riêng cho biến thể
+    
             $table->timestamps();
         });
     }
