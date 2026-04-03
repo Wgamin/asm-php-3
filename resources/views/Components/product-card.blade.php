@@ -4,11 +4,11 @@
     {{-- Phần Ảnh --}}
     <div class="relative overflow-hidden aspect-square">
         <a href="{{ route('product.detail', $product->id) }}">
-            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/default-product.png') }}" 
-                 alt="{{ $product->name }}" 
-                 class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/default-product.png') }}"
+                alt="{{ $product->name }}"
+                class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
         </a>
-        
+
         {{-- Nhãn Danh mục --}}
         <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-emerald-700 text-[10px] px-2 py-1 rounded-lg font-bold uppercase tracking-wider shadow-sm">
             {{ $product->category->name ?? 'Nông sản' }}
@@ -16,16 +16,17 @@
 
         {{-- NÚT WISHLIST --}}
         @php
-            $isFavorite = false;
-            if(auth()->check()) {
-                $isFavorite = auth()->user()->wishlists->contains($product->id);
-            }
+        $isFavorite = false;
+        if(auth()->check()) {
+        $isFavorite = auth()->user()->wishlists->contains($product->id);
+        }
         @endphp
-        <button type="button" 
-            class="toggle-wishlist absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-red-50 transition-colors duration-300 z-10" 
+        <button type="button"
+            class="toggle-wishlist absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-red-50 transition-colors duration-300 z-10"
             data-id="{{ $product->id }}">
             <i class="{{ $isFavorite ? 'fas text-red-500' : 'far text-gray-400' }} fa-heart transition-transform active:scale-125"></i>
         </button>
+
     </div>
 
     {{-- Phần Nội dung --}}
@@ -36,7 +37,7 @@
             </a>
             <p class="text-xs text-gray-500 line-clamp-2 mt-1 min-h-[32px]">{{ $product->description }}</p>
         </div>
-        
+
         <div class="mt-auto pt-3 flex items-center justify-between">
             <div class="flex flex-col">
                 {{-- LOGIC HIỂN THỊ GIÁ CẬP NHẬT --}}
