@@ -20,10 +20,26 @@
                 <h2 class="text-2xl font-bold mb-6 text-gray-800">Thông tin giao hàng</h2>
                 <div class="space-y-4">
                     <input type="text" name="full_name" value="{{ old('full_name', Auth::user()->name) }}" required placeholder="Họ tên" class="w-full px-5 py-3 rounded-2xl bg-gray-50 border-none border">
+                    
                     <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="Số điện thoại" class="w-full px-5 py-3 rounded-2xl bg-gray-50 border-none border">
+                    
                     <textarea name="address" required placeholder="Địa chỉ cụ thể" class="w-full px-5 py-3 rounded-2xl bg-gray-50 border-none border">{{ old('address') }}</textarea>
+                    
                     <textarea name="note" placeholder="Ghi chú đơn hàng (không bắt buộc)" class="w-full px-5 py-3 rounded-2xl bg-gray-50 border-none border">{{ old('note') }}</textarea>
-                    <input type="hidden" name="payment_method" value="cod">
+
+                    <h3 class="text-lg font-bold mt-6 mb-3 text-gray-800">Phương thức thanh toán</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 p-4 border rounded-2xl cursor-pointer hover:bg-gray-50 transition">
+                            <input type="radio" name="payment_method" value="cod" class="w-5 h-5 text-emerald-500 focus:ring-emerald-500" checked>
+                            <span class="font-medium">Thanh toán khi nhận hàng (COD)</span>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-4 border rounded-2xl cursor-pointer hover:bg-gray-50 transition">
+                            <input type="radio" name="payment_method" value="vnpay" class="w-5 h-5 text-emerald-500 focus:ring-emerald-500">
+                            <img src="https://vnpay.vn/s1/statics.vnpay.vn/2023/6/oxxy5smx6rjrvnpay-logo-svg.svg" alt="VNPAY" class="h-6">
+                            <span class="font-medium">Thanh toán qua VNPAY</span>
+                        </label>
+                    </div>
                 </div>
             </form>
 

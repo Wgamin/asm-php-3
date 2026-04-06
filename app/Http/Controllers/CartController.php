@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductVariant; // Thêm dòng này để gọi model biến thể
 use App\Services\CouponService;
 use Illuminate\Http\Request;
 
@@ -14,14 +15,36 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         $quantity = $request->input('quantity', 1);
 
+        // 1. Mặc định lấy giá gốc (Ưu tiên giá khuyến mãi nếu có)
+        $price = $product->sale_price > 0 ? $product->sale_price : $product->price;
+
+        // 2. Xử lý giá nếu có chọn biến thể (Tùy chọn sản phẩm)
+        // Lưu ý: Đảm bảo thẻ input hidden hoặc radio trong form của bạn có name="variant_id"
+        if ($request->has('variant_id') && $request->variant_id != '') {
+            $variant = ProductVariant::find($request->variant_id);
+            if ($variant) {
+                // Lấy giá của biến thể (ưu tiên sale_price của biến thể nếu có)
+                $price = $variant->sale_price > 0 ? $variant->sale_price : $variant->price;
+            }
+        }
+
+        // Ràng buộc an toàn: Tránh thêm sản phẩm giá 0đ vào giỏ làm lỗi VNPAY
+        if ($price <= 0) {
+            return redirect()->back()->with('error', 'Sản phẩm chưa được cập nhật giá hợp lệ!');
+        }
+
+        // 3. Thêm vào giỏ hàng
         if (isset($cart[$id])) {
             $cart[$id]['quantity'] += $quantity;
+            // Cập nhật lại giá mới nhất lỡ admin vừa đổi giá
+            $cart[$id]['price'] = $price; 
         } else {
             $cart[$id] = [
                 'name' => $product->name,
                 'quantity' => $quantity,
-                'price' => $product->price,
+                'price' => $price, // Giá đã được xử lý chuẩn
                 'image' => $product->image,
+                'variant_id' => $request->variant_id ?? null, // Lưu lại ID biến thể nếu cần dùng sau này
             ];
         }
 
