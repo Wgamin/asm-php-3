@@ -18,6 +18,8 @@ use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\AttributeController; 
+use App\Http\Controllers\Admin\NewsController as AdminNewsController;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
@@ -72,6 +74,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/checkout/coupon', [CouponController::class, 'remove'])->name('checkout.coupon.remove');
     Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
 
+    // --- MỚI BỔ SUNG: CHỨC NĂNG THANH TOÁN VNPAY ---
+    Route::post('/payment/vnpay', [PaymentController::class, 'createPayment'])->name('payment.vnpay');
+    Route::get('/payment/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('payment.vnpayReturn');
+
     // --- Wishlist ---
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/toggle/{id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
@@ -107,7 +113,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('coupons', AdminCouponController::class)->except(['show']);
-    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class)->except(['show']);
+    Route::resource('news', AdminNewsController::class)->except(['show']);
     Route::resource('users', UserController::class);
     Route::get('/roles', [UserController::class, 'index'])->name('roles.index');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');

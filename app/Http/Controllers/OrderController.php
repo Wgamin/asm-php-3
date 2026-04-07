@@ -82,7 +82,7 @@ class OrderController extends Controller
                 'coupon_id' => $coupon?->id,
                 'coupon_code' => $coupon?->code,
                 'total_amount' => $summary['total'],
-                'status' => 'pending',
+                'status' => 'pending', // Luôn set pending lúc đầu, VNPAY trả về thành công mới đổi trạng thái
                 'payment_method' => $request->payment_method,
             ]);
 
@@ -117,6 +117,23 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // ==========================================
+            // CẬP NHẬT: XỬ LÝ CHUYỂN HƯỚNG THANH TOÁN
+            // ==========================================
+            
+            // Nếu chọn thanh toán VNPAY
+            if ($request->payment_method === 'vnpay') {
+                // Gán thêm thông tin đơn hàng vào request để PaymentController dùng
+                $request->merge([
+                    'order_id' => $order->id,
+                    'total_amount' => $order->total_amount
+                ]);
+
+                // Trỏ sang hàm createPayment của PaymentController
+                return app(\App\Http\Controllers\PaymentController::class)->createPayment($request);
+            }
+
+            // Nếu chọn COD
             session()->forget('cart');
             $couponService->clearAppliedCoupon();
 
