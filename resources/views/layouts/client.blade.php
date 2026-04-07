@@ -106,6 +106,13 @@
                 </div>
 
                 <div class="hidden md:flex items-center space-x-4">
+                    <a href="{{ route('compare.index') }}" class="relative p-2 hover:bg-gray-100 rounded-full group">
+                        <i class="fas fa-scale-balanced text-gray-500 group-hover:text-primary-green text-lg"></i>
+                        <span class="absolute -top-1 -right-1 bg-sky-500 text-white text-[10px] min-w-4 h-4 px-1 flex items-center justify-center rounded-full">
+                            {{ count(session('compare', [])) }}
+                        </span>
+                    </a>
+
                     <a href="{{ route('checkout') }}" class="relative p-2 hover:bg-gray-100 rounded-full group">
                         <i class="fas fa-shopping-bag text-gray-500 group-hover:text-primary-green text-lg"></i>
                         <span class="absolute -top-1 -right-1 bg-primary-green text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
@@ -158,6 +165,12 @@
                 </div>
 
                 <div class="md:hidden flex items-center space-x-3">
+                    <a href="{{ route('compare.index') }}" class="relative p-2">
+                        <i class="fas fa-scale-balanced text-gray-600 text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-sky-500 text-white text-[10px] min-w-4 h-4 px-1 flex items-center justify-center rounded-full">
+                            {{ count(session('compare', [])) }}
+                        </span>
+                    </a>
                     <a href="{{ route('checkout') }}" class="relative p-2">
                         <i class="fas fa-shopping-bag text-gray-600 text-xl"></i>
                         <span class="absolute -top-1 -right-1 bg-primary-green text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
@@ -180,6 +193,10 @@
                 <a href="{{ route('products.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-primary-green font-semibold">
                     <i class="fas fa-apple-alt w-5"></i>
                     <span>Sản phẩm</span>
+                </a>
+                <a href="{{ route('compare.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-primary-green font-semibold">
+                    <i class="fas fa-scale-balanced w-5"></i>
+                    <span>So sÃ¡nh</span>
                 </a>
                 <a href="{{ route('news.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-primary-green font-semibold">
                     <i class="fas fa-newspaper w-5"></i>

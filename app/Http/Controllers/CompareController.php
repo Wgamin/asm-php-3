@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class CompareController extends Controller
 {
     public function index()
     {
-        $compareIds = session()->get('compare', []);
+        $compareIds = array_values(array_map('intval', session()->get('compare', [])));
 
-        $products = Product::with('category')
+        $products = Product::with(['category', 'variants'])
             ->whereIn('id', $compareIds)
             ->get()
             ->sortBy(function ($product) use ($compareIds) {
@@ -23,9 +22,9 @@ class CompareController extends Controller
 
     public function add(Product $product)
     {
-        $compare = session()->get('compare', []);
+        $compare = array_values(array_map('intval', session()->get('compare', [])));
 
-        if (!in_array($product->id, $compare)) {
+        if (! in_array($product->id, $compare, true)) {
             if (count($compare) >= 4) {
                 return back()->with('error', 'Chỉ có thể so sánh tối đa 4 sản phẩm.');
             }
@@ -39,7 +38,7 @@ class CompareController extends Controller
 
     public function remove(Product $product)
     {
-        $compare = session()->get('compare', []);
+        $compare = array_values(array_map('intval', session()->get('compare', [])));
 
         $compare = array_values(array_filter($compare, function ($id) use ($product) {
             return $id != $product->id;

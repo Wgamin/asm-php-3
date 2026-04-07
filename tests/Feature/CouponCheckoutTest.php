@@ -20,6 +20,7 @@ function createCheckoutProduct(): Product
         'category_id' => $category->id,
         'name' => 'Ca rot huu co',
         'price' => 50000,
+        'stock' => 20,
         'description' => 'Mo ta ngan',
         'content' => 'Noi dung chi tiet',
         'image' => 'products/test.jpg',

@@ -23,6 +23,7 @@
             <a href="#" class="block w-full text-slate-500 hover:text-emerald-600 font-medium py-2 transition">
                 Xem chi tiết đơn hàng
             </a>
+           
         </div>
     </div>
 </div>
