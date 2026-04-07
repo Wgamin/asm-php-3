@@ -17,6 +17,8 @@
         {{-- NÚT WISHLIST --}}
         @php
         $isFavorite = false;
+        $compareIds = session('compare', []);
+        $isCompared = in_array($product->id, $compareIds, true);
         if(auth()->check()) {
         $isFavorite = auth()->user()->wishlists->contains($product->id);
         }
@@ -26,6 +28,23 @@
             data-id="{{ $product->id }}">
             <i class="{{ $isFavorite ? 'fas text-red-500' : 'far text-gray-400' }} fa-heart transition-transform active:scale-125"></i>
         </button>
+
+        @if($isCompared)
+            <a href="{{ route('compare.index') }}"
+                class="absolute top-14 right-3 w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-sm text-emerald-600 hover:bg-emerald-50 transition-colors duration-300 z-10"
+                title="Đang có trong danh sách so sánh">
+                <i class="fas fa-scale-balanced"></i>
+            </a>
+        @else
+            <form action="{{ route('compare.add', $product->id) }}" method="POST" class="absolute top-14 right-3 z-10">
+                @csrf
+                <button type="submit"
+                    class="w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-sm text-gray-400 hover:bg-sky-50 hover:text-sky-600 transition-colors duration-300"
+                    title="Thêm vào so sánh">
+                    <i class="fas fa-scale-balanced"></i>
+                </button>
+            </form>
+        @endif
 
     </div>
 

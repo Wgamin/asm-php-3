@@ -36,8 +36,22 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 font-sans antialiased" x-data="{ sidebarOpen: true, mobileSidebar: false }" 
-      :class="{ 'overflow-hidden': mobileSidebar }">
+<body class="bg-slate-50 font-sans antialiased"
+      x-data="{
+          sidebarOpen: true,
+          mobileSidebar: false,
+          isMobile: window.innerWidth < 1024,
+          init() {
+              window.addEventListener('resize', () => {
+                  this.isMobile = window.innerWidth < 1024;
+
+                  if (!this.isMobile) {
+                      this.mobileSidebar = false;
+                  }
+              });
+          }
+      }"
+      :class="{ 'overflow-hidden': mobileSidebar && isMobile }">
 
     <!-- Mobile Overlay -->
     @include('admin.layouts.partials.mobile-overlay')

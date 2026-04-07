@@ -12,8 +12,15 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id', 
         'product_id', 
+        'variant_id',
         'quantity', 
-        'price'
+        'price',
+        'variant_sku',
+        'variant_values',
+    ];
+
+    protected $casts = [
+        'variant_values' => 'array',
     ];
 
     // Thiết lập quan hệ: Một chi tiết đơn hàng thuộc về một đơn hàng tổng
@@ -26,5 +33,10 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 }

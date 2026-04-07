@@ -5,19 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
     public function checkout(CouponService $couponService)
     {
-        $cart = session()->get('cart', []);
+        $cart = $this->refreshCartFromDatabase(session()->get('cart', []));
+        session()->put('cart', $cart);
 
         if (empty($cart)) {
-            return redirect()->route('products.index')->with('error', 'Giỏ hàng trống!');
+            return redirect()->route('products.index')->with('error', 'Gio hang trong!');
         }
 
         $appliedCoupon = $couponService->getAppliedCouponFromSession($cart);
@@ -29,24 +33,25 @@ class OrderController extends Controller
     public function store(Request $request, CouponService $couponService)
     {
         $request->validate([
-            'full_name' => 'required',
-            'phone' => 'required',
-            'address' => 'required',
-            'payment_method' => 'required',
-            'note' => 'nullable|string',
+            'full_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'address' => ['required', 'string', 'max:500'],
+            'payment_method' => ['required', 'string', 'max:50'],
+            'note' => ['nullable', 'string'],
         ]);
 
-        $cart = session()->get('cart', []);
+        $cart = $this->normalizeCart(session()->get('cart', []));
 
         if (empty($cart)) {
-            return redirect()->route('products.index')->with('error', 'Giỏ hàng trống!');
+            return redirect()->route('products.index')->with('error', 'Gio hang trong!');
         }
-
-        $summary = $couponService->summarize($cart);
 
         DB::beginTransaction();
 
         try {
+            [$preparedLines, $pricingCart] = $this->prepareLinesForCheckout($cart);
+
+            $summary = $couponService->summarize($pricingCart);
             $coupon = null;
             $appliedCouponSession = session('applied_coupon');
 
@@ -61,15 +66,15 @@ class OrderController extends Controller
                     return back()->with('error', $couponError)->withInput();
                 }
 
-                $summary = $couponService->summarize($cart, $coupon);
+                $summary = $couponService->summarize($pricingCart, $coupon);
             }
 
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'order_number' => 'ORD-'.strtoupper(uniqid()),
                 'full_name' => $request->full_name,
                 'phone' => $request->phone,
-                'email' => Auth::user()->email,
+                'email' => (string) Auth::user()?->email,
                 'address' => $request->address,
                 'note' => $request->note,
                 'subtotal_amount' => $summary['subtotal'],
@@ -81,13 +86,29 @@ class OrderController extends Controller
                 'payment_method' => $request->payment_method,
             ]);
 
-            foreach ($cart as $id => $details) {
+            foreach ($preparedLines as $line) {
+                /** @var Product $product */
+                $product = $line['product'];
+                /** @var ProductVariant|null $variant */
+                $variant = $line['variant'];
+                $quantity = $line['quantity'];
+                $price = $line['price'];
+
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $id,
-                    'quantity' => $details['quantity'],
-                    'price' => $details['price'],
+                    'product_id' => $product->id,
+                    'variant_id' => $variant?->id,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'variant_sku' => $variant?->sku,
+                    'variant_values' => $line['variant_values'] ?: null,
                 ]);
+
+                if ($variant) {
+                    $variant->decrement('stock', $quantity);
+                } else {
+                    $product->decrement('stock', $quantity);
+                }
             }
 
             if ($coupon) {
@@ -117,12 +138,15 @@ class OrderController extends Controller
             $couponService->clearAppliedCoupon();
 
             return redirect()->route('order.success')->with('success_order', $order->order_number);
+        } catch (ValidationException $e) {
+            DB::rollBack();
 
+            return back()->withErrors($e->errors())->withInput();
         } catch (\Throwable $e) {
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Lỗi thật sự là: ' . $e->getMessage() . ' ở dòng ' . $e->getLine())->withInput();
+            return back()->with('error', 'Co loi xay ra, vui long thu lai!')->withInput();
         }
     }
 
@@ -135,5 +159,258 @@ class OrderController extends Controller
         }
 
         return view('order_success', ['order_number' => $orderNumber]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $rawCart
+     * @return array<string, array<string, mixed>>
+     */
+    protected function refreshCartFromDatabase(array $rawCart): array
+    {
+        $cart = $this->normalizeCart($rawCart);
+        $refreshed = [];
+
+        foreach ($cart as $lineKey => $line) {
+            $productId = (int) ($line['product_id'] ?? 0);
+            $variantId = isset($line['variant_id']) ? (int) $line['variant_id'] : null;
+            $qty = max((int) ($line['quantity'] ?? 1), 1);
+
+            if ($productId <= 0) {
+                continue;
+            }
+
+            if ($variantId) {
+                $variant = ProductVariant::with('product')->find($variantId);
+                if (! $variant || ! $variant->product || (int) $variant->product_id !== $productId) {
+                    continue;
+                }
+
+                $stock = max((int) $variant->stock, 0);
+                if ($stock <= 0) {
+                    continue;
+                }
+
+                $qty = min($qty, $stock);
+                $refreshed[$lineKey] = $this->buildCartLine($variant->product, $variant, $qty);
+                continue;
+            }
+
+            $product = Product::find($productId);
+            if (! $product || $product->isVariable()) {
+                continue;
+            }
+
+            $stock = max((int) ($product->stock ?? 0), 0);
+            if ($stock <= 0) {
+                continue;
+            }
+
+            $qty = min($qty, $stock);
+            $refreshed[$lineKey] = $this->buildCartLine($product, null, $qty);
+        }
+
+        return $refreshed;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $cart
+     * @return array{0: array<int, array<string, mixed>>, 1: array<string, array<string, float|int>>}
+     */
+    protected function prepareLinesForCheckout(array $cart): array
+    {
+        $lines = [];
+        $pricingCart = [];
+
+        foreach ($cart as $lineKey => $line) {
+            $productId = (int) ($line['product_id'] ?? 0);
+            $variantId = isset($line['variant_id']) ? (int) $line['variant_id'] : null;
+            $quantity = max((int) ($line['quantity'] ?? 1), 1);
+
+            if ($productId <= 0) {
+                throw ValidationException::withMessages([
+                    'cart' => 'Co du lieu san pham trong gio khong hop le.',
+                ]);
+            }
+
+            if ($variantId) {
+                $variant = ProductVariant::with('product')->lockForUpdate()->find($variantId);
+                if (! $variant || ! $variant->product || (int) $variant->product_id !== $productId) {
+                    throw ValidationException::withMessages([
+                        'cart' => 'Bien the san pham khong con ton tai.',
+                    ]);
+                }
+
+                if ((int) $variant->stock < $quantity) {
+                    throw ValidationException::withMessages([
+                        'cart' => 'Ton kho khong du cho '.$variant->product->name.'.',
+                    ]);
+                }
+
+                $price = $this->unitPrice($variant->product, $variant);
+                $variantValues = $this->normalizeVariantValues($variant->variant_values);
+
+                $lines[] = [
+                    'product' => $variant->product,
+                    'variant' => $variant,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'variant_values' => $variantValues,
+                ];
+
+                $pricingCart[$lineKey] = [
+                    'price' => $price,
+                    'quantity' => $quantity,
+                ];
+
+                continue;
+            }
+
+            $product = Product::lockForUpdate()->find($productId);
+            if (! $product || $product->isVariable()) {
+                throw ValidationException::withMessages([
+                    'cart' => 'San pham trong gio khong hop le, vui long chon lai.',
+                ]);
+            }
+
+            if ((int) ($product->stock ?? 0) < $quantity) {
+                throw ValidationException::withMessages([
+                    'cart' => 'Ton kho khong du cho '.$product->name.'.',
+                ]);
+            }
+
+            $price = $this->unitPrice($product, null);
+
+            $lines[] = [
+                'product' => $product,
+                'variant' => null,
+                'quantity' => $quantity,
+                'price' => $price,
+                'variant_values' => null,
+            ];
+
+            $pricingCart[$lineKey] = [
+                'price' => $price,
+                'quantity' => $quantity,
+            ];
+        }
+
+        return [$lines, $pricingCart];
+    }
+
+    /**
+     * @param  array<string, mixed>  $rawCart
+     * @return array<string, array<string, mixed>>
+     */
+    protected function normalizeCart(array $rawCart): array
+    {
+        $normalized = [];
+
+        foreach ($rawCart as $key => $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $productId = (int) ($item['product_id'] ?? (is_numeric($key) ? $key : 0));
+            if ($productId <= 0) {
+                continue;
+            }
+
+            $variantId = isset($item['variant_id']) && $item['variant_id'] !== ''
+                ? (int) $item['variant_id']
+                : null;
+            $lineKey = $variantId ? 'v-'.$variantId : 'p-'.$productId;
+
+            $line = [
+                'product_id' => $productId,
+                'variant_id' => $variantId,
+                'quantity' => max((int) ($item['quantity'] ?? 1), 1),
+                'price' => (float) ($item['price'] ?? 0),
+                'image' => $item['image'] ?? null,
+                'name' => (string) ($item['name'] ?? ''),
+                'sku' => $item['sku'] ?? null,
+                'variant_values' => $this->normalizeVariantValues($item['variant_values'] ?? null),
+                'variant_label' => $item['variant_label'] ?? null,
+            ];
+
+            if (isset($normalized[$lineKey])) {
+                $line['quantity'] += (int) ($normalized[$lineKey]['quantity'] ?? 0);
+            }
+
+            $normalized[$lineKey] = $line;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    protected function normalizeVariantValues(mixed $variantValues): ?array
+    {
+        if ($variantValues === null || $variantValues === '') {
+            return null;
+        }
+
+        if (is_string($variantValues)) {
+            $decoded = json_decode($variantValues, true);
+            if (is_array($decoded)) {
+                $variantValues = $decoded;
+            }
+        }
+
+        if (! is_array($variantValues)) {
+            return null;
+        }
+
+        $normalized = [];
+        foreach ($variantValues as $key => $value) {
+            if (! is_string($key)) {
+                continue;
+            }
+
+            $normalized[$key] = (string) $value;
+        }
+
+        return $normalized ?: null;
+    }
+
+    protected function buildCartLine(Product $product, ?ProductVariant $variant, int $quantity): array
+    {
+        $variantValues = $this->normalizeVariantValues($variant?->variant_values);
+
+        return [
+            'product_id' => (int) $product->id,
+            'variant_id' => $variant?->id,
+            'name' => $product->name,
+            'quantity' => max($quantity, 1),
+            'price' => $this->unitPrice($product, $variant),
+            'image' => $variant?->image ?: $product->image,
+            'sku' => $variant?->sku,
+            'variant_values' => $variantValues,
+            'variant_label' => $this->variantLabel($variantValues),
+        ];
+    }
+
+    protected function unitPrice(Product $product, ?ProductVariant $variant): float
+    {
+        if ($variant) {
+            return (float) (($variant->sale_price && $variant->sale_price > 0) ? $variant->sale_price : $variant->price);
+        }
+
+        return (float) (($product->sale_price && $product->sale_price > 0) ? $product->sale_price : $product->price);
+    }
+
+    protected function variantLabel(?array $variantValues): ?string
+    {
+        if (! $variantValues) {
+            return null;
+        }
+
+        $parts = [];
+        foreach ($variantValues as $name => $value) {
+            $parts[] = $name.': '.$value;
+        }
+
+        return $parts ? implode(' | ', $parts) : null;
     }
 }

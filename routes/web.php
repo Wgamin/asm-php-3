@@ -24,6 +24,12 @@ use App\Http\Controllers\PaymentController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
 Route::get('/san-pham/{id}', [PublicProductController::class, 'show'])->name('product.detail');
+Route::prefix('so-sanh')->as('compare.')->group(function () {
+    Route::get('/', [CompareController::class, 'index'])->name('index');
+    Route::post('/{product}', [CompareController::class, 'add'])->name('add');
+    Route::delete('/{product}', [CompareController::class, 'remove'])->name('remove');
+    Route::delete('/', [CompareController::class, 'clear'])->name('clear');
+});
 Route::get('/tin-tuc', [NewsController::class, 'index'])->name('news.index');
 Route::get('/tin-tuc/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/lien-he', function () {
@@ -59,6 +65,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+
 
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
     Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
@@ -120,3 +128,4 @@ Route::prefix('admin')->as('admin.')->group(function () {
         Route::post('/register', [AuthController::class, 'adminRegister']);
     });
 });
+

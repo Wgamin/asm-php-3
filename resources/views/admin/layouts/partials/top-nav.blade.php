@@ -3,13 +3,17 @@
         <div class="flex items-center gap-4">
             <!-- Toggle Sidebar -->
             <button @click="sidebarOpen = !sidebarOpen" 
-                    class="hidden lg:block w-10 h-10 rounded-lg hover:bg-slate-100 text-slate-600 transition">
+                    x-show="!isMobile"
+                    x-cloak
+                    class="w-10 h-10 rounded-lg hover:bg-slate-100 text-slate-600 transition">
                 <i class="fas fa-bars"></i>
             </button>
             
             <!-- Mobile Toggle -->
             <button @click="mobileSidebar = true" 
-                    class="lg:hidden w-10 h-10 rounded-lg hover:bg-slate-100 text-slate-600 transition">
+                    x-show="isMobile"
+                    x-cloak
+                    class="w-10 h-10 rounded-lg hover:bg-slate-100 text-slate-600 transition">
                 <i class="fas fa-bars"></i>
             </button>
             

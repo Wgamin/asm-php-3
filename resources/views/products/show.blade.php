@@ -152,6 +152,10 @@
                     </div>
 
                     {{-- Form Thêm Giỏ Hàng --}}
+                    @php
+                        $isCompared = in_array($product->id, session('compare', []), true);
+                    @endphp
+
                     <form action="{{ route('cart.add', $product->id) }}" method="POST" class="space-y-6">
                         @csrf
                         <input type="hidden" name="variant_id" :value="selectedVariantId">
@@ -161,7 +165,7 @@
                                 <button type="button" @click="quantity > 1 ? quantity-- : null" class="px-4 py-3 hover:bg-slate-200 transition font-bold text-lg">-</button>
                                 <input type="number" name="quantity" x-model="quantity" 
                                     class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold">
-                                <button type="button" @click="quantity++" class="px-4 py-3 hover:bg-slate-200 transition font-bold text-lg">+</button>
+                                <button type="button" @click="(currentStock > 0 && quantity < currentStock) ? quantity++ : null" class="px-4 py-3 hover:bg-slate-200 transition font-bold text-lg">+</button>
                             </div>
                             
                             <button type="submit" :disabled="isOutOfStock || (productType === 'variable' && !selectedVariantId)"
@@ -175,6 +179,23 @@
                             </button>
                         </div>
                     </form>
+
+                    <div class="mt-4">
+                        @if($isCompared)
+                            <a href="{{ route('compare.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+                                <i class="fas fa-scale-balanced"></i>
+                                <span>Đang có trong danh sách so sánh</span>
+                            </a>
+                        @else
+                            <form action="{{ route('compare.add', $product->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-600 hover:text-sky-700">
+                                    <i class="fas fa-scale-balanced"></i>
+                                    <span>Thêm vào so sánh</span>
+                                </button>
+                            </form>
+                        @endif
+                    </div>
 
                     <div class="mt-8 pt-6 border-t border-slate-100 space-y-2 text-sm text-slate-500">
                         <p>Mã: <span class="text-slate-800 font-mono" x-text="currentSku || 'NS-{{ $product->id }}'"></span></p>

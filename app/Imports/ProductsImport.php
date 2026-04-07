@@ -17,6 +17,8 @@ class ProductsImport implements OnEachRow, WithHeadingRow
 {
     protected int $importedCount = 0;
 
+    protected int $importedVariantsCount = 0;
+
     protected int $failedCount = 0;
 
     /**
@@ -24,62 +26,167 @@ class ProductsImport implements OnEachRow, WithHeadingRow
      */
     protected array $failures = [];
 
+    /**
+     * @var array<string, Product>
+     */
+    protected array $productsByHandle = [];
+
     public function onRow(Row $row): void
     {
         $rowNumber = (int) $row->getIndex();
-        $data = $this->normalizeRow($row->toArray());
+        $rawRow = $row->toArray();
 
-        if ($this->rowIsEmpty($data)) {
+        $data = $this->normalizeRow($rawRow);
+        $variant = $this->normalizeVariant($rawRow);
+        $isVariantRow = $this->variantHasAnyData($variant);
+
+        $handle = $this->normalizeHandle($data['handle'] ?: $data['name'] ?: '');
+        if ($handle === '') {
+            $this->recordFailure($rowNumber, '(no name)', ['Missing handle/name to group rows.']);
             return;
         }
 
-        $validator = Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
+        $product = $this->productsByHandle[$handle] ?? null;
+        $productNameForErrors = (string) ($data['name'] ?: ($product?->name ?: '(no name)'));
+
+        if ($this->rowIsEmpty(array_merge($data, $variant))) {
+            return;
+        }
+
+        $validationData = array_merge($data, [
+            'variant_sku' => $variant['sku'],
+            'variant_price' => $variant['price'],
+            'variant_sale_price' => $variant['sale_price'],
+            'variant_stock' => $variant['stock'],
+            'variant_image' => $variant['image'],
+        ]);
+
+        $rules = [
+            'handle' => ['nullable', 'string', 'max:255'],
             'product_type' => ['nullable', 'in:simple,variable'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'sale_price' => ['nullable', 'numeric', 'min:0'],
+            'stock' => ['nullable', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'image' => ['nullable', 'string'],
             'gallery_images' => ['nullable', 'string'],
-        ]);
+        ];
+
+        if ($product === null) {
+            $rules['name'] = ['required', 'string', 'max:255'];
+            $rules['category_id'] = ['required', 'integer', 'exists:categories,id'];
+        } else {
+            $rules['name'] = ['nullable', 'string', 'max:255'];
+            $rules['category_id'] = ['nullable', 'integer', 'exists:categories,id'];
+        }
+
+        if ($isVariantRow) {
+            $rules['variant_sku'] = ['nullable', 'string', 'max:255'];
+            $rules['variant_price'] = ['required', 'numeric', 'min:0'];
+            $rules['variant_sale_price'] = ['nullable', 'numeric', 'min:0'];
+            $rules['variant_stock'] = ['required', 'integer', 'min:0'];
+            $rules['variant_image'] = ['nullable', 'string'];
+        }
+
+        $validator = Validator::make($validationData, $rules);
 
         if ($validator->fails()) {
-            $this->recordFailure($rowNumber, (string) ($data['name'] ?? '(no name)'), $validator->errors()->all());
+            $this->recordFailure($rowNumber, $productNameForErrors, $validator->errors()->all());
             return;
         }
 
-        try {
-            DB::transaction(function () use ($data) {
-                $product = Product::create([
-                    'name' => $data['name'],
-                    'category_id' => (int) $data['category_id'],
-                    'product_type' => $data['product_type'] ?: 'simple',
-                    'price' => $data['price'] ?? 0,
-                    'sale_price' => $data['sale_price'] ?? null,
-                    'description' => $data['description'] ?? '',
-                    'content' => $data['content'] ?? '',
-                    'image' => $this->resolveImagePath($data['image'] ?? null),
-                ]);
+        $createdProduct = false;
+        $createdVariant = false;
 
-                foreach ($this->parseGalleryImages($data['gallery_images'] ?? null) as $sortOrder => $imageSource) {
-                    $product->images()->create([
-                        'image_path' => $this->resolveImagePath($imageSource, 'products/gallery'),
-                        'sort_order' => $sortOrder,
+        try {
+            DB::transaction(function () use (
+                $data,
+                $variant,
+                $isVariantRow,
+                $handle,
+                &$product,
+                &$createdProduct,
+                &$createdVariant
+            ) {
+                if ($product === null) {
+                    $productType = $data['product_type'] ?: ($isVariantRow ? 'variable' : 'simple');
+                    if ($isVariantRow) {
+                        $productType = 'variable';
+                    }
+
+                    $product = Product::create([
+                        'name' => $data['name'],
+                        'category_id' => (int) $data['category_id'],
+                        'product_type' => $productType,
+                        'price' => $productType === 'variable' ? 0 : ($data['price'] ?? 0),
+                        'sale_price' => $productType === 'variable' ? null : ($data['sale_price'] ?? null),
+                        'stock' => $productType === 'variable' ? 0 : ($data['stock'] ?? 0),
+                        'description' => $data['description'] ?? '',
+                        'content' => $data['content'] ?? '',
+                        'image' => $this->resolveImagePath($data['image'] ?? null),
+                    ]);
+
+                    foreach ($this->parseGalleryImages($data['gallery_images'] ?? null) as $sortOrder => $imageSource) {
+                        $product->images()->create([
+                            'image_path' => $this->resolveImagePath($imageSource, 'products/gallery'),
+                            'sort_order' => $sortOrder,
+                        ]);
+                    }
+
+                    $createdProduct = true;
+                } elseif ($isVariantRow && $product->product_type !== 'variable') {
+                    $product->update([
+                        'product_type' => 'variable',
+                        'price' => 0,
+                        'sale_price' => null,
                     ]);
                 }
-            });
 
-            $this->importedCount++;
+                if ($product === null || ! $isVariantRow) {
+                    return;
+                }
+
+                $sku = $variant['sku'] ?: strtoupper(Str::random(12));
+                $variantValues = $variant['variant_values'] ?: null;
+
+                $product->variants()->create([
+                    'sku' => $sku,
+                    'price' => $variant['price'] ?? 0,
+                    'sale_price' => $variant['sale_price'],
+                    'stock' => $variant['stock'] ?? 0,
+                    'variant_values' => $variantValues,
+                    'image' => $variant['image'] ? $this->resolveImagePath($variant['image'], 'products/variants') : null,
+                ]);
+
+                $createdVariant = true;
+            });
         } catch (\Throwable $e) {
-            $this->recordFailure($rowNumber, (string) ($data['name'] ?? '(no name)'), [$e->getMessage()]);
+            $this->recordFailure($rowNumber, $productNameForErrors, [$e->getMessage()]);
+            return;
+        }
+
+        if ($product instanceof Product) {
+            $this->productsByHandle[$handle] = $product;
+        }
+
+        if ($createdProduct) {
+            $this->importedCount++;
+        }
+
+        if ($createdVariant) {
+            $this->importedVariantsCount++;
         }
     }
 
     public function importedCount(): int
     {
         return $this->importedCount;
+    }
+
+    public function importedVariantsCount(): int
+    {
+        return $this->importedVariantsCount;
     }
 
     public function failedCount(): int
@@ -104,16 +211,149 @@ class ProductsImport implements OnEachRow, WithHeadingRow
         }
 
         return [
-            'name' => trim((string) $this->rowValue($row, ['name', 'ten_san_pham', 'ten_sanpham', 'ten'])),
+            'handle' => trim((string) $this->rowValue($row, ['handle', 'product_handle', 'product_code', 'ma_san_pham', 'ma'])),
+            'name' => trim((string) $this->rowValue($row, ['name', 'ten_san_pham', 'ten_sanpham', 'ten', 'title'])),
             'category_id' => $categoryId ? (int) $categoryId : null,
-            'product_type' => strtolower(trim((string) $this->rowValue($row, ['product_type', 'loai_san_pham']))) ?: 'simple',
+            'product_type' => $this->normalizeProductType($this->rowValue($row, ['product_type', 'loai_san_pham'])),
             'price' => $this->numericValue($this->rowValue($row, ['price', 'gia_ban', 'gia'])),
             'sale_price' => $this->numericValue($this->rowValue($row, ['sale_price', 'gia_giam', 'gia_khuyen_mai'])),
+            'stock' => $this->intValue($this->rowValue($row, ['stock', 'ton_kho', 'so_luong'])),
             'description' => trim((string) $this->rowValue($row, ['description', 'mo_ta'])),
             'content' => trim((string) $this->rowValue($row, ['content', 'noi_dung'])),
-            'image' => trim((string) $this->rowValue($row, ['image', 'anh_dai_dien', 'image_path'])),
-            'gallery_images' => trim((string) $this->rowValue($row, ['gallery_images', 'images', 'anh_phu'])),
+            'image' => trim((string) $this->rowValue($row, ['image', 'anh_dai_dien', 'image_path', 'main_image'])),
+            'gallery_images' => trim((string) $this->rowValue($row, ['gallery_images', 'images', 'anh_phu', 'gallery'])),
         ];
+    }
+
+    /**
+     * @return array{sku:string,price:?float,sale_price:?float,stock:?int,image:string,variant_values:array<string,string>}
+     */
+    protected function normalizeVariant(array $row): array
+    {
+        $variantValues = $this->extractVariantValues($row);
+        $rawValues = $this->rowValue($row, ['variant_values', 'variant_attributes', 'attributes', 'thuoc_tinh_bien_the']);
+
+        if ($rawValues) {
+            foreach ($this->parseVariantValuesString((string) $rawValues) as $key => $value) {
+                if (! array_key_exists($key, $variantValues) && $value !== '') {
+                    $variantValues[$key] = $value;
+                }
+            }
+        }
+
+        return [
+            'sku' => trim((string) $this->rowValue($row, ['variant_sku', 'sku'])),
+            'price' => $this->numericValue($this->rowValue($row, ['variant_price', 'gia_bien_the', 'price_variant'])),
+            'sale_price' => $this->numericValue($this->rowValue($row, ['variant_sale_price', 'variant_sale', 'sale_price_variant'])),
+            'stock' => $this->intValue($this->rowValue($row, ['variant_stock', 'variant_ton_kho', 'stock_variant', 'so_luong_bien_the'])),
+            'image' => trim((string) $this->rowValue($row, ['variant_image', 'image_variant'])),
+            'variant_values' => $variantValues,
+        ];
+    }
+
+    protected function normalizeProductType(mixed $value): ?string
+    {
+        $value = strtolower(trim((string) $value));
+
+        return in_array($value, ['simple', 'variable'], true) ? $value : null;
+    }
+
+    protected function normalizeHandle(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        return Str::slug($value, '_');
+    }
+
+    protected function extractVariantValues(array $row): array
+    {
+        $values = [];
+
+        for ($i = 1; $i <= 3; $i++) {
+            $name = trim((string) $this->rowValue($row, [
+                "option{$i}_name",
+                "option_{$i}_name",
+                "option{$i}name",
+                "option_{$i}name",
+            ]));
+            $value = trim((string) $this->rowValue($row, [
+                "option{$i}_value",
+                "option_{$i}_value",
+                "option{$i}value",
+                "option_{$i}value",
+            ]));
+
+            if ($value === '') {
+                continue;
+            }
+
+            if ($name === '') {
+                $name = 'Option'.$i;
+            }
+
+            $values[$name] = $value;
+        }
+
+        return $values;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function parseVariantValuesString(string $raw): array
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            $values = [];
+            foreach ($decoded as $key => $value) {
+                if (! is_string($key)) {
+                    continue;
+                }
+                $values[trim($key)] = trim((string) $value);
+            }
+
+            return $values;
+        }
+
+        $pairs = preg_split('/[|;,]+/', $raw) ?: [];
+        $values = [];
+
+        foreach ($pairs as $pair) {
+            $pair = trim($pair);
+            if ($pair === '' || ! str_contains($pair, ':')) {
+                continue;
+            }
+
+            [$key, $value] = explode(':', $pair, 2);
+            $key = trim($key);
+            $value = trim($value);
+
+            if ($key === '' || $value === '') {
+                continue;
+            }
+
+            $values[$key] = $value;
+        }
+
+        return $values;
+    }
+
+    protected function variantHasAnyData(array $variant): bool
+    {
+        return filled($variant['sku'])
+            || $variant['price'] !== null
+            || $variant['sale_price'] !== null
+            || $variant['stock'] !== null
+            || filled($variant['image'])
+            || ! empty($variant['variant_values']);
     }
 
     protected function rowValue(array $row, array $keys, mixed $default = null): mixed
@@ -140,6 +380,25 @@ class ProductsImport implements OnEachRow, WithHeadingRow
         $normalized = preg_replace('/[^\d\.\-]/', '', (string) $value);
 
         return is_numeric($normalized) ? (float) $normalized : null;
+    }
+
+    protected function intValue(mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+
+        $normalized = preg_replace('/[^\d\-]/', '', (string) $value);
+
+        return is_numeric($normalized) ? (int) $normalized : null;
     }
 
     protected function rowIsEmpty(array $data): bool
@@ -260,4 +519,3 @@ SVG);
         ];
     }
 }
-

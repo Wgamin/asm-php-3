@@ -1,4 +1,4 @@
-<div x-show="mobileSidebar" 
+<div x-show="mobileSidebar && isMobile"
      x-cloak
      @click="mobileSidebar = false"
      x-transition:enter="transition ease-out duration-300"
@@ -7,5 +7,5 @@
      x-transition:leave="transition ease-in duration-200"
      x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0"
-     class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden">
+     class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40">
 </div>

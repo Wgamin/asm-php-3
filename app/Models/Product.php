@@ -18,6 +18,7 @@ class Product extends Model
         'product_type', // QUAN TRỌNG: Để phân biệt simple/variable
         'price',
         'sale_price', // Thêm trường sale_price
+        'stock',
         'content',
         'description', 
         'image'

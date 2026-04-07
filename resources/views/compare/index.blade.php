@@ -8,13 +8,21 @@
 
         @php
             $count = $products->count();
-            $cheapestId = $count ? optional($products->sortBy('price')->first())->id : null;
+            $displayPrices = $products->mapWithKeys(function ($product) {
+                if ($product->isVariable() && $product->variants->count() > 0) {
+                    $variantPrices = $product->variants->map(fn ($variant) => (float) (($variant->sale_price && $variant->sale_price > 0) ? $variant->sale_price : $variant->price));
+
+                    return [$product->id => $variantPrices->min() ?? 0];
+                }
+
+                return [$product->id => (float) (($product->sale_price && $product->sale_price > 0) ? $product->sale_price : $product->price)];
+            });
+            $cheapestId = $count ? $displayPrices->sort()->keys()->first() : null;
         @endphp
 
-        {{-- Header tối giản --}}
         <div class="text-center mb-16">
             <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">So sánh chi tiết</h1>
-            <p class="text-slate-500 text-lg max-w-2xl mx-auto">Đối chiếu các thông số để tìm ra lựa chọn hoàn hảo nhất cho bạn.</p>
+            <p class="text-slate-500 text-lg max-w-2xl mx-auto">Đối chiếu các thông số để tìm ra lựa chọn phù hợp nhất cho bạn.</p>
 
             @if($count > 0)
                 <div class="mt-8 flex items-center justify-center gap-4">
@@ -33,18 +41,15 @@
         </div>
 
         @if($count > 0)
-            {{-- Bảng so sánh Minimalist --}}
             <div class="relative overflow-x-auto pb-10 custom-scrollbar">
                 <table class="w-full text-left border-collapse table-fixed min-w-[800px]">
-                    {{-- Chia tỷ lệ cột: Cột nhãn chiếm 1/4, các cột SP chia đều phần còn lại --}}
                     <colgroup>
-                        <col class="w-1/4"> 
+                        <col class="w-1/4">
                         @for ($i = 0; $i < $count; $i++)
-                            <col class="w-[{{ 75/$count }}%]"> 
+                            <col class="w-[{{ 75 / $count }}%]">
                         @endfor
                     </colgroup>
 
-                    {{-- Phần Header của Bảng: Ảnh, Tên, Giá, Nút Mua --}}
                     <thead class="align-bottom">
                         <tr>
                             <th class="pb-12 pl-4 border-b-2 border-slate-900 font-bold text-slate-900 text-lg align-bottom">
@@ -52,7 +57,6 @@
                             </th>
                             @foreach($products as $product)
                                 <th class="pb-12 px-6 border-b-2 border-slate-100 text-center relative group align-bottom">
-                                    {{-- Nút Xóa (Chỉ hiện khi hover) --}}
                                     <form action="{{ route('compare.remove', $product->id) }}" method="POST" class="absolute top-0 right-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
                                         @csrf
                                         @method('DELETE')
@@ -61,7 +65,6 @@
                                         </button>
                                     </form>
 
-                                    {{-- Badge Rẻ Nhất --}}
                                     @if($product->id === $cheapestId)
                                         <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10">
                                             <span class="bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border border-emerald-200 shadow-sm">
@@ -71,11 +74,10 @@
                                     @endif
 
                                     <a href="{{ route('product.detail', $product->id) }}" class="block text-center mt-8">
-                                        {{-- Khung ảnh phá cách --}}
                                         <div class="w-40 h-40 mx-auto mb-6 relative">
                                             <div class="absolute inset-0 bg-slate-100 rounded-[2rem] transform rotate-3 scale-105 group-hover:rotate-6 transition-transform duration-300"></div>
-                                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/default-product.png') }}" 
-                                                 alt="{{ $product->name }}" 
+                                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/default-product.png') }}"
+                                                 alt="{{ $product->name }}"
                                                  class="relative w-full h-full object-cover rounded-[2rem] shadow-sm group-hover:scale-105 transition-transform duration-500 bg-white">
                                         </div>
                                         <h3 class="text-lg font-extrabold text-slate-900 mb-2 line-clamp-2 h-14 hover:text-emerald-600 transition-colors">
@@ -84,21 +86,29 @@
                                     </a>
 
                                     <div class="text-2xl font-black {{ $product->id === $cheapestId ? 'text-emerald-600' : 'text-slate-900' }} mb-6">
-                                        {{ number_format($product->price, 0, ',', '.') }}<span class="text-sm font-medium text-slate-400 align-top relative top-1 ml-0.5">đ</span>
+                                        @if($product->isVariable())
+                                            <span class="block text-[10px] uppercase tracking-widest text-slate-400 mb-1">Giá từ</span>
+                                        @endif
+                                        {{ number_format($displayPrices[$product->id] ?? 0, 0, ',', '.') }}<span class="text-sm font-medium text-slate-400 align-top relative top-1 ml-0.5">đ</span>
                                     </div>
 
-                                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="w-full py-4 rounded-2xl {{ $product->id === $cheapestId ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 'bg-slate-900 hover:bg-slate-800 shadow-slate-200' }} text-white font-bold transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2">
-                                            <i class="fas fa-cart-plus"></i> Chọn mua
-                                        </button>
-                                    </form>
+                                    @if($product->isVariable())
+                                        <a href="{{ route('product.detail', $product->id) }}" class="w-full py-4 rounded-2xl {{ $product->id === $cheapestId ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 'bg-slate-900 hover:bg-slate-800 shadow-slate-200' }} text-white font-bold transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2">
+                                            <i class="fas fa-eye"></i> Xem chi tiết
+                                        </a>
+                                    @else
+                                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="w-full py-4 rounded-2xl {{ $product->id === $cheapestId ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 'bg-slate-900 hover:bg-slate-800 shadow-slate-200' }} text-white font-bold transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2">
+                                                <i class="fas fa-cart-plus"></i> Chọn mua
+                                            </button>
+                                        </form>
+                                    @endif
                                 </th>
                             @endforeach
                         </tr>
                     </thead>
 
-                    {{-- Phần Body của Bảng --}}
                     <tbody class="text-base text-slate-600">
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="py-6 pl-4 font-semibold text-slate-900 border-b border-slate-100">
@@ -155,9 +165,7 @@
                     </tbody>
                 </table>
             </div>
-
         @else
-            {{-- Giao diện khi chưa có sản phẩm --}}
             <div class="text-center py-24">
                 <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-50 text-slate-300 text-4xl mb-6 border border-slate-100">
                     <i class="fas fa-layer-group"></i>
