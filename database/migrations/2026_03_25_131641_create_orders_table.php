@@ -22,7 +22,7 @@ return new class extends Migration
         $table->text('note')->nullable();
         $table->decimal('total_amount', 15, 2); // Tổng tiền đơn hàng
         $table->enum('status', ['pending', 'processing', 'shipping', 'completed', 'cancelled'])->default('pending');
-        $table->enum('payment_method', ['cod', 'banking'])->default('cod');
+        $table->string('payment_method', 50)->default('cod');
         $table->timestamps();
     });
 }
