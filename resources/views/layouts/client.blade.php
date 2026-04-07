@@ -90,7 +90,7 @@
                             <i class="fas fa-apple-alt text-sm"></i>
                             <span>Sản phẩm</span>
                         </a>
-                        <a href="#" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
+                        <a href="{{ route('news.index') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
                             <i class="fas fa-newspaper text-sm"></i>
                             <span>Tin tức</span>
                         </a>

@@ -26,18 +26,6 @@
             </button>
         </form>
 
-        <div class="mb-6 p-4 rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/50 text-sm text-emerald-900">
-            <p class="font-bold mb-1">Cột hỗ trợ trong file import</p>
-            <p class="leading-6">
-                <code>name</code>, <code>category_id</code> hoặc <code>category</code>, <code>product_type</code>,
-                <code>price</code>, <code>sale_price</code>, <code>description</code>, <code>content</code>,
-                <code>image</code>, <code>gallery_images</code>.
-            </p>
-            <p class="leading-6 mt-2 text-emerald-800">
-                Ảnh có thể là đường dẫn trong storage, URL ảnh, hoặc để trống để hệ thống tự tạo ảnh mặc định.
-            </p>
-        </div>
-
         @if(session('import_failures') && count(session('import_failures')))
             <div class="mb-6 p-4 bg-amber-50 text-amber-900 rounded-2xl border border-amber-100 shadow-sm">
                 <div class="font-bold mb-2">Một số dòng bị lỗi khi import</div>
