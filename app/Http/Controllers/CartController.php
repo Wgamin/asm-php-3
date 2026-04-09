@@ -9,6 +9,15 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    public function index(CouponService $couponService)
+    {
+        $cart = $this->synchronizeCart();
+        $appliedCoupon = $couponService->getAppliedCouponFromSession($cart);
+        $summary = $couponService->summarize($cart, $appliedCoupon);
+
+        return view('cart', compact('cart', 'appliedCoupon', 'summary'));
+    }
+
     public function add(Request $request, $id, CouponService $couponService)
     {
         $product = Product::with('variants')->findOrFail($id);
@@ -187,6 +196,39 @@ class CartController extends Controller
         }
 
         return $normalized;
+    }
+
+    protected function synchronizeCart(): array
+    {
+        $cart = $this->getNormalizedCart();
+        $synchronized = [];
+        $changed = false;
+
+        foreach ($cart as $key => $line) {
+            $hydratedLine = $this->hydrateLineFromDatabase($line);
+            if (! $hydratedLine || (int) ($hydratedLine['stock'] ?? 0) <= 0) {
+                $changed = true;
+                continue;
+            }
+
+            $quantity = max((int) ($line['quantity'] ?? 1), 1);
+            $quantity = min($quantity, (int) $hydratedLine['stock']);
+            $resolvedKey = $this->lineKey((int) $hydratedLine['product_id'], $hydratedLine['variant_id'] ? (int) $hydratedLine['variant_id'] : null);
+
+            $synchronized[$resolvedKey] = array_merge($hydratedLine, [
+                'quantity' => $quantity,
+            ]);
+
+            if ($resolvedKey !== (string) $key || $quantity !== (int) ($line['quantity'] ?? 1)) {
+                $changed = true;
+            }
+        }
+
+        if ($changed || count($synchronized) !== count($cart)) {
+            session()->put('cart', $synchronized);
+        }
+
+        return $synchronized;
     }
 
     /**
