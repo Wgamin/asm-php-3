@@ -7,12 +7,10 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\UserAddress;
 use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -28,27 +26,20 @@ class OrderController extends Controller
 
         $appliedCoupon = $couponService->getAppliedCouponFromSession($cart);
         $summary = $couponService->summarize($cart, $appliedCoupon);
-        $addresses = Auth::user()->addresses()->get();
-        $defaultAddress = $addresses->firstWhere('is_default', true) ?? $addresses->first();
-        $selectedAddressId = (int) old('selected_address_id', $defaultAddress?->id);
 
-        return view('checkout', compact('cart', 'summary', 'appliedCoupon', 'addresses', 'selectedAddressId'));
+        return view('checkout', compact('cart', 'summary', 'appliedCoupon'));
     }
 
     public function store(Request $request, CouponService $couponService)
     {
-        $usesSavedAddress = $request->filled('selected_address_id');
-
         $request->validate([
-            'selected_address_id' => ['nullable', 'integer'],
-            'full_name' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:255'],
-            'phone' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:30'],
-            'address' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:500'],
+            'full_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'address' => ['required', 'string', 'max:500'],
             'payment_method' => ['required', 'string', 'max:50'],
             'note' => ['nullable', 'string'],
         ]);
 
-        $delivery = $this->resolveDeliveryInformation($request);
         $cart = $this->normalizeCart(session()->get('cart', []));
 
         if (empty($cart)) {
@@ -80,11 +71,11 @@ class OrderController extends Controller
 
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
-                'full_name' => $delivery['full_name'],
-                'phone' => $delivery['phone'],
+                'order_number' => 'ORD-'.strtoupper(uniqid()),
+                'full_name' => $request->full_name,
+                'phone' => $request->phone,
                 'email' => (string) Auth::user()?->email,
-                'address' => $delivery['address'],
+                'address' => $request->address,
                 'note' => $request->note,
                 'subtotal_amount' => $summary['subtotal'],
                 'discount_amount' => $summary['discount'],
@@ -251,7 +242,7 @@ class OrderController extends Controller
 
                 if ((int) $variant->stock < $quantity) {
                     throw ValidationException::withMessages([
-                        'cart' => 'Ton kho khong du cho ' . $variant->product->name . '.',
+                        'cart' => 'Ton kho khong du cho '.$variant->product->name.'.',
                     ]);
                 }
 
@@ -283,7 +274,7 @@ class OrderController extends Controller
 
             if ((int) ($product->stock ?? 0) < $quantity) {
                 throw ValidationException::withMessages([
-                    'cart' => 'Ton kho khong du cho ' . $product->name . '.',
+                    'cart' => 'Ton kho khong du cho '.$product->name.'.',
                 ]);
             }
 
@@ -327,7 +318,7 @@ class OrderController extends Controller
             $variantId = isset($item['variant_id']) && $item['variant_id'] !== ''
                 ? (int) $item['variant_id']
                 : null;
-            $lineKey = $variantId ? 'v-' . $variantId : 'p-' . $productId;
+            $lineKey = $variantId ? 'v-'.$variantId : 'p-'.$productId;
 
             $line = [
                 'product_id' => $productId,
@@ -417,37 +408,9 @@ class OrderController extends Controller
 
         $parts = [];
         foreach ($variantValues as $name => $value) {
-            $parts[] = $name . ': ' . $value;
+            $parts[] = $name.': '.$value;
         }
 
         return $parts ? implode(' | ', $parts) : null;
-    }
-
-    /**
-     * @return array{full_name:string, phone:string, address:string}
-     */
-    protected function resolveDeliveryInformation(Request $request): array
-    {
-        if ($request->filled('selected_address_id')) {
-            $address = Auth::user()?->addresses()->find((int) $request->input('selected_address_id'));
-
-            if (! $address instanceof UserAddress) {
-                throw ValidationException::withMessages([
-                    'selected_address_id' => 'Dia chi giao hang khong hop le.',
-                ]);
-            }
-
-            return [
-                'full_name' => $address->full_name,
-                'phone' => $address->phone,
-                'address' => $address->full_address,
-            ];
-        }
-
-        return [
-            'full_name' => (string) $request->input('full_name'),
-            'phone' => (string) $request->input('phone'),
-            'address' => (string) $request->input('address'),
-        ];
     }
 }

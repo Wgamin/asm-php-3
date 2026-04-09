@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -18,6 +17,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Admin\AttributeController; 
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\PaymentController;
 
@@ -35,13 +35,13 @@ Route::get('/tin-tuc/{slug}', [NewsController::class, 'show'])->name('news.show'
 Route::get('/lien-he', function () {
     return view('contact');
 })->name('contact');
-Route::get('/gioi-thieu', function () {
+Route::get('/gioi-thieu', function() {
     return view('about');
 })->name('about');
 Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
 
+// --- CẬP NHẬT: Nhóm Route cho Giỏ hàng (KHÔNG DÙNG AJAX) ---
 Route::prefix('cart')->as('cart.')->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add/{id}', [CartController::class, 'add'])->name('add');
     Route::get('/update/{id}/{quantity}', [CartController::class, 'updateQuantity'])->name('update_quantity');
     Route::get('/remove/{id}', [CartController::class, 'removeItem'])->name('remove_item');
@@ -54,11 +54,8 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
-    Route::post('/forgot-password', [AuthController::class, 'sendResetOtp'])->name('password.email');
-    Route::get('/reset-password', [AuthController::class, 'showResetPassword'])->name('password.reset');
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
+    // --- MỚI BỔ SUNG: ĐĂNG NHẬP BẰNG GOOGLE ---
     Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.login');
     Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 });
@@ -68,10 +65,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
-    Route::put('/profile/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('profile.addresses.update');
-    Route::delete('/profile/addresses/{address}', [ProfileController::class, 'destroyAddress'])->name('profile.addresses.destroy');
-    Route::patch('/profile/addresses/{address}/default', [ProfileController::class, 'setDefaultAddress'])->name('profile.addresses.default');
+
+
 
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
     Route::post('/checkout', [OrderController::class, 'store'])->name('order.store');
@@ -87,12 +82,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/toggle/{id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
+    // --- QUẢN LÝ THUỘC TÍNH (BỔ SUNG ĐẦY ĐỦ) ---
+    // Sử dụng prefix 'attributes' để tránh xung đột URL
     Route::prefix('attributes')->name('admin.attributes.')->group(function () {
-        Route::get('/', [AttributeController::class, 'index'])->name('index');
-        Route::post('/', [AttributeController::class, 'store'])->name('store');
-        Route::put('/{id}', [AttributeController::class, 'update'])->name('update');
-        Route::delete('/{id}', [AttributeController::class, 'destroy'])->name('destroy');
+        // Thuộc tính chính (Màu sắc, Size...)
+        Route::get('/', [AttributeController::class, 'index'])->name('index');         // Danh sách
+        Route::post('/', [AttributeController::class, 'store'])->name('store');        // Lưu tên mới
+        Route::put('/{id}', [AttributeController::class, 'update'])->name('update');   // Cập nhật tên
+        Route::delete('/{id}', [AttributeController::class, 'destroy'])->name('destroy'); // Xóa cả bộ
 
+        // Giá trị thuộc tính con (Đỏ, Xanh, L, XL...)
         Route::post('/{attributeId}/values', [AttributeController::class, 'storeValue'])->name('storeValue');
         Route::put('/values/{id}', [AttributeController::class, 'updateValue'])->name('updateValue');
         Route::delete('/values/{id}', [AttributeController::class, 'destroyValue'])->name('destroyValue');
@@ -108,7 +107,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
+    
+            
     Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
@@ -128,3 +128,4 @@ Route::prefix('admin')->as('admin.')->group(function () {
         Route::post('/register', [AuthController::class, 'adminRegister']);
     });
 });
+

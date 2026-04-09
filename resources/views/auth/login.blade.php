@@ -11,6 +11,7 @@
                 <p class="text-slate-500 mt-2 text-sm">Vui lòng đăng nhập để tiếp tục mua sắm</p>
             </div>
 
+            {{-- Thông báo lỗi nếu có --}}
             @if($errors->any())
                 <div class="bg-red-50 text-red-600 text-sm p-3 rounded-xl mb-4 border border-red-100 text-center font-medium">
                     {{ $errors->first() }}
@@ -19,7 +20,7 @@
 
             <form action="{{ route('login') }}" method="POST" class="space-y-6">
                 @csrf
-
+                
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Email của bạn</label>
                     <div class="relative">
@@ -34,7 +35,7 @@
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="block text-sm font-semibold text-slate-700">Mật khẩu</label>
-                        <a href="{{ route('password.request') }}" class="text-xs text-emerald-600 hover:underline">Quên mật khẩu?</a>
+                        <a href="#" class="text-xs text-emerald-600 hover:underline">Quên mật khẩu?</a>
                     </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
@@ -45,17 +46,19 @@
                     </div>
                 </div>
 
-                <button type="submit"
+                <button type="submit" 
                     class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all transform hover:-translate-y-1">
                     Đăng nhập ngay
                 </button>
             </form>
 
+            {{-- ĐƯỜNG KẺ NGANG HOẶC --}}
             <div class="my-6 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-slate-200 after:mt-0.5 after:flex-1 after:border-t after:border-slate-200">
                 <p class="mx-4 mb-0 text-center font-medium text-slate-400 text-sm">HOẶC</p>
             </div>
 
-            <a href="{{ route('google.login') }}"
+            {{-- NÚT ĐĂNG NHẬP BẰNG GOOGLE --}}
+            <a href="{{ route('google.login') }}" 
                class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3.5 rounded-xl transition-all">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -68,7 +71,7 @@
 
             <div class="mt-8 text-center pt-6 border-t border-slate-100">
                 <p class="text-slate-600 text-sm">
-                    Mới đến cửa hàng lần đầu?
+                    Mới đến cửa hàng lần đầu? 
                     <a href="{{ route('register') }}" class="text-emerald-600 font-bold hover:underline">Tạo tài khoản mới</a>
                 </p>
             </div>
