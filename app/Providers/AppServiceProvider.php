@@ -19,6 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        view()->share('categories', \App\Models\Category::whereNull('parent_id')->with('children')->get());
     }
 }

@@ -64,159 +64,183 @@
     @endif
 </head>
 <body class="bg-slate-50 font-sans text-gray-900 flex flex-col min-h-screen">
-    <nav class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50" x-data="{ mobileMenu: false }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20">
-                <div class="flex items-center gap-8">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                        <div class="bg-gradient-to-br from-primary-green to-dark-green p-2 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-leaf text-white text-xl"></i>
-                        </div>
-                        <div>
-                            <span class="font-bold text-2xl tracking-tight text-gray-800">
-                                Nông Sản <span class="text-primary-green">Việt</span>
-                            </span>
-                            <span class="hidden lg:block text-[10px] uppercase tracking-wider text-gray-400">Tinh hoa đất Việt</span>
-                        </div>
-                    </a>
-                    
-                    <!-- Desktop Menu -->
-                    <div class="hidden md:ml-10 md:flex md:space-x-1">
-                        <a href="/" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
-                            <i class="fas fa-home text-sm"></i>
-                            <span>Trang chủ</span>
-                        </a>
-                        <a href="{{ route('products.index') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
-                            <i class="fas fa-apple-alt text-sm"></i>
-                            <span>Sản phẩm</span>
-                        </a>
-                        <a href="{{ route('news.index') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
-                            <i class="fas fa-newspaper text-sm"></i>
-                            <span>Tin tức</span>
-                        </a>
-                        <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
-                            <i class="fas fa-phone-alt text-sm"></i>
-                            <span>Liên hệ</span>
-                        </a>
-                        <a href="{{ route('about') }}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary-green hover:bg-green-50 font-semibold transition flex items-center space-x-1">
-                            <i class="fas fa-info-circle text-sm"></i>
-                            <span>Giới thiệu</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="{{ route('cart.index') }}" class="relative p-2 hover:bg-gray-100 rounded-full group">
-                        <i class="fas fa-shopping-bag text-gray-500 group-hover:text-primary-green text-lg"></i>
-                        <span class="absolute -top-1 -right-1 bg-primary-green text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
-                            {{ session('cart') ? count(session('cart')) : 0 }}
-                        </span>
-                    </a>
-
-                    @guest
-                        <div class="flex items-center gap-3">
-                            <a href="{{ route('login') }}" class="text-gray-700 hover:text-primary-green text-sm font-bold px-4 py-2 rounded-lg hover:bg-gray-50">Đăng nhập</a>
-                            <a href="{{ route('register') }}" class="bg-[#28a745] hover:bg-[#23913c] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition">Đăng ký</a>
-                        </div>
-                    @else
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" @click.away="open = false"
-                                    class="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 px-3 py-1.5 rounded-xl border border-gray-200 transition">
-                                <img src="{{ auth()->user()->avatar_url }}" class="h-8 w-8 rounded-lg object-cover" alt="{{ auth()->user()->name }}">
-                                <div class="text-left">
-                                    <p class="font-bold text-sm">{{ auth()->user()->name }}</p>
-                                    <p class="text-[10px] text-gray-400">{{ auth()->user()->role === 'admin' ? 'Quản trị viên' : 'Thành viên' }}</p>
-                                </div>
-                                <i class="fas fa-chevron-down text-[10px] transition ml-2" :class="open ? 'rotate-180' : ''"></i>
-                            </button>
-
-                            <div x-show="open" x-cloak x-transition class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl py-2 border border-gray-100 overflow-hidden">
-                                <div class="px-5 py-3 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
-                                    <p class="text-xs text-primary-green font-bold">Tài khoản</p>
-                                    <p class="text-sm font-bold text-gray-800 truncate">{{ auth()->user()->email }}</p>
-                                </div>
-
-                                <a href="{{ route('profile') }}" class="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-green-50 hover:text-primary-green transition">
-                                    <i class="fas fa-user-circle w-5 mr-3 text-gray-400"></i> Hồ sơ của tôi
-                                </a>
-
-                                @if(auth()->user()->role === 'admin')
-                                    <a href="{{ route('admin.dashboard') }}" class="flex items-center px-5 py-3 text-sm text-red-600 hover:bg-red-50 font-bold border-t border-b border-gray-100">
-                                        <i class="fas fa-user-shield w-5 mr-3"></i> Trang quản trị
-                                    </a>
-                                @endif
-
-                                <form action="{{ route('logout') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="w-full text-left px-5 py-3 text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
-                                        <i class="fas fa-sign-out-alt w-5 mr-3 text-gray-400"></i> Đăng xuất
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @endguest
-                </div>
-
-                <div class="md:hidden flex items-center space-x-3">
-                    <a href="{{ route('cart.index') }}" class="relative p-2">
-                        <i class="fas fa-shopping-bag text-gray-600 text-xl"></i>
-                        <span class="absolute -top-1 -right-1 bg-primary-green text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
-                            {{ session('cart') ? count(session('cart')) : 0 }}
-                        </span>
-                    </a>
-                    <button @click="mobileMenu = !mobileMenu" class="text-gray-800 text-2xl p-2 hover:bg-gray-100 rounded-lg">
-                        <i class="fas" :class="mobileMenu ? 'fa-times' : 'fa-bars'"></i>
-                    </button>
-                </div>
+<header class="bg-white shadow sticky top-0 z-50">
+    <!-- TẦNG 1: TOP INFO -->
+    <div class="bg-gray-100 text-[12px] py-2 ">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center text-gray-600 font-medium">
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-2"><i class="fas fa-phone-alt text-primary-green"></i> Hotline: 1900 1234</span>
+                <span class="hidden md:flex items-center gap-2 border-l pl-4 border-gray-300"><i class="fas fa-map-marker-alt text-primary-green"></i> 123 Đường Lúa, TP.HCM</span>
             </div>
-        </div>
-
-        <div class="md:hidden bg-white border-t border-gray-100" x-show="mobileMenu" x-cloak x-transition>
-            <div class="px-4 py-4 space-y-1">
-                <a href="{{ route('home') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-primary-green font-semibold">
-                    <i class="fas fa-home w-5"></i>
-                    <span>Trang chủ</span>
-                </a>
-                <a href="{{ route('products.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-primary-green font-semibold">
-                    <i class="fas fa-apple-alt w-5"></i>
-                    <span>Sản phẩm</span>
-                </a>
-                <a href="{{ route('news.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-primary-green font-semibold">
-                    <i class="fas fa-newspaper w-5"></i>
-                    <span>Tin tức</span>
-                </a>
-                <a href="{{ route('contact') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-primary-green font-semibold">
-                    <i class="fas fa-phone-alt w-5"></i>
-                    <span>Liên hệ</span>
-                </a>
-
-                <div class="border-t border-gray-100 my-4"></div>
-
+            <div class="flex items-center gap-5">
+                <a href="{{ route('news.index') }}" class="hover:text-primary-green transition">Tin tức</a>
+                <a href="{{ route('contact') }}" class="hover:text-primary-green transition">Liên hệ</a>
+                <div class="border-l h-4 border-gray-300"></div>
                 @guest
-                    <div class="grid grid-cols-2 gap-3 px-4">
-                        <a href="{{ route('login') }}" class="text-center py-3 text-gray-700 font-bold border-2 border-gray-200 rounded-xl hover:border-primary-green">Đăng nhập</a>
-                        <a href="{{ route('register') }}" class="text-center py-3 bg-gradient-to-r from-primary-green to-dark-green text-white font-bold rounded-xl">Đăng ký</a>
-                    </div>
+                    <a href="{{ route('login') }}" class="hover:text-primary-green transition font-bold uppercase tracking-tight">Đăng nhập</a>
+                    <a href="{{ route('register') }}" class="text-primary-green hover:text-dark-green transition font-bold uppercase tracking-tight">Đăng ký</a>
                 @else
-                    <div class="px-4 py-3 bg-gray-50 rounded-xl">
-                        <div class="flex items-center space-x-3">
-                            <img src="{{ auth()->user()->avatar_url }}" class="h-12 w-12 rounded-xl object-cover" alt="{{ auth()->user()->name }}">
-                            <div>
-                                <p class="font-bold">{{ auth()->user()->name }}</p>
-                                <p class="text-sm text-gray-500">{{ auth()->user()->email }}</p>
-                            </div>
+                    <div class="relative group" x-data="{ open: false }">
+                        <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 hover:text-primary-green transition">
+                            <i class="fas fa-user-circle text-lg"></i>
+                            <span class="font-bold uppercase tracking-tight">{{ auth()->user()->name }}</span>
+                            <i class="fas fa-chevron-down text-[10px] transition" :class="open ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="open" x-cloak x-transition class="absolute right-0 mt-2 w-56 bg-white shadow-2xl rounded-xl py-3 z-[60] border border-gray-100 overflow-hidden text-sm">
+                            <div class="px-5 py-2 mb-2 bg-green-50 text-xs font-bold text-primary-green uppercase tracking-widest border-b border-green-100">Tài khoản cá nhân</div>
+                            <a href="{{ route('profile') }}" class="block px-5 py-2.5 hover:bg-green-50 hover:text-primary-green transition"><i class="fas fa-id-badge w-5 mr-2 opacity-50"></i> Hồ sơ cá nhân</a>
+                            @if(auth()->user()->role === 'admin')
+                                <a href="{{ route('admin.dashboard') }}" class="block px-5 py-2.5 bg-red-50 text-red-600 font-bold hover:bg-red-100 transition"><i class="fas fa-user-shield w-5 mr-2"></i> Quản trị viên</a>
+                            @endif
+                            <form action="{{ route('logout') }}" method="POST" class="border-t mt-2">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-5 py-3 hover:bg-gray-50 text-gray-500 transition"><i class="fas fa-sign-out-alt w-5 mr-2 opacity-50"></i> Đăng xuất</button>
+                            </form>
                         </div>
                     </div>
-                    <form action="{{ route('logout') }}" method="POST" class="px-4 mt-3">
-                        @csrf
-                        <button type="submit" class="w-full py-3 text-red-600 border-2 border-red-200 rounded-xl font-bold hover:bg-red-50">
-                            <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
-                        </button>
-                    </form>
                 @endguest
             </div>
         </div>
-    </nav>
+    </div>
+
+    <!-- TẦNG 2: LOGO + SEARCH + CART -->
+    <div class="bg-white">
+        <div class="max-w-7xl mx-auto px-4 py-4  flex items-center justify-between gap-8">
+            <!-- Logo -->
+            <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0">
+                <div class="bg-gradient-to-br from-primary-green to-dark-green p-2 rounded-xl group-hover:scale-105 transition-transform duration-300">
+                    <i class="fas fa-leaf text-white text-2xl"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <span class="font-black text-2xl tracking-tight text-gray-800 uppercase leading-none block">
+                        Nông Sản <span class="text-primary-green">Việt</span>
+                    </span>
+                    <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 mt-1 block">Tinh hoa đất Việt</span>
+                </div>
+            </a>
+
+            <!-- Search -->
+            <form action="{{ route('products.index') }}" method="GET" class="flex-1 max-w-2xl relative group hidden md:flex">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Bạn muốn tìm thực phẩm gì hôm nay?" 
+                    class="w-full border-2 border-gray-200 rounded-2xl px-6 py-3 text-sm focus:outline-none focus:border-primary-green transition-all bg-gray-50 focus:bg-white pr-16 shadow-sm group-hover:shadow-md">
+                <button type="submit" class="absolute right-2 top-2 bottom-2 bg-primary-green hover:bg-dark-green text-white px-5 rounded-xl transition flex items-center shadow-lg shadow-green-100">
+                    <i class="fas fa-search text-sm"></i>
+                </button>
+            </form>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-3">
+                <!-- Wishlist (Optional if exists) -->
+                @auth
+                <a href="{{ route('wishlist.index') }}" class="p-3 bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-500 rounded-2xl transition relative group">
+                    <i class="fas fa-heart text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-md">
+                        {{ auth()->user()->wishlists()->count() }}
+                    </span>
+                </a>
+                @endauth
+
+                <!-- Cart -->
+                <a href="{{ route('cart.index') }}" class="flex items-center gap-3 p-1 pr-5 bg-green-50 hover:bg-green-100 text-primary-green rounded-2xl transition group relative shadow-sm border border-green-100">
+                    <div class="bg-primary-green text-black p-3 rounded-xl shadow-lg shadow-green-200 group-hover:scale-105 transition">
+                        <i class="fas fa-shopping-basket text-xl"></i>
+                    </div>
+                    <div class="hidden sm:block">
+                        <p class="text-[10px] uppercase font-bold opacity-60 leading-none">Giỏ hàng</p>
+                        <p class="font-black text-sm text-gray-800 mt-1 leading-none">{{ session('cart') ? count(session('cart')) : 0 }} sản phẩm</p>
+                    </div>
+                    <!-- Badge Mobile -->
+                    <span class="sm:hidden absolute -top-1 -right-1 bg-primary-green text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-md border-2 border-white">
+                        {{ session('cart') ? count(session('cart')) : 0 }}
+                    </span>
+                </a>
+                
+                <!-- Mobile Menu Button -->
+                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-3 bg-gray-100 rounded-2xl text-gray-600">
+                    <i class="fas" :class="mobileMenu ? 'fa-times' : 'fa-bars'"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TẦNG 3: MENU -->
+    <div class="bg-white hidden md:block">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between">
+            <nav class="flex items-center space-x-2">
+                <a href="{{ route('home') }}" class="px-6 font-bold text-sm uppercase tracking-wider {{ request()->routeIs('home') ? 'text-primary-green border-b-4 border-primary-green bg-green-50/50' : 'text-gray-600 hover:text-primary-green hover:bg-gray-50' }} transition">
+                    Trang chủ
+                </a>
+
+                <!-- MEGA DROPDOWN SẢN PHẨM -->
+                <div class="relative group py-4">
+                    <a href="{{ route('products.index') }}" class="px-6 font-bold text-sm uppercase tracking-wider {{ request()->routeIs('products.*') ? 'text-primary-green border-b-4 border-primary-green bg-green-50/50' : 'text-gray-600 hover:text-primary-green hover:bg-gray-50' }} transition inline-flex items-center gap-2">
+                        Sản phẩm <i class="fas fa-chevron-down text-[10px] opacity-50 group-hover:rotate-180 transition"></i>
+                    </a>
+
+                    <!-- Vùng đệm và Dropdown nội dung -->
+                    <div class="absolute left-0 top-full pt-0 w-[600px] hidden group-hover:block z-[100] transition-all">
+                        <div class="bg-white shadow-2xl rounded-b-3xl border border-gray-100 grid grid-cols-2 p-6 gap-6">
+                            @if(isset($categories) && count($categories) > 0)
+                                @foreach($categories as $cat)
+                                    <div>
+                                        <a href="{{ route('products.index', ['category' => $cat->id]) }}" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-green-50 group/cat transition">
+                                            <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 group-hover/cat:bg-white group-hover/cat:text-primary-green transition">
+                                                <i class="fas fa-leaf"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-800 text-sm group-hover/cat:text-primary-green">{{ $cat->name }}</p>
+                                                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">{{ $cat->children->count() }} loại khác nhau</p>
+                                            </div>
+                                        </a>
+                                        @if($cat->children->count() > 0)
+                                            <div class="ml-14 mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                                                @foreach($cat->children as $child)
+                                                    <a href="{{ route('products.index', ['category' => $child->id]) }}" class="text-xs text-gray-500 hover:text-primary-green transition">• {{ $child->name }}</a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="col-span-2 text-center py-4 text-gray-400 italic text-sm">Chưa có danh mục sản phẩm</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('news.index') }}" class="px-6 font-bold text-sm uppercase tracking-wider {{ request()->routeIs('news.*') ? 'text-primary-green border-b-4 border-primary-green bg-green-50/50' : 'text-gray-600 hover:text-primary-green hover:bg-gray-50' }} transition">
+                    Tin tức
+                </a>
+                <a href="{{ route('about') }}" class="px-6 font-bold text-sm uppercase tracking-wider {{ request()->routeIs('about') ? 'text-primary-green border-b-4 border-primary-green bg-green-50/50' : 'text-gray-600 hover:text-primary-green hover:bg-gray-50' }} transition">
+                    Giới thiệu
+                </a>
+                <a href="{{ route('contact') }}" class="px-6 font-bold text-sm uppercase tracking-wider {{ request()->routeIs('contact') ? 'text-primary-green border-b-4 border-primary-green bg-green-50/50' : 'text-gray-600 hover:text-primary-green hover:bg-gray-50' }} transition">
+                    Liên hệ
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MOBILE MENU SIDEBAR (Optional Enhancement) -->
+    <div class="md:hidden bg-white border-t border-gray-100" x-show="mobileMenu" x-cloak x-transition>
+        <div class="px-4 py-6 space-y-4">
+            <!-- Mobile Search -->
+            <form action="{{ route('products.index') }}" method="GET" class="relative">
+                <input type="text" name="search" placeholder="Tìm kiếm..." class="w-full border-2 border-gray-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary-green">
+                <button type="submit" class="absolute right-3 top-2.5 text-gray-400">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <nav class="flex flex-col gap-2">
+                <a href="{{ route('home') }}" class="p-3 rounded-xl font-bold {{ request()->routeIs('home') ? 'bg-green-50 text-primary-green' : 'text-gray-600' }}">Trang chủ</a>
+                <a href="{{ route('products.index') }}" class="p-3 rounded-xl font-bold {{ request()->routeIs('products.*') ? 'bg-green-50 text-primary-green' : 'text-gray-600' }}">Sản phẩm</a>
+                <a href="{{ route('news.index') }}" class="p-3 rounded-xl font-bold {{ request()->routeIs('news.*') ? 'bg-green-50 text-primary-green' : 'text-gray-600' }}">Tin tức</a>
+                <a href="{{ route('contact') }}" class="p-3 rounded-xl font-bold {{ request()->routeIs('contact') ? 'bg-green-50 text-primary-green' : 'text-gray-600' }}">Liên hệ</a>
+            </nav>
+        </div>
+    </div>
+</header>
 
     <main class="flex-grow">
         @if(session('error') || session('success'))
