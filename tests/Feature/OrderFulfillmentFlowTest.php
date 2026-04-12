@@ -7,10 +7,7 @@ use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Models\UserAddress;
-use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
@@ -34,70 +31,9 @@ function createFulfillmentProduct(): Product
     ]);
 }
 
-function enableFulfillmentShippingConfig(): void
-{
-    config([
-        'shipping.default_provider' => 'ghn',
-        'shipping.providers.ghn.enabled' => true,
-        'shipping.providers.ghn.token' => 'ghn-test-token',
-        'shipping.providers.ghn.shop_id' => '123456',
-        'shipping.providers.ghtk.enabled' => false,
-    ]);
-}
-
-function fakeFulfillmentShippingApis(): void
-{
-    Cache::flush();
-
-    Http::fake([
-        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province*' => Http::response([
-            'code' => 200,
-            'message' => 'Success',
-            'data' => [
-                ['ProvinceID' => 201, 'ProvinceName' => 'Ha Noi'],
-            ],
-        ]),
-        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district*' => Http::response([
-            'code' => 200,
-            'message' => 'Success',
-            'data' => [
-                ['DistrictID' => 1450, 'DistrictName' => 'Cau Giay'],
-            ],
-        ]),
-        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward*' => Http::response([
-            'code' => 200,
-            'message' => 'Success',
-            'data' => [
-                ['WardCode' => '12345', 'WardName' => 'Dich Vong'],
-            ],
-        ]),
-        'https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee' => Http::response([
-            'code' => 200,
-            'message' => 'Success',
-            'data' => [
-                'total' => 28500,
-            ],
-        ]),
-    ]);
-}
-
-it('creates payment and shipment records with ghn shipping fee only', function () {
-    enableFulfillmentShippingConfig();
-    fakeFulfillmentShippingApis();
-
+it('creates payment and shipment records with the legacy internal shipping fee', function () {
     $user = User::factory()->create();
     $product = createFulfillmentProduct();
-
-    Warehouse::query()->create([
-        'name' => 'Kho Mac Dinh',
-        'phone' => '0900000099',
-        'province' => 'Ha Noi',
-        'district' => 'Cau Giay',
-        'ward' => 'Dich Vong',
-        'address_line' => '1 Duong Kho',
-        'is_default' => true,
-        'is_active' => true,
-    ]);
 
     $address = UserAddress::create([
         'user_id' => $user->id,
@@ -134,15 +70,15 @@ it('creates payment and shipment records with ghn shipping fee only', function (
 
     expect($order)->not->toBeNull();
     expect((float) $order->total_amount)->toBe(80000.0);
-    expect((float) $order->shipping_fee_amount)->toBe(28500.0);
-    expect((float) $order->payable_amount)->toBe(108500.0);
+    expect((float) $order->shipping_fee_amount)->toBe(20000.0);
+    expect((float) $order->payable_amount)->toBe(100000.0);
     expect($order->payment)->not->toBeNull();
     expect($order->payment->method)->toBe('cod');
-    expect((float) $order->payment->amount)->toBe(108500.0);
+    expect((float) $order->payment->amount)->toBe(100000.0);
     expect($order->payment->status)->toBe('pending');
     expect($order->shipment)->not->toBeNull();
-    expect($order->shipment->method)->toBe('ghn');
-    expect((float) $order->shipment->fee_amount)->toBe(28500.0);
+    expect($order->shipment->method)->toBe('fast');
+    expect((float) $order->shipment->fee_amount)->toBe(20000.0);
     expect($order->shipment->status)->toBe('pending');
 
     $response->assertRedirect(route('order.success'));
@@ -164,9 +100,9 @@ it('syncs payment and shipment status when admin completes a cod order', functio
         'address' => '123 Duong Test',
         'subtotal_amount' => 100000,
         'discount_amount' => 0,
-        'shipping_fee_amount' => 28500,
+        'shipping_fee_amount' => 20000,
         'total_amount' => 100000,
-        'payable_amount' => 128500,
+        'payable_amount' => 120000,
         'status' => 'pending',
         'payment_method' => 'cod',
     ]);
@@ -175,15 +111,15 @@ it('syncs payment and shipment status when admin completes a cod order', functio
         'order_id' => $order->id,
         'method' => 'cod',
         'provider' => 'cash_on_delivery',
-        'amount' => 128500,
+        'amount' => 120000,
         'status' => 'pending',
     ]);
 
     Shipment::create([
         'order_id' => $order->id,
-        'method' => 'ghn',
-        'carrier' => 'Giao Hang Nhanh',
-        'fee_amount' => 28500,
+        'method' => 'fast',
+        'carrier' => 'Nong San Viet Express',
+        'fee_amount' => 20000,
         'status' => 'pending',
     ]);
 
