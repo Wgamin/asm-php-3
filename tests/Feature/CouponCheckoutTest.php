@@ -5,7 +5,11 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\UserAddress;
+use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
@@ -24,6 +28,49 @@ function createCheckoutProduct(): Product
         'description' => 'Mo ta ngan',
         'content' => 'Noi dung chi tiet',
         'image' => 'products/test.jpg',
+    ]);
+}
+
+function enableCouponShippingConfig(): void
+{
+    config([
+        'shipping.default_provider' => 'ghn',
+        'shipping.providers.ghn.enabled' => true,
+        'shipping.providers.ghn.token' => 'ghn-test-token',
+        'shipping.providers.ghn.shop_id' => '123456',
+        'shipping.providers.ghtk.enabled' => false,
+    ]);
+}
+
+function fakeCouponShippingApis(): void
+{
+    Cache::flush();
+
+    Http::fake([
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['ProvinceID' => 201, 'ProvinceName' => 'Ha Noi'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['DistrictID' => 1450, 'DistrictName' => 'Cau Giay'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['WardCode' => '12345', 'WardName' => 'Dich Vong'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee' => Http::response([
+            'code' => 200,
+            'data' => [
+                'total' => 28500,
+            ],
+        ]),
     ]);
 }
 
@@ -61,8 +108,31 @@ it('applies a valid coupon at checkout', function () {
 });
 
 it('stores order with coupon discount', function () {
+    enableCouponShippingConfig();
+    fakeCouponShippingApis();
+
     $user = User::factory()->create();
     $product = createCheckoutProduct();
+    Warehouse::query()->create([
+        'name' => 'Kho Test',
+        'phone' => '0900000099',
+        'province' => 'Ha Noi',
+        'district' => 'Cau Giay',
+        'ward' => 'Dich Vong',
+        'address_line' => '1 Duong Kho',
+        'is_default' => true,
+        'is_active' => true,
+    ]);
+    $address = UserAddress::create([
+        'user_id' => $user->id,
+        'full_name' => 'Nguyen Van A',
+        'phone' => '0900000000',
+        'province' => 'Ha Noi',
+        'district' => 'Cau Giay',
+        'ward' => 'Dich Vong',
+        'address_line' => '123 Duong Test',
+        'is_default' => true,
+    ]);
 
     $coupon = Coupon::create([
         'code' => 'SAVE20',
@@ -90,9 +160,7 @@ it('stores order with coupon discount', function () {
             ],
         ])
         ->post(route('order.store'), [
-            'full_name' => 'Nguyen Van A',
-            'phone' => '0900000000',
-            'address' => '123 Duong Test',
+            'selected_address_id' => $address->id,
             'payment_method' => 'cod',
         ]);
 

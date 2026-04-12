@@ -5,7 +5,10 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
@@ -25,6 +28,49 @@ function createAddressCheckoutProduct(): Product
         'description' => 'Mo ta ngan',
         'content' => 'Noi dung chi tiet',
         'image' => 'products/test.jpg',
+    ]);
+}
+
+function enableAddressShippingConfig(): void
+{
+    config([
+        'shipping.default_provider' => 'ghn',
+        'shipping.providers.ghn.enabled' => true,
+        'shipping.providers.ghn.token' => 'ghn-test-token',
+        'shipping.providers.ghn.shop_id' => '123456',
+        'shipping.providers.ghtk.enabled' => false,
+    ]);
+}
+
+function fakeAddressShippingApis(): void
+{
+    Cache::flush();
+
+    Http::fake([
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['ProvinceID' => 202, 'ProvinceName' => 'TP HCM'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['DistrictID' => 1451, 'DistrictName' => 'Quan 1'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['WardCode' => '67890', 'WardName' => 'Ben Nghe'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee' => Http::response([
+            'code' => 200,
+            'data' => [
+                'total' => 28500,
+            ],
+        ]),
     ]);
 }
 
@@ -88,7 +134,20 @@ it('switches the default shipping address', function () {
 });
 
 it('stores order using the selected shipping address snapshot', function () {
+    enableAddressShippingConfig();
+    fakeAddressShippingApis();
+
     $user = User::factory()->create();
+    Warehouse::query()->create([
+        'name' => 'Kho Test',
+        'phone' => '0900000099',
+        'province' => 'TP HCM',
+        'district' => 'Quan 1',
+        'ward' => 'Ben Nghe',
+        'address_line' => '1 Duong Kho',
+        'is_default' => true,
+        'is_active' => true,
+    ]);
     $address = UserAddress::create([
         'user_id' => $user->id,
         'full_name' => 'Le Thi B',

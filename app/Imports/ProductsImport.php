@@ -57,6 +57,7 @@ class ProductsImport implements OnEachRow, WithHeadingRow
             'variant_sku' => $variant['sku'],
             'variant_price' => $variant['price'],
             'variant_sale_price' => $variant['sale_price'],
+            'variant_cost_price' => $variant['cost_price'],
             'variant_stock' => $variant['stock'],
             'variant_image' => $variant['image'],
         ]);
@@ -66,7 +67,9 @@ class ProductsImport implements OnEachRow, WithHeadingRow
             'product_type' => ['nullable', 'in:simple,variable'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'sale_price' => ['nullable', 'numeric', 'min:0'],
+            'cost_price' => ['nullable', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
+            'weight_grams' => ['nullable', 'integer', 'min:100'],
             'description' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'image' => ['nullable', 'string'],
@@ -85,6 +88,7 @@ class ProductsImport implements OnEachRow, WithHeadingRow
             $rules['variant_sku'] = ['nullable', 'string', 'max:255'];
             $rules['variant_price'] = ['required', 'numeric', 'min:0'];
             $rules['variant_sale_price'] = ['nullable', 'numeric', 'min:0'];
+            $rules['variant_cost_price'] = ['nullable', 'numeric', 'min:0'];
             $rules['variant_stock'] = ['required', 'integer', 'min:0'];
             $rules['variant_image'] = ['nullable', 'string'];
         }
@@ -121,7 +125,9 @@ class ProductsImport implements OnEachRow, WithHeadingRow
                         'product_type' => $productType,
                         'price' => $productType === 'variable' ? 0 : ($data['price'] ?? 0),
                         'sale_price' => $productType === 'variable' ? null : ($data['sale_price'] ?? null),
+                        'cost_price' => $productType === 'variable' ? 0 : ($data['cost_price'] ?? 0),
                         'stock' => $productType === 'variable' ? 0 : ($data['stock'] ?? 0),
+                        'weight_grams' => $data['weight_grams'] ?? 500,
                         'description' => $data['description'] ?? '',
                         'content' => $data['content'] ?? '',
                         'image' => $this->resolveImagePath($data['image'] ?? null),
@@ -154,6 +160,7 @@ class ProductsImport implements OnEachRow, WithHeadingRow
                     'sku' => $sku,
                     'price' => $variant['price'] ?? 0,
                     'sale_price' => $variant['sale_price'],
+                    'cost_price' => $variant['cost_price'] ?? 0,
                     'stock' => $variant['stock'] ?? 0,
                     'variant_values' => $variantValues,
                     'image' => $variant['image'] ? $this->resolveImagePath($variant['image'], 'products/variants') : null,
@@ -217,7 +224,9 @@ class ProductsImport implements OnEachRow, WithHeadingRow
             'product_type' => $this->normalizeProductType($this->rowValue($row, ['product_type', 'loai_san_pham'])),
             'price' => $this->numericValue($this->rowValue($row, ['price', 'gia_ban', 'gia'])),
             'sale_price' => $this->numericValue($this->rowValue($row, ['sale_price', 'gia_giam', 'gia_khuyen_mai'])),
+            'cost_price' => $this->numericValue($this->rowValue($row, ['cost_price', 'original_price', 'gia_nhap', 'gia_goc'])),
             'stock' => $this->intValue($this->rowValue($row, ['stock', 'ton_kho', 'so_luong'])),
+            'weight_grams' => $this->intValue($this->rowValue($row, ['weight_grams', 'weight', 'khoi_luong', 'khoi_luong_gram'])),
             'description' => trim((string) $this->rowValue($row, ['description', 'mo_ta'])),
             'content' => trim((string) $this->rowValue($row, ['content', 'noi_dung'])),
             'image' => trim((string) $this->rowValue($row, ['image', 'anh_dai_dien', 'image_path', 'main_image'])),
@@ -226,7 +235,7 @@ class ProductsImport implements OnEachRow, WithHeadingRow
     }
 
     /**
-     * @return array{sku:string,price:?float,sale_price:?float,stock:?int,image:string,variant_values:array<string,string>}
+     * @return array{sku:string,price:?float,sale_price:?float,cost_price:?float,stock:?int,image:string,variant_values:array<string,string>}
      */
     protected function normalizeVariant(array $row): array
     {
@@ -245,6 +254,7 @@ class ProductsImport implements OnEachRow, WithHeadingRow
             'sku' => trim((string) $this->rowValue($row, ['variant_sku', 'sku'])),
             'price' => $this->numericValue($this->rowValue($row, ['variant_price', 'gia_bien_the', 'price_variant'])),
             'sale_price' => $this->numericValue($this->rowValue($row, ['variant_sale_price', 'variant_sale', 'sale_price_variant'])),
+            'cost_price' => $this->numericValue($this->rowValue($row, ['variant_cost_price', 'variant_original_price', 'gia_nhap_bien_the'])),
             'stock' => $this->intValue($this->rowValue($row, ['variant_stock', 'variant_ton_kho', 'stock_variant', 'so_luong_bien_the'])),
             'image' => trim((string) $this->rowValue($row, ['variant_image', 'image_variant'])),
             'variant_values' => $variantValues,
@@ -351,6 +361,7 @@ class ProductsImport implements OnEachRow, WithHeadingRow
         return filled($variant['sku'])
             || $variant['price'] !== null
             || $variant['sale_price'] !== null
+            || $variant['cost_price'] !== null
             || $variant['stock'] !== null
             || filled($variant['image'])
             || ! empty($variant['variant_values']);

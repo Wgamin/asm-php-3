@@ -10,26 +10,27 @@ class OrderItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 
-        'product_id', 
+        'order_id',
+        'product_id',
         'variant_id',
-        'quantity', 
+        'quantity',
         'price',
+        'cost_price',
         'variant_sku',
         'variant_values',
     ];
 
     protected $casts = [
+        'price' => 'float',
+        'cost_price' => 'float',
         'variant_values' => 'array',
     ];
 
-    // Thiết lập quan hệ: Một chi tiết đơn hàng thuộc về một đơn hàng tổng
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    // Thiết lập quan hệ: Một chi tiết đơn hàng trỏ đến một sản phẩm
     public function product()
     {
         return $this->belongsTo(Product::class);
@@ -38,5 +39,15 @@ class OrderItem extends Model
     public function variant()
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id');
+    }
+
+    public function getCostTotalAttribute(): float
+    {
+        return (float) ($this->cost_price ?? 0) * (int) $this->quantity;
+    }
+
+    public function getProfitAmountAttribute(): float
+    {
+        return ((float) $this->price - (float) ($this->cost_price ?? 0)) * (int) $this->quantity;
     }
 }

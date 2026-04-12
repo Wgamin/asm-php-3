@@ -19,9 +19,11 @@ class Order extends Model
         'note',
         'subtotal_amount',
         'discount_amount',
+        'shipping_fee_amount',
         'coupon_id',
         'coupon_code',
         'total_amount',
+        'payable_amount',
         'status',
         'payment_method',
     ];
@@ -29,7 +31,9 @@ class Order extends Model
     protected $casts = [
         'subtotal_amount' => 'float',
         'discount_amount' => 'float',
+        'shipping_fee_amount' => 'float',
         'total_amount' => 'float',
+        'payable_amount' => 'float',
     ];
 
     public function getStatusTextAttribute()
@@ -69,5 +73,72 @@ class Order extends Model
     public function coupon()
     {
         return $this->belongsTo(Coupon::class);
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function shipment()
+    {
+        return $this->hasOne(Shipment::class);
+    }
+
+    public function statusHistories()
+    {
+        return $this->hasMany(OrderStatusHistory::class)->latest('id');
+    }
+
+    public function getPayableTotalAttribute(): float
+    {
+        return (float) ($this->payable_amount ?? $this->total_amount);
+    }
+
+    public function getEstimatedCostAmountAttribute(): float
+    {
+        $this->loadMissing(['items.product', 'items.variant']);
+
+        return (float) $this->items->sum(function ($item) {
+            $unitCost = $item->cost_price;
+
+            if ($unitCost === null) {
+                $unitCost = $item->variant?->cost_price ?? $item->product?->cost_price ?? 0;
+            }
+
+            return (float) $unitCost * (int) $item->quantity;
+        });
+    }
+
+    public function getGrossProfitAmountAttribute(): float
+    {
+        return (float) $this->payable_total - (float) $this->estimated_cost_amount;
+    }
+
+    public function canBeCancelledByCustomer(): bool
+    {
+        if ($this->status !== 'pending') {
+            return false;
+        }
+
+        $paymentStatus = $this->relationLoaded('payment')
+            ? $this->payment?->status
+            : $this->payment()?->value('status');
+
+        return $paymentStatus !== 'paid';
+    }
+
+    public function recordStatusHistory(string $source, ?string $message = null, ?array $payload = null): void
+    {
+        $this->loadMissing(['payment', 'shipment']);
+
+        $this->statusHistories()->create([
+            'source' => $source,
+            'order_status' => $this->status,
+            'payment_status' => $this->payment?->status,
+            'shipment_status' => $this->shipment?->status,
+            'message' => $message,
+            'payload' => $payload,
+        ]);
     }
 }
