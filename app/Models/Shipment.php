@@ -59,8 +59,11 @@ class Shipment extends Model
     public function getMethodTextAttribute(): string
     {
         return match ($this->method) {
-            'ghn' => 'GHN Test',
-            'ghtk' => 'GHTK Staging',
+            'fast' => 'Giao nhanh nội thành',
+            'standard' => 'Giao hàng tiêu chuẩn',
+            'free_shipping' => 'Miễn phí vận chuyển',
+            'ghn' => 'GHN',
+            'ghtk' => 'GHTK',
             default => 'Chua xac dinh',
         };
     }
