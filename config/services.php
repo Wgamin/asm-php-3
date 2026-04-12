@@ -40,4 +40,14 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
+        'system_instruction' => env(
+            'GEMINI_SYSTEM_INSTRUCTION',
+            'Ban la tro ly AI cua Nong San Viet. Tra loi ngan gon, lich su, uu tien huong dan mua hang, giao hang, san pham, bao quan thuc pham va cac thong tin lien quan den cua hang. Neu khong chac, hay noi ro va huong nguoi dung sang chat ho tro voi shop.'
+        ),
+    ],
+
 ];

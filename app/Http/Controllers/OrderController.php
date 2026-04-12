@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Shipment;
 use App\Models\UserAddress;
 use App\Services\CouponService;
+use App\Services\ShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +20,7 @@ use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
-    public function checkout(CouponService $couponService)
+    public function checkout(CouponService $couponService, ShippingService $shippingService)
     {
         $cart = $this->refreshCartFromDatabase(session()->get('cart', []));
         session()->put('cart', $cart);
@@ -31,11 +34,73 @@ class OrderController extends Controller
         $addresses = Auth::user()->addresses()->get();
         $defaultAddress = $addresses->firstWhere('is_default', true) ?? $addresses->first();
         $selectedAddressId = (int) old('selected_address_id', $defaultAddress?->id);
+        $selectedAddress = $addresses->firstWhere('id', $selectedAddressId) ?? $defaultAddress;
+        $selectedShippingProvider = (string) old('shipping_provider', '');
+        $delivery = $selectedAddress instanceof UserAddress
+            ? $this->addressToDelivery($selectedAddress)
+            : $this->emptyDelivery();
+        $shippingOptions = $shippingService->quoteOptions(
+            (float) $summary['total'],
+            $delivery,
+            $cart
+        );
+        $shippingQuote = $shippingService->resolveSelectedQuote($shippingOptions, $selectedShippingProvider);
+        $selectedShippingProvider = (string) ($shippingQuote['key'] ?? '');
+        $payableTotal = (float) $summary['total'] + (float) ($shippingQuote['fee'] ?? 0);
 
-        return view('checkout', compact('cart', 'summary', 'appliedCoupon', 'addresses', 'selectedAddressId'));
+        return view('checkout', compact(
+            'cart',
+            'summary',
+            'appliedCoupon',
+            'addresses',
+            'selectedAddressId',
+            'shippingOptions',
+            'selectedShippingProvider',
+            'shippingQuote',
+            'payableTotal'
+        ));
     }
 
-    public function store(Request $request, CouponService $couponService)
+    public function shippingOptions(Request $request, CouponService $couponService, ShippingService $shippingService)
+    {
+        $request->validate([
+            'selected_address_id' => ['nullable', 'integer'],
+            'shipping_provider' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $cart = $this->refreshCartFromDatabase(session()->get('cart', []));
+        session()->put('cart', $cart);
+
+        if (empty($cart)) {
+            return response()->json([
+                'message' => 'Gio hang trong.',
+            ], 422);
+        }
+
+        $appliedCoupon = $couponService->getAppliedCouponFromSession($cart);
+        $summary = $couponService->summarize($cart, $appliedCoupon);
+        $delivery = $this->resolveDeliveryInformation($request);
+        $quotes = $shippingService->quoteOptions((float) $summary['total'], $delivery, $cart);
+        if ($quotes === []) {
+            return response()->json([
+                'message' => 'Hiện chưa lấy được phí ship từ GHN hoặc GHTK cho địa chỉ này.',
+            ], 422);
+        }
+
+        $selectedQuote = $shippingService->resolveSelectedQuote($quotes, (string) $request->input('shipping_provider'));
+
+        return response()->json([
+            'options' => array_values(array_map(
+                fn (array $quote): array => $this->serializeShippingQuote($quote),
+                $quotes
+            )),
+            'selected' => $this->serializeShippingQuote($selectedQuote),
+            'payable_total' => (float) $summary['total'] + (float) ($selectedQuote['fee'] ?? 0),
+            'subtotal_total' => (float) $summary['total'],
+        ]);
+    }
+
+    public function store(Request $request, CouponService $couponService, ShippingService $shippingService)
     {
         $usesSavedAddress = $request->filled('selected_address_id');
 
@@ -44,7 +109,8 @@ class OrderController extends Controller
             'full_name' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:255'],
             'phone' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:30'],
             'address' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:500'],
-            'payment_method' => ['required', 'string', 'max:50'],
+            'shipping_provider' => ['nullable', 'string', 'max:50'],
+            'payment_method' => ['required', 'string', Rule::in(['cod', 'vnpay'])],
             'note' => ['nullable', 'string'],
         ]);
 
@@ -78,6 +144,32 @@ class OrderController extends Controller
                 $summary = $couponService->summarize($pricingCart, $coupon);
             }
 
+            $shippingOptions = $shippingService->quoteOptions(
+                (float) $summary['total'],
+                $delivery,
+                $pricingCart
+            );
+
+            if ($shippingOptions === []) {
+                throw ValidationException::withMessages([
+                    'shipping_provider' => 'Hiện chưa lấy được phí ship từ GHN hoặc GHTK cho địa chỉ này.',
+                ]);
+            }
+
+            $requestedShippingProvider = $request->filled('shipping_provider')
+                ? (string) $request->input('shipping_provider')
+                : null;
+
+            if ($requestedShippingProvider && ! isset($shippingOptions[$requestedShippingProvider])) {
+                throw ValidationException::withMessages([
+                    'shipping_provider' => 'Don vi van chuyen khong hop le.',
+                ]);
+            }
+
+            $shippingQuote = $shippingService->resolveSelectedQuote($shippingOptions, $requestedShippingProvider);
+            $shippingFee = (float) $shippingQuote['fee'];
+            $payableAmount = (float) $summary['total'] + $shippingFee;
+
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'order_number' => 'ORD-' . strtoupper(uniqid()),
@@ -88,11 +180,34 @@ class OrderController extends Controller
                 'note' => $request->note,
                 'subtotal_amount' => $summary['subtotal'],
                 'discount_amount' => $summary['discount'],
+                'shipping_fee_amount' => $shippingFee,
                 'coupon_id' => $coupon?->id,
                 'coupon_code' => $coupon?->code,
                 'total_amount' => $summary['total'],
+                'payable_amount' => $payableAmount,
                 'status' => 'pending', // Luôn set pending lúc đầu, VNPAY trả về thành công mới đổi trạng thái
                 'payment_method' => $request->payment_method,
+            ]);
+
+            $payment = Payment::create([
+                'order_id' => $order->id,
+                'method' => $request->payment_method,
+                'provider' => $request->payment_method === 'vnpay' ? 'vnpay' : 'cash_on_delivery',
+                'amount' => $payableAmount,
+                'status' => 'pending',
+                'metadata' => [
+                    'label' => $request->payment_method === 'vnpay' ? 'Thanh toan online' : 'Thu tien khi giao hang',
+                ],
+            ]);
+
+            $shipment = Shipment::create([
+                'order_id' => $order->id,
+                'method' => (string) $shippingQuote['method'],
+                'carrier' => (string) $shippingQuote['carrier'],
+                'fee_amount' => $shippingFee,
+                'status' => 'pending',
+                'estimated_delivery_at' => $shippingQuote['estimated_delivery_at'],
+                'notes' => trim((string) $shippingQuote['description'] . (! empty($shippingQuote['is_live']) ? ' [API test]' : '')),
             ]);
 
             foreach ($preparedLines as $line) {
@@ -102,6 +217,7 @@ class OrderController extends Controller
                 $variant = $line['variant'];
                 $quantity = $line['quantity'];
                 $price = $line['price'];
+                $costPrice = (float) ($variant?->cost_price ?? $product->cost_price ?? 0);
 
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -109,6 +225,7 @@ class OrderController extends Controller
                     'variant_id' => $variant?->id,
                     'quantity' => $quantity,
                     'price' => $price,
+                    'cost_price' => $costPrice,
                     'variant_sku' => $variant?->sku,
                     'variant_values' => $line['variant_values'] ?: null,
                 ]);
@@ -124,6 +241,15 @@ class OrderController extends Controller
                 $coupon->increment('used_count');
             }
 
+            $order->setRelation('payment', $payment);
+            $order->setRelation('shipment', $shipment);
+            $order->recordStatusHistory('system', 'Tao don hang moi', [
+                'payment_method' => $request->payment_method,
+                'coupon_code' => $coupon?->code,
+                'shipping_method' => $shippingQuote['method'],
+                'shipping_provider' => $shippingQuote['key'] ?? null,
+            ]);
+
             DB::commit();
 
             // ==========================================
@@ -135,7 +261,7 @@ class OrderController extends Controller
                 // Gán thêm thông tin đơn hàng vào request để PaymentController dùng
                 $request->merge([
                     'order_id' => $order->id,
-                    'total_amount' => $order->total_amount
+                    'total_amount' => $order->payable_total,
                 ]);
 
                 // Trỏ sang hàm createPayment của PaymentController
@@ -167,7 +293,14 @@ class OrderController extends Controller
             return redirect()->route('home');
         }
 
-        return view('order_success', ['order_number' => $orderNumber]);
+        $order = Auth::check()
+            ? Order::where('user_id', Auth::id())->where('order_number', $orderNumber)->first()
+            : null;
+
+        return view('order_success', [
+            'order_number' => $orderNumber,
+            'order' => $order,
+        ]);
     }
 
     /**
@@ -334,6 +467,7 @@ class OrderController extends Controller
                 'variant_id' => $variantId,
                 'quantity' => max((int) ($item['quantity'] ?? 1), 1),
                 'price' => (float) ($item['price'] ?? 0),
+                'weight_grams' => max((int) ($item['weight_grams'] ?? 0), 0),
                 'image' => $item['image'] ?? null,
                 'name' => (string) ($item['name'] ?? ''),
                 'sku' => $item['sku'] ?? null,
@@ -393,6 +527,7 @@ class OrderController extends Controller
             'name' => $product->name,
             'quantity' => max($quantity, 1),
             'price' => $this->unitPrice($product, $variant),
+            'weight_grams' => max((int) ($product->weight_grams ?? 0), 0),
             'image' => $variant?->image ?: $product->image,
             'sku' => $variant?->sku,
             'variant_values' => $variantValues,
@@ -424,7 +559,18 @@ class OrderController extends Controller
     }
 
     /**
-     * @return array{full_name:string, phone:string, address:string}
+     * @param  array<string, array<string, mixed>>  $cart
+     */
+    protected function cartQuantity(array $cart): int
+    {
+        return array_sum(array_map(
+            fn (array $line): int => max((int) ($line['quantity'] ?? 0), 0),
+            $cart
+        ));
+    }
+
+    /**
+     * @return array{full_name:string, phone:string, address:string, shipping_region:?string, province:?string, district:?string, ward:?string, address_line:?string}
      */
     protected function resolveDeliveryInformation(Request $request): array
     {
@@ -437,17 +583,71 @@ class OrderController extends Controller
                 ]);
             }
 
-            return [
-                'full_name' => $address->full_name,
-                'phone' => $address->phone,
-                'address' => $address->full_address,
-            ];
+            return $this->addressToDelivery($address);
         }
 
         return [
             'full_name' => (string) $request->input('full_name'),
             'phone' => (string) $request->input('phone'),
             'address' => (string) $request->input('address'),
+            'shipping_region' => (string) $request->input('address'),
+            'province' => null,
+            'district' => null,
+            'ward' => null,
+            'address_line' => (string) $request->input('address'),
+        ];
+    }
+
+    /**
+     * @return array{full_name:string, phone:string, address:string, shipping_region:?string, province:?string, district:?string, ward:?string, address_line:?string}
+     */
+    protected function addressToDelivery(UserAddress $address): array
+    {
+        return [
+            'full_name' => $address->full_name,
+            'phone' => $address->phone,
+            'address' => $address->full_address,
+            'shipping_region' => $address->province,
+            'province' => $address->province,
+            'district' => $address->district,
+            'ward' => $address->ward,
+            'address_line' => $address->address_line,
+        ];
+    }
+
+    /**
+     * @return array{full_name:string, phone:string, address:string, shipping_region:?string, province:?string, district:?string, ward:?string, address_line:?string}
+     */
+    protected function emptyDelivery(): array
+    {
+        return [
+            'full_name' => '',
+            'phone' => '',
+            'address' => '',
+            'shipping_region' => null,
+            'province' => null,
+            'district' => null,
+            'ward' => null,
+            'address_line' => null,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $quote
+     * @return array<string, mixed>
+     */
+    protected function serializeShippingQuote(array $quote): array
+    {
+        return [
+            'key' => (string) ($quote['key'] ?? ''),
+            'provider' => (string) ($quote['provider'] ?? ''),
+            'method' => (string) ($quote['method'] ?? ''),
+            'label' => (string) ($quote['label'] ?? ''),
+            'carrier' => (string) ($quote['carrier'] ?? ''),
+            'fee' => (float) ($quote['fee'] ?? 0),
+            'estimated_days' => (int) ($quote['estimated_days'] ?? 0),
+            'description' => (string) ($quote['description'] ?? ''),
+            'is_live' => (bool) ($quote['is_live'] ?? false),
         ];
     }
 }

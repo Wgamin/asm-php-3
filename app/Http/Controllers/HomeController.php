@@ -10,8 +10,16 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
-        $products = Product::with('category')->latest()->take(8)->get();
+        $categories = Category::withCount('products')
+            ->orderByDesc('products_count')
+            ->limit(6)
+            ->get();
+        $products = Product::with(['category', 'variants'])
+            ->withCount('approvedReviews as reviews_count')
+            ->withAvg('approvedReviews as reviews_avg_rating', 'rating')
+            ->latest()
+            ->take(8)
+            ->get();
         $latestNews = NewsArticle::published()->latest('published_at')->take(3)->get();
 
         return view('welcome', compact('categories', 'products', 'latestNews'));

@@ -93,7 +93,9 @@ class ProductController extends Controller
                 'product_type' => $validated['product_type'],
                 'price' => $isSimple ? ($validated['price'] ?? 0) : 0,
                 'sale_price' => $isSimple ? ($validated['sale_price'] ?? null) : null,
+                'cost_price' => $isSimple ? ($validated['cost_price'] ?? 0) : 0,
                 'stock' => $isSimple ? ($validated['stock'] ?? 0) : 0,
+                'weight_grams' => $validated['weight_grams'] ?? 500,
                 'image' => $imagePath,
                 'description' => $validated['description'] ?? '',
                 'content' => $validated['content'] ?? '',
@@ -120,6 +122,7 @@ class ProductController extends Controller
                         'sku' => $variantData['sku'] ?: strtoupper(Str::random(10)),
                         'price' => $variantData['price'],
                         'sale_price' => $variantData['sale_price'] ?? null,
+                        'cost_price' => $variantData['cost_price'] ?? 0,
                         'stock' => $variantData['stock'],
                         'variant_values' => $variantData['attributes'] ?? [],
                         'image' => $variantImagePath,
@@ -166,7 +169,9 @@ class ProductController extends Controller
                 'content' => $validated['content'] ?? '',
                 'price' => $isSimple ? ($validated['price'] ?? 0) : 0,
                 'sale_price' => $isSimple ? ($validated['sale_price'] ?? null) : null,
+                'cost_price' => $isSimple ? ($validated['cost_price'] ?? 0) : 0,
                 'stock' => $isSimple ? ($validated['stock'] ?? 0) : 0,
+                'weight_grams' => $validated['weight_grams'] ?? 500,
             ];
 
             if ($request->hasFile('image')) {
@@ -214,6 +219,7 @@ class ProductController extends Controller
                         'sku' => $variantData['sku'] ?: strtoupper(Str::random(10)),
                         'price' => $variantData['price'],
                         'sale_price' => $variantData['sale_price'] ?? null,
+                        'cost_price' => $variantData['cost_price'] ?? 0,
                         'stock' => $variantData['stock'],
                         'variant_values' => $variantData['attributes'] ?? [],
                         'image' => $variantImagePath ?? ($variantData['existing_image'] ?? null),
@@ -260,11 +266,14 @@ class ProductController extends Controller
             'content' => ['nullable', 'string'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'sale_price' => ['nullable', 'numeric', 'min:0', 'lte:price'],
+            'cost_price' => ['nullable', 'numeric', 'min:0'],
             'stock' => ['required_if:product_type,simple', 'integer', 'min:0'],
+            'weight_grams' => ['required', 'integer', 'min:100', 'max:50000'],
             'variants' => ['required_if:product_type,variable', 'array', 'min:1'],
             'variants.*.sku' => ['nullable', 'string', 'max:255'],
             'variants.*.price' => ['required_if:product_type,variable', 'numeric', 'min:0'],
             'variants.*.sale_price' => ['nullable', 'numeric', 'min:0', 'lte:variants.*.price'],
+            'variants.*.cost_price' => ['nullable', 'numeric', 'min:0'],
             'variants.*.stock' => ['required_if:product_type,variable', 'integer', 'min:0'],
             'variants.*.attributes' => ['nullable', 'array'],
             'variants.*.existing_image' => ['nullable', 'string'],
@@ -273,6 +282,7 @@ class ProductController extends Controller
             'image.required' => 'Vui long chon anh dai dien chinh.',
             'sale_price.lte' => 'Gia giam khong duoc lon hon gia thuong.',
             'variants.*.price.required_if' => 'Gia bien the khong duoc de trong.',
+            'weight_grams.required' => 'Vui long nhap khoi luong san pham.',
         ]);
     }
 }

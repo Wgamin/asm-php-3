@@ -5,7 +5,11 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
+use App\Models\UserAddress;
+use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
@@ -14,6 +18,49 @@ function createStockCategory(): Category
     return Category::create([
         'name' => 'Hang test',
         'slug' => 'hang-test',
+    ]);
+}
+
+function enableStockShippingConfig(): void
+{
+    config([
+        'shipping.default_provider' => 'ghn',
+        'shipping.providers.ghn.enabled' => true,
+        'shipping.providers.ghn.token' => 'ghn-test-token',
+        'shipping.providers.ghn.shop_id' => '123456',
+        'shipping.providers.ghtk.enabled' => false,
+    ]);
+}
+
+function fakeStockShippingApis(): void
+{
+    Cache::flush();
+
+    Http::fake([
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['ProvinceID' => 201, 'ProvinceName' => 'Ha Noi'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['DistrictID' => 1450, 'DistrictName' => 'Cau Giay'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward*' => Http::response([
+            'code' => 200,
+            'data' => [
+                ['WardCode' => '12345', 'WardName' => 'Dich Vong'],
+            ],
+        ]),
+        'https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee' => Http::response([
+            'code' => 200,
+            'data' => [
+                'total' => 28500,
+            ],
+        ]),
     ]);
 }
 
@@ -59,8 +106,31 @@ it('prevents checkout when quantity exceeds stock', function () {
 });
 
 it('stores variant in order_items and deducts variant stock', function () {
+    enableStockShippingConfig();
+    fakeStockShippingApis();
+
     $user = User::factory()->create();
     $category = createStockCategory();
+    Warehouse::query()->create([
+        'name' => 'Kho Test',
+        'phone' => '0900000099',
+        'province' => 'Ha Noi',
+        'district' => 'Cau Giay',
+        'ward' => 'Dich Vong',
+        'address_line' => '1 Duong Kho',
+        'is_default' => true,
+        'is_active' => true,
+    ]);
+    $address = UserAddress::create([
+        'user_id' => $user->id,
+        'full_name' => 'Nguyen Van A',
+        'phone' => '0900000000',
+        'province' => 'Ha Noi',
+        'district' => 'Cau Giay',
+        'ward' => 'Dich Vong',
+        'address_line' => '123 Duong Test',
+        'is_default' => true,
+    ]);
 
     $product = Product::create([
         'category_id' => $category->id,
@@ -107,9 +177,7 @@ it('stores variant in order_items and deducts variant stock', function () {
             ],
         ])
         ->post(route('order.store'), [
-            'full_name' => 'Nguyen Van A',
-            'phone' => '0900000000',
-            'address' => '123 Duong Test',
+            'selected_address_id' => $address->id,
             'payment_method' => 'cod',
         ]);
 
