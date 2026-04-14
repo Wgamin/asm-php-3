@@ -3,38 +3,54 @@
 @section('title', 'Đăng ký Admin')
 
 @section('content')
-    <form action="{{ route('admin.register') }}" method="POST">
-        @csrf
-        
-        <div class="mb-3">
-            <label class="form-label">Họ tên</label>
-            <input type="text" name="name" class="form-control" required value="{{ old('name') }}">
-            @error('name') <span class="text-danger fs-7">{{ $message }}</span> @enderror
+    <div class="space-y-6">
+        <div>
+            <p class="admin-kicker">Admin onboarding</p>
+            <h1 class="admin-headline mt-2 text-3xl font-bold tracking-[-0.04em] text-[var(--admin-text)]">Tạo tài khoản quản trị</h1>
+            <p class="admin-copy mt-3 text-sm">Tạo tài khoản admin mới cho môi trường nội bộ. Chỉ dùng cho nhu cầu quản trị và kiểm thử.</p>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" required value="{{ old('email') }}">
-            @error('email') <span class="text-danger fs-7">{{ $message }}</span> @enderror
-        </div>
+        <form action="{{ route('admin.register') }}" method="POST" class="space-y-5">
+            @csrf
 
-        <div class="mb-3">
-            <label class="form-label">Mật khẩu</label>
-            <input type="password" name="password" class="form-control" required>
-            @error('password') <span class="text-danger fs-7">{{ $message }}</span> @enderror
-        </div>
+            <div>
+                <label class="admin-field-label">Họ và tên</label>
+                <input type="text" name="name" value="{{ old('name') }}" required placeholder="Ví dụ: Nguyễn Văn Admin">
+                @error('name')
+                    <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Nhập lại mật khẩu</label>
-            <input type="password" name="password_confirmation" class="form-control" required>
-        </div>
+            <div>
+                <label class="admin-field-label">Email quản trị</label>
+                <input type="email" name="email" value="{{ old('email') }}" required placeholder="admin@nongsanviet.vn">
+                @error('email')
+                    <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <div class="d-grid mb-3">
-            <button type="submit" class="btn btn-admin btn-lg">TẠO TÀI KHOẢN ADMIN</button>
-        </div>
+            <div>
+                <label class="admin-field-label">Mật khẩu</label>
+                <input type="password" name="password" required placeholder="Tối thiểu 6 ký tự">
+                @error('password')
+                    <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <div class="text-center">
-            <a href="{{ route('admin.login') }}" class="text-muted fs-7">Đã có tài khoản? Đăng nhập</a>
+            <div>
+                <label class="admin-field-label">Xác nhận mật khẩu</label>
+                <input type="password" name="password_confirmation" required placeholder="Nhập lại mật khẩu">
+            </div>
+
+            <button type="submit" class="admin-btn-primary w-full rounded-[1rem] py-4 text-base">
+                <i class="fas fa-shield-halved text-sm"></i>
+                Tạo tài khoản admin
+            </button>
+        </form>
+
+        <div class="rounded-[1rem] bg-[var(--admin-surface-low)] px-4 py-4 text-sm text-[var(--admin-text-muted)]">
+            Đã có tài khoản?
+            <a href="{{ route('admin.login') }}" class="font-semibold text-[var(--admin-primary)] hover:underline">Đăng nhập quản trị</a>
         </div>
-    </form>
+    </div>
 @endsection

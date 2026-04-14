@@ -3,75 +3,123 @@
 @section('title', 'Cài đặt hệ thống')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 py-10">
-    <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-800">Cài đặt hệ thống</h1>
-        <p class="text-sm text-gray-500">Quản lý thông tin tài khoản quản trị tối cao.</p>
-    </div>
-
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-2xl flex items-center">
-            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-        </div>
-    @endif
-
-    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-8 border-b border-gray-50 bg-gray-50/30">
-            <div class="flex items-center gap-6">
-                <div class="relative">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($admin->name) }}&background=10b981&color=fff&size=128" 
-                         class="w-24 h-24 rounded-3xl shadow-inner border-4 border-white">
-                    <div class="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-xl text-xs shadow-lg">
-                        <i class="fas fa-shield-alt"></i> Root
-                    </div>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800">{{ $admin->name }}</h2>
-                    <p class="text-sm text-emerald-600 font-medium italic">Administrator</p>
-                </div>
+    <div class="mx-auto max-w-6xl space-y-8">
+        @if(session('success'))
+            <div class="rounded-[1.2rem] bg-[rgba(223,243,219,0.85)] px-5 py-4 text-sm font-semibold text-[var(--admin-success-text)]">
+                {{ session('success') }}
             </div>
-        </div>
+        @endif
 
-        <form action="{{ route('admin.settings.update') }}" method="POST" class="p-8 space-y-6">
+        <section>
+            <p class="admin-kicker">System & security</p>
+            <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Cài đặt hệ thống</h1>
+            <p class="admin-copy mt-3 max-w-3xl text-sm">Quản lý hồ sơ quản trị viên và cấu hình kho mặc định để phục vụ luồng vận hành, thanh toán và vận chuyển trong toàn bộ hệ thống.</p>
+        </section>
+
+        <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-8">
             @csrf
             @method('PUT')
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Tên hiển thị</label>
-                    <input type="text" name="name" value="{{ old('name', $admin->name) }}" 
-                        class="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:ring-2 focus:ring-emerald-500 transition-all outline-none">
-                </div>
+            <div class="grid gap-6 xl:grid-cols-[1.25fr_1fr]">
+                <section class="admin-surface-card p-7">
+                    <div class="mb-8 flex items-start gap-4">
+                        <img
+                            src="https://ui-avatars.com/api/?name={{ urlencode($admin->name) }}&background=206223&color=fff&size=128"
+                            alt="{{ $admin->name }}"
+                            class="h-24 w-24 rounded-[1.5rem] object-cover ring-4 ring-[rgba(255,255,255,0.85)]"
+                        >
+                        <div>
+                            <p class="admin-kicker">Admin profile</p>
+                            <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">{{ $admin->name }}</h3>
+                            <p class="mt-2 text-sm text-[var(--admin-text-muted)]">{{ $admin->email }}</p>
+                            <span class="admin-badge admin-badge--success mt-4 inline-flex normal-case tracking-normal">Tài khoản quản trị</span>
+                        </div>
+                    </div>
 
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Email quản trị</label>
-                    <input type="email" name="email" value="{{ old('email', $admin->email) }}" 
-                        class="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:ring-2 focus:ring-emerald-500 transition-all outline-none">
-                </div>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div>
+                            <label class="admin-field-label">Tên hiển thị</label>
+                            <input type="text" name="name" value="{{ old('name', $admin->name) }}" required>
+                        </div>
+                        <div>
+                            <label class="admin-field-label">Email quản trị</label>
+                            <input type="email" name="email" value="{{ old('email', $admin->email) }}" required>
+                        </div>
+                        <div>
+                            <label class="admin-field-label">Mật khẩu mới</label>
+                            <input type="password" name="password" placeholder="Để trống nếu không đổi">
+                        </div>
+                        <div>
+                            <label class="admin-field-label">Xác nhận mật khẩu</label>
+                            <input type="password" name="password_confirmation" placeholder="Nhập lại mật khẩu mới">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-panel-muted p-7">
+                    <p class="admin-kicker">Vận hành</p>
+                    <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Thông tin cấu hình nhanh</h3>
+                    <div class="mt-6 space-y-4 text-sm text-[var(--admin-text-muted)]">
+                        <div class="rounded-[1.1rem] bg-white px-4 py-4">
+                            <p class="font-semibold text-[var(--admin-text)]">Phạm vi cấu hình</p>
+                            <p class="mt-2 leading-7">Cập nhật đồng thời hồ sơ admin và địa chỉ kho mặc định đang được sử dụng cho toàn bộ luồng checkout và shipment.</p>
+                        </div>
+                        <div class="rounded-[1.1rem] bg-white px-4 py-4">
+                            <p class="font-semibold text-[var(--admin-text)]">Bảo mật</p>
+                            <p class="mt-2 leading-7">Nếu thay đổi mật khẩu, hệ thống sẽ lưu lại bằng cơ chế hash chuẩn Laravel. Để trống nếu chỉ muốn cập nhật tên hoặc email.</p>
+                        </div>
+                    </div>
+                </section>
             </div>
 
-            <hr class="border-gray-50">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Mật khẩu mới</label>
-                    <input type="password" name="password" placeholder="Để trống nếu không đổi"
-                        class="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:ring-2 focus:ring-emerald-500 transition-all outline-none">
+            <section class="admin-surface-card p-7">
+                <div class="mb-8">
+                    <p class="admin-kicker">Warehouse default</p>
+                    <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Kho mặc định</h3>
+                    <p class="admin-copy mt-2 text-sm">Kho này được dùng làm điểm xuất phát mặc định cho các luồng vận chuyển hiện tại của dự án.</p>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Xác nhận mật khẩu</label>
-                    <input type="password" name="password_confirmation" placeholder="Nhập lại mật khẩu mới"
-                        class="w-full px-5 py-3.5 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:ring-2 focus:ring-emerald-500 transition-all outline-none">
+                <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    <div>
+                        <label class="admin-field-label">Tên kho</label>
+                        <input type="text" name="warehouse_name" value="{{ old('warehouse_name', $warehouse?->name) }}" required>
+                    </div>
+                    <div>
+                        <label class="admin-field-label">Số điện thoại</label>
+                        <input type="text" name="warehouse_phone" value="{{ old('warehouse_phone', $warehouse?->phone) }}" required>
+                    </div>
+                    <div>
+                        <label class="admin-field-label">Tỉnh / Thành phố</label>
+                        <input type="text" name="warehouse_province" value="{{ old('warehouse_province', $warehouse?->province) }}" required>
+                    </div>
+                    <div>
+                        <label class="admin-field-label">Quận / Huyện</label>
+                        <input type="text" name="warehouse_district" value="{{ old('warehouse_district', $warehouse?->district) }}" required>
+                    </div>
+                    <div>
+                        <label class="admin-field-label">Phường / Xã</label>
+                        <input type="text" name="warehouse_ward" value="{{ old('warehouse_ward', $warehouse?->ward) }}" required>
+                    </div>
+                    <div class="md:col-span-2 xl:col-span-3">
+                        <label class="admin-field-label">Địa chỉ chi tiết</label>
+                        <textarea name="warehouse_address_line" rows="4" required>{{ old('warehouse_address_line', $warehouse?->address_line) }}</textarea>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="pt-6 flex justify-end">
-                <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold shadow-lg transition transform hover:-translate-y-1 active:scale-95">
-                    Lưu thay đổi
-                </button>
+            <div class="admin-glass sticky bottom-4 z-20 flex flex-col gap-3 rounded-[1.2rem] border border-[rgba(112,122,108,0.12)] px-5 py-4 shadow-[0_30px_60px_-30px_rgba(25,28,30,0.22)] md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="text-sm font-bold text-[var(--admin-text)]">Sẵn sàng lưu thay đổi</p>
+                    <p class="mt-1 text-xs text-[var(--admin-text-muted)]">Áp dụng cho hồ sơ admin và kho mặc định của hệ thống.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="{{ route('admin.dashboard') }}" class="admin-btn-ghost">Hủy bỏ</a>
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-floppy-disk text-sm"></i>
+                        Lưu thay đổi
+                    </button>
+                </div>
             </div>
         </form>
     </div>
-</div>
 @endsection

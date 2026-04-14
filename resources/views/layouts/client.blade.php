@@ -306,8 +306,268 @@
         </div>
     </footer>
 
+    <div
+        x-data="aiWidget({
+            available: @js(filled(config('services.gemini.api_key'))),
+            messagesUrl: @js(route('ai-chat.messages')),
+            sendUrl: @js(route('ai-chat.send')),
+            clearUrl: @js(route('ai-chat.clear')),
+            csrfToken: @js(csrf_token()),
+            supportUrl: @js(auth()->check() ? route('chat.index') : route('login')),
+            authenticated: @js(auth()->check()),
+        })"
+        x-init="init()"
+        class="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3"
+    >
+        <template x-if="open">
+            <div
+                x-cloak
+                x-transition
+                class="w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl"
+            >
+                <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">AI Chatbot</p>
+                        <p class="text-[11px] text-slate-500">Hỏi nhanh về sản phẩm và mua sắm</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            @click="clearMessages()"
+                            class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                            title="Xóa hội thoại"
+                        >
+                            <i class="fas fa-rotate-left text-xs"></i>
+                        </button>
+                        <button
+                            type="button"
+                            @click="open = false"
+                            class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                            title="Đóng"
+                        >
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="h-80 space-y-3 overflow-y-auto bg-white px-4 py-4" x-ref="messagesBox">
+                    <template x-if="!available">
+                        <div class="rounded-2xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-700">
+                            Gemini chưa được cấu hình API key.
+                        </div>
+                    </template>
+
+                    <template x-if="available && messages.length === 0">
+                        <div class="rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">
+                            Bạn có thể hỏi về sản phẩm, cách mua hàng, đánh giá, giao hàng hoặc thanh toán.
+                        </div>
+                    </template>
+
+                    <template x-for="(message, index) in messages" :key="index">
+                        <div :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                            <div
+                                class="max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm"
+                                :class="message.role === 'user'
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-slate-100 text-slate-700'"
+                                x-text="message.text"
+                            ></div>
+                        </div>
+                    </template>
+
+                    <template x-if="loading">
+                        <div class="flex justify-start">
+                            <div class="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-500">
+                                Đang trả lời...
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="border-t border-slate-100 bg-white p-3">
+                    <form @submit.prevent="send()" class="flex items-end gap-2">
+                        <textarea
+                            x-model="draft"
+                            rows="1"
+                            maxlength="1000"
+                            placeholder="Nhập câu hỏi..."
+                            class="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                        ></textarea>
+                        <button
+                            type="submit"
+                            :disabled="loading || !draft.trim() || !available"
+                            class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                            title="Gửi"
+                        >
+                            <i class="fas fa-paper-plane text-sm"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </template>
+
+        <div class="flex flex-col items-end gap-3">
+            <a
+                href="{{ auth()->check() ? route('chat.index') : route('login') }}"
+                class="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-emerald-700"
+                title="{{ auth()->check() ? 'Chat hỗ trợ' : 'Đăng nhập để chat hỗ trợ' }}"
+            >
+                <i class="fas fa-headset text-lg"></i>
+            </a>
+
+            <button
+                type="button"
+                @click="toggle()"
+                class="flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-slate-800"
+                title="Mở AI chatbot"
+            >
+                <i class="fas fa-sparkles text-lg"></i>
+            </button>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        function aiWidget(config) {
+            return {
+                open: false,
+                loading: false,
+                messages: [],
+                draft: '',
+                available: Boolean(config.available),
+                messagesUrl: config.messagesUrl,
+                sendUrl: config.sendUrl,
+                clearUrl: config.clearUrl,
+                csrfToken: config.csrfToken,
+
+                normalizeMessage(message) {
+                    return {
+                        id: message?.id || String(Date.now()),
+                        role: message?.role === 'model' ? 'assistant' : (message?.role || 'assistant'),
+                        text: message?.text || message?.message || '',
+                        created_at: message?.created_at || null,
+                    };
+                },
+
+                normalizeMessages(messages) {
+                    if (!Array.isArray(messages)) {
+                        return [];
+                    }
+
+                    return messages
+                        .map((message) => this.normalizeMessage(message))
+                        .filter((message) => message.text);
+                },
+
+                init() {
+                    if (this.available) {
+                        this.fetchMessages();
+                    }
+                },
+
+                toggle() {
+                    this.open = !this.open;
+
+                    if (this.open && this.available) {
+                        this.fetchMessages();
+                    }
+                },
+
+                async fetchMessages() {
+                    try {
+                        const response = await fetch(this.messagesUrl, {
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                            cache: 'no-store',
+                        });
+
+                        const data = await response.json();
+                        this.available = Boolean(data.available ?? this.available);
+                        this.messages = this.normalizeMessages(data.messages);
+                        this.$nextTick(() => this.scrollToBottom());
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+
+                async send() {
+                    const message = this.draft.trim();
+
+                    if (!message || this.loading || !this.available) {
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.messages.push(this.normalizeMessage({ role: 'user', text: message }));
+                    this.draft = '';
+                    this.$nextTick(() => this.scrollToBottom());
+
+                    try {
+                        const response = await fetch(this.sendUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken,
+                            },
+                            body: JSON.stringify({ message }),
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Không thể gửi tin nhắn.');
+                        }
+
+                        if (Array.isArray(data.messages)) {
+                            this.messages = this.normalizeMessages(data.messages);
+                        } else if (data.message) {
+                            this.messages.push(this.normalizeMessage(data.message));
+                        }
+                    } catch (error) {
+                        this.messages.push({
+                            role: 'assistant',
+                            text: error.message || 'Hệ thống AI đang bận, vui lòng thử lại.',
+                        });
+                    } finally {
+                        this.loading = false;
+                        this.$nextTick(() => this.scrollToBottom());
+                    }
+                },
+
+                async clearMessages() {
+                    if (!this.available || this.loading) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(this.clearUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken,
+                            },
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Không thể xóa hội thoại.');
+                        }
+
+                        this.messages = [];
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+
+                scrollToBottom() {
+                    if (this.$refs.messagesBox) {
+                        this.$refs.messagesBox.scrollTop = this.$refs.messagesBox.scrollHeight;
+                    }
+                },
+            };
+        }
+
         $(document).on('click', '.toggle-wishlist', function (e) {
             e.preventDefault();
 

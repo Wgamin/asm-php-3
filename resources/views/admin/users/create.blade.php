@@ -1,58 +1,60 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Thêm khách hàng mới')
+@section('title', 'Thêm khách hàng')
 
 @section('content')
-<div class="max-w-3xl mx-auto px-4 py-8">
-    <div class="mb-8 flex items-center justify-between">
-        <div>
-            <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-500 hover:text-emerald-600 flex items-center mb-2">
-                <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+    <div class="mx-auto max-w-4xl space-y-8">
+        <section class="flex items-end justify-between gap-4">
+            <div>
+                <p class="admin-kicker">CRM cơ bản</p>
+                <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Thêm khách hàng mới</h1>
+                <p class="admin-copy mt-3 max-w-2xl text-sm">Tạo tài khoản mua hàng mới để quản lý hoặc hỗ trợ vận hành nội bộ trong môi trường admin.</p>
+            </div>
+            <a href="{{ route('admin.users.index') }}" class="admin-btn-secondary">
+                <i class="fas fa-arrow-left text-sm"></i>
+                Quay lại
             </a>
-            <h1 class="text-2xl font-bold text-gray-800">Thêm khách hàng mới</h1>
-        </div>
-    </div>
+        </section>
 
-    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-        <form action="{{ route('admin.users.store') }}" method="POST" class="p-8 space-y-6">
-            @csrf
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Họ tên --}}
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Họ và tên</label>
-                    <input type="text" name="name" value="{{ old('name') }}" required
-                        class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
-                        placeholder="VD: Nguyễn Văn An">
-                    @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        <section class="admin-surface-card p-7">
+            <form action="{{ route('admin.users.store') }}" method="POST" class="space-y-6">
+                @csrf
+
+                <div class="grid gap-5 md:grid-cols-2">
+                    <div>
+                        <label class="admin-field-label">Họ và tên</label>
+                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="Ví dụ: Nguyễn Văn An">
+                        @error('name')
+                            <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="admin-field-label">Địa chỉ email</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="an.nguyen@example.com">
+                        @error('email')
+                            <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
-                {{-- Email --}}
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Địa chỉ Email</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required
-                        class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
-                        placeholder="an.nguyen@example.com">
-                    @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                <div>
+                    <label class="admin-field-label">Mật khẩu khởi tạo</label>
+                    <input type="password" name="password" required placeholder="Tối thiểu 6 ký tự">
+                    <p class="mt-2 text-xs text-[var(--admin-text-muted)]">Khách hàng có thể đổi lại mật khẩu sau khi đăng nhập.</p>
+                    @error('password')
+                        <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
+                    @enderror
                 </div>
-            </div>
 
-            {{-- Mật khẩu --}}
-            <div class="space-y-2">
-                <label class="text-sm font-bold text-gray-700 ml-1">Mật khẩu khởi tạo</label>
-                <input type="password" name="password" required
-                    class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
-                    placeholder="Tối thiểu 6 ký tự">
-                <p class="text-[10px] text-gray-400 mt-1 italic">* Khách hàng có thể đổi lại mật khẩu sau khi đăng nhập.</p>
-                @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-            </div>
-
-            <div class="pt-4">
-                <button type="submit" class="w-full bg-[#00C89D] hover:bg-[#00b38d] text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-100 transition transform hover:-translate-y-0.5">
-                    <i class="fas fa-save mr-2"></i> Lưu thông tin khách hàng
-                </button>
-            </div>
-        </form>
+                <div class="flex justify-end gap-3 border-t border-[rgba(112,122,108,0.12)] pt-6">
+                    <a href="{{ route('admin.users.index') }}" class="admin-btn-ghost">Hủy</a>
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-floppy-disk text-sm"></i>
+                        Lưu khách hàng
+                    </button>
+                </div>
+            </form>
+        </section>
     </div>
-</div>
 @endsection

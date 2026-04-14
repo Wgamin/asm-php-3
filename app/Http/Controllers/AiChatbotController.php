@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AiChatbotController extends Controller
 {
@@ -44,21 +45,17 @@ class AiChatbotController extends Controller
                 'Content-Type' => 'application/json',
             ])
             ->post($this->endpoint(), [
-                'system_instruction' => [
-                    'parts' => [
-                        [
-                            'text' => (string) config('services.gemini.system_instruction'),
-                        ],
-                    ],
+                'systemInstruction' => [
+                    'parts' => [[
+                        'text' => (string) config('services.gemini.system_instruction'),
+                    ]],
                 ],
                 'contents' => collect($history)->map(function (array $message) {
                     return [
                         'role' => $message['role'] === 'model' ? 'model' : 'user',
-                        'parts' => [
-                            [
-                                'text' => (string) $message['message'],
-                            ],
-                        ],
+                        'parts' => [[
+                            'text' => (string) $message['message'],
+                        ]],
                     ];
                 })->values()->all(),
                 'generationConfig' => [
@@ -67,8 +64,17 @@ class AiChatbotController extends Controller
             ]);
 
         if ($response->failed()) {
+            $errorMessage = (string) data_get($response->json(), 'error.message', '');
+
+            Log::warning('Gemini API request failed', [
+                'status' => $response->status(),
+                'response' => $response->json(),
+            ]);
+
             return response()->json([
-                'message' => 'Không thể kết nối Gemini lúc này.',
+                'message' => $errorMessage !== ''
+                    ? 'Gemini từ chối yêu cầu: '.$errorMessage
+                    : 'Không thể kết nối Gemini lúc này.',
             ], 502);
         }
 
@@ -159,6 +165,6 @@ class AiChatbotController extends Controller
         $baseUrl = rtrim((string) config('services.gemini.base_url'), '/');
         $model = (string) config('services.gemini.model', 'gemini-2.5-flash');
 
-        return $baseUrl . '/models/' . $model . ':generateContent';
+        return $baseUrl.'/models/'.$model.':generateContent';
     }
 }

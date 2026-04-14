@@ -1,94 +1,104 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Chat ho tro')
+@section('title', 'Hỗ trợ khách hàng')
 
 @section('content')
-<div class="p-6">
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Chat ho tro</h2>
-        <p class="mt-1 text-sm text-slate-500">Theo doi tin nhan khach hang va tra loi gan realtime.</p>
-    </div>
+    <div class="mx-auto max-w-7xl space-y-8">
+        <section>
+            <p class="admin-kicker">Customer support</p>
+            <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Hỗ trợ khách hàng</h1>
+            <p class="admin-copy mt-3 max-w-3xl text-sm">Theo dõi hội thoại giữa khách hàng và đội vận hành theo kiểu inbox tập trung, tối ưu cho phản hồi nhanh và làm việc nhiều phiên song song.</p>
+        </section>
 
-    <div class="grid gap-6 xl:grid-cols-[320px_1fr]">
-        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-            <div class="border-b border-slate-100 px-5 py-4">
-                <h3 class="font-bold text-slate-900">Hoi thoai</h3>
-            </div>
-
-            <div class="max-h-[680px] overflow-y-auto">
-                @forelse($customers as $customer)
-                    <a
-                        href="{{ route('admin.chat.index', ['user' => $customer->id]) }}"
-                        class="block border-b border-slate-100 px-5 py-4 transition hover:bg-slate-50 {{ $selectedCustomer && $selectedCustomer->id === $customer->id ? 'bg-emerald-50/70' : '' }}"
-                    >
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="truncate font-semibold text-slate-900">{{ $customer->name }}</p>
-                                <p class="mt-1 truncate text-xs text-slate-400">{{ $customer->email }}</p>
-                            </div>
-                            @if(($customer->chat_unread_count ?? 0) > 0)
-                                <span class="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                                    {{ $customer->chat_unread_count }}
-                                </span>
-                            @endif
-                        </div>
-                        <p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ $customer->chat_last_message ?: 'Chua co tin nhan' }}</p>
-                        <p class="mt-2 text-[11px] uppercase tracking-wider text-slate-400">{{ $customer->chat_last_time ?: 'Moi bat dau' }}</p>
-                    </a>
-                @empty
-                    <div class="px-5 py-12 text-center text-sm text-slate-400">
-                        Chua co cuoc tro chuyen nao.
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-            @if($selectedCustomer)
-                <div class="border-b border-slate-100 px-6 py-5">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-900">{{ $selectedCustomer->name }}</h3>
-                            <p class="mt-1 text-sm text-slate-500">{{ $selectedCustomer->email }}</p>
-                        </div>
-                        <span class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Polling 4s</span>
-                    </div>
+        <div class="grid gap-6 xl:grid-cols-[340px_1fr]">
+            <section class="admin-surface-card overflow-hidden">
+                <div class="border-b border-[rgba(112,122,108,0.12)] px-6 py-5">
+                    <p class="admin-kicker">Inbox</p>
+                    <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Hội thoại</h3>
                 </div>
 
-                <div id="admin-chat-root" data-customer-id="{{ $selectedCustomer->id }}" class="flex min-h-[680px] flex-col">
-                    <div id="admin-chat-messages" class="flex-1 space-y-4 overflow-y-auto bg-slate-50 px-6 py-6">
-                        @foreach($messages as $message)
-                            @php
-                                $mine = $message->sender_id === auth()->id();
-                            @endphp
-                            <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }}">
-                                <div class="max-w-[75%] rounded-3xl px-4 py-3 {{ $mine ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-800' }}">
-                                    <p class="text-sm leading-6">{{ $message->message }}</p>
-                                    <p class="mt-2 text-[11px] {{ $mine ? 'text-slate-300' : 'text-slate-400' }}">{{ $message->created_at?->format('H:i') }}</p>
+                <div class="max-h-[720px] overflow-y-auto px-3 py-3">
+                    @forelse($customers as $customer)
+                        <a
+                            href="{{ route('admin.chat.index', ['user' => $customer->id]) }}"
+                            class="mb-2 block rounded-[1.2rem] px-4 py-4 transition {{ $selectedCustomer && $selectedCustomer->id === $customer->id ? 'bg-[rgba(32,98,35,0.1)]' : 'hover:bg-[rgba(95,103,92,0.08)]' }}"
+                        >
+                            <div class="flex items-start gap-3">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($customer->name) }}&background=206223&color=fff&bold=true" alt="{{ $customer->name }}" class="h-10 w-10 rounded-2xl object-cover">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="truncate text-sm font-bold text-[var(--admin-text)]">{{ $customer->name }}</p>
+                                            <p class="mt-1 truncate text-xs text-[var(--admin-text-muted)]">{{ $customer->email }}</p>
+                                        </div>
+                                        @if(($customer->chat_unread_count ?? 0) > 0)
+                                            <span class="flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[#ba1a1a] px-1 text-[10px] font-bold text-white">
+                                                {{ $customer->chat_unread_count }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="mt-3 line-clamp-2 text-sm leading-6 text-[var(--admin-text-muted)]">{{ $customer->chat_last_message ?: 'Chưa có tin nhắn' }}</p>
+                                    <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[rgba(95,103,92,0.7)]">{{ $customer->chat_last_time ?: 'Mới bắt đầu' }}</p>
                                 </div>
                             </div>
-                        @endforeach
+                        </a>
+                    @empty
+                        <div class="admin-empty-state min-h-[20rem]">
+                            <i class="fas fa-comments text-4xl opacity-30"></i>
+                            <p class="text-sm">Chưa có hội thoại nào.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="admin-surface-card overflow-hidden">
+                @if($selectedCustomer)
+                    <div class="border-b border-[rgba(112,122,108,0.12)] px-6 py-5">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($selectedCustomer->name) }}&background=206223&color=fff&bold=true" alt="{{ $selectedCustomer->name }}" class="h-12 w-12 rounded-2xl object-cover">
+                                <div>
+                                    <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em] text-[var(--admin-text)]">{{ $selectedCustomer->name }}</h3>
+                                    <p class="mt-1 text-sm text-[var(--admin-text-muted)]">{{ $selectedCustomer->email }}</p>
+                                </div>
+                            </div>
+                            <span class="admin-badge admin-badge--muted">Polling 4 giây</span>
+                        </div>
                     </div>
 
-                    <form id="admin-chat-form" class="border-t border-slate-100 p-5">
-                        @csrf
-                        <div class="flex items-end gap-3">
-                            <textarea id="admin-chat-input" rows="2" class="min-h-[58px] flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" placeholder="Nhap noi dung phan hoi..."></textarea>
-                            <button type="submit" class="inline-flex h-12 items-center justify-center rounded-2xl bg-emerald-600 px-5 font-bold text-white transition hover:bg-emerald-700">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                    <div id="admin-chat-root" data-customer-id="{{ $selectedCustomer->id }}" class="flex min-h-[720px] flex-col">
+                        <div id="admin-chat-messages" class="flex-1 space-y-4 overflow-y-auto bg-[rgba(242,244,246,0.7)] px-6 py-6">
+                            @foreach($messages as $message)
+                                @php($mine = $message->sender_id === auth()->id())
+                                <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }}">
+                                    <div class="max-w-[78%] rounded-[1.25rem] px-4 py-3 {{ $mine ? 'bg-[linear-gradient(135deg,#206223,#3a7b3a)] text-white shadow-[0_20px_30px_-24px_rgba(32,98,35,0.8)]' : 'bg-white text-[var(--admin-text)] shadow-[0_20px_30px_-24px_rgba(25,28,30,0.18)]' }}">
+                                        <p class="text-sm leading-7">{{ $message->message }}</p>
+                                        <p class="mt-2 text-[11px] {{ $mine ? 'text-white/75' : 'text-[var(--admin-text-muted)]' }}">{{ $message->created_at?->format('H:i') }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                        <p id="admin-chat-error" class="mt-3 hidden text-sm text-red-500"></p>
-                    </form>
-                </div>
-            @else
-                <div class="flex min-h-[680px] items-center justify-center px-6 text-center text-slate-400">
-                    Chua co hoi thoai nao de hien thi.
-                </div>
-            @endif
+
+                        <form id="admin-chat-form" class="border-t border-[rgba(112,122,108,0.12)] px-6 py-5">
+                            @csrf
+                            <div class="flex items-end gap-3">
+                                <textarea id="admin-chat-input" rows="2" class="min-h-[64px] flex-1 resize-none" placeholder="Nhập phản hồi cho khách hàng..."></textarea>
+                                <button type="submit" class="admin-btn-primary h-12 min-w-[52px] rounded-2xl px-4">
+                                    <i class="fas fa-paper-plane text-sm"></i>
+                                </button>
+                            </div>
+                            <p id="admin-chat-error" class="mt-3 hidden text-sm text-[var(--admin-danger-text)]"></p>
+                        </form>
+                    </div>
+                @else
+                    <div class="admin-empty-state min-h-[720px]">
+                        <i class="fas fa-comments text-4xl opacity-30"></i>
+                        <p class="text-sm">Chưa có hội thoại nào để hiển thị.</p>
+                    </div>
+                @endif
+            </section>
         </div>
     </div>
-</div>
 @endsection
 
 @push('scripts')
@@ -126,9 +136,9 @@
 
             list.innerHTML = messages.map((message) => `
                 <div class="flex ${message.mine ? 'justify-end' : 'justify-start'}">
-                    <div class="max-w-[75%] rounded-3xl px-4 py-3 ${message.mine ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-800'}">
-                        <p class="text-sm leading-6">${escapeHtml(message.message)}</p>
-                        <p class="mt-2 text-[11px] ${message.mine ? 'text-slate-300' : 'text-slate-400'}">${escapeHtml(message.time ?? '')}</p>
+                    <div class="max-w-[78%] rounded-[1.25rem] px-4 py-3 ${message.mine ? 'bg-[linear-gradient(135deg,#206223,#3a7b3a)] text-white shadow-[0_20px_30px_-24px_rgba(32,98,35,0.8)]' : 'bg-white text-[var(--admin-text)] shadow-[0_20px_30px_-24px_rgba(25,28,30,0.18)]'}">
+                        <p class="text-sm leading-7">${escapeHtml(message.message)}</p>
+                        <p class="mt-2 text-[11px] ${message.mine ? 'text-white/75' : 'text-[var(--admin-text-muted)]'}">${escapeHtml(message.time ?? '')}</p>
                     </div>
                 </div>
             `).join('');
@@ -167,7 +177,7 @@
             const message = input.value.trim();
 
             if (!message) {
-                errorBox.textContent = 'Vui long nhap noi dung.';
+                errorBox.textContent = 'Vui lòng nhập nội dung.';
                 errorBox.classList.remove('hidden');
                 return;
             }
@@ -187,7 +197,7 @@
                 const payload = await response.json();
 
                 if (!response.ok) {
-                    errorBox.textContent = payload.message || 'Khong the gui tin nhan.';
+                    errorBox.textContent = payload.message || 'Không thể gửi tin nhắn.';
                     errorBox.classList.remove('hidden');
                     return;
                 }
@@ -197,7 +207,7 @@
                 input.focus();
             } catch (error) {
                 console.error(error);
-                errorBox.textContent = 'Khong the gui tin nhan.';
+                errorBox.textContent = 'Không thể gửi tin nhắn.';
                 errorBox.classList.remove('hidden');
             }
         });

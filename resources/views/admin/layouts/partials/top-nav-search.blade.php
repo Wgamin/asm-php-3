@@ -1,6 +1,8 @@
 <div class="relative hidden md:block">
-    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-    <input type="text" 
-           placeholder="Tìm kiếm..." 
-           class="pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm w-64 focus:outline-none focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200">
+    <i class="fas fa-search pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[13px] text-[var(--admin-text-muted)]"></i>
+    <input
+        type="text"
+        placeholder="Tìm kiếm dữ liệu..."
+        class="w-72 rounded-full border border-transparent bg-[var(--admin-surface-low)] py-2.5 pl-11 pr-4 text-sm text-[var(--admin-text)] outline-none transition focus:border-[rgba(32,98,35,0.18)] focus:bg-white focus:ring-4 focus:ring-[rgba(32,98,35,0.08)]"
+    >
 </div>

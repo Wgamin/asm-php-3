@@ -1,225 +1,206 @@
 @extends('admin.layouts.master')
 
+@section('title', 'Sản phẩm')
+
 @section('content')
-
-{{-- thông báo --}}
-@if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 flex items-center shadow-sm">
-        <i class="fas fa-check-circle mr-3"></i>
-        <span class="font-medium">{{ session('success') }}</span>
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-100 flex items-center shadow-sm">
-        <i class="fas fa-exclamation-triangle mr-3"></i>
-        <span class="font-medium">{{ session('error') }}</span>
-    </div>
-@endif
-        <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2 mb-4">
-            @csrf
-            <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required 
-                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer border border-gray-200 rounded-xl bg-white">
-            
-            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-sm transition">
-                Nhập dữ liệu
-            </button>
-        </form>
-
-        <div class="mb-6 p-4 rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/50 text-sm text-emerald-900">
-            <p class="font-bold mb-1">Cột hỗ trợ trong file import</p>
-            <p class="leading-6">
-                <code>handle</code> (nhóm sản phẩm), <code>name</code>, <code>category_id</code> hoặc <code>category</code>, <code>product_type</code>,
-                <code>price</code>, <code>sale_price</code>, <code>description</code>, <code>content</code>,
-                <code>image</code>, <code>gallery_images</code>.
-            </p>
-            <p class="leading-6 mt-2">
-                Nếu là sản phẩm biến thể (variable), thêm cột:
-                <code>option1_name</code>/<code>option1_value</code> (tối đa 3 option),
-                <code>variant_sku</code>, <code>variant_price</code>, <code>variant_sale_price</code>, <code>variant_stock</code>, <code>variant_image</code>.
-            </p>
-            <p class="leading-6 mt-2 text-emerald-800">
-                Ảnh có thể là đường dẫn trong storage, URL ảnh, hoặc để trống để hệ thống tự tạo ảnh mặc định.
-            </p>
-        </div>
-
-        @if(session('import_failures') && count(session('import_failures')))
-            <div class="mb-6 p-4 bg-amber-50 text-amber-900 rounded-2xl border border-amber-100 shadow-sm">
-                <div class="font-bold mb-2">Một số dòng bị lỗi khi import</div>
-                <ul class="space-y-2 text-sm">
-                    @foreach(array_slice(session('import_failures'), 0, 5) as $failure)
-                        <li class="p-3 rounded-xl bg-white/70 border border-amber-100">
-                            <div class="font-semibold">Dòng {{ $failure['row'] }} - {{ $failure['name'] }}</div>
-                            <div class="mt-1 text-amber-800">
-                                {{ implode(' | ', $failure['errors']) }}
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
+    <div class="mx-auto max-w-7xl space-y-8">
+        @if(session('success'))
+            <div class="rounded-[1.2rem] bg-[rgba(223,243,219,0.85)] px-5 py-4 text-sm font-semibold text-[var(--admin-success-text)]">
+                {{ session('success') }}
             </div>
         @endif
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    
-    {{-- header --}}
-    <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-md-center gap-4">
-        <div>
-            <h2 class="text-xl font-bold text-gray-800">Quản lý Nông Sản</h2>
-            <p class="text-sm text-gray-500">
-                Hiển thị <span class="font-bold text-gray-700">{{ $products->count() }}</span> trên tổng số <span class="font-bold text-gray-700">{{ $products->total() }}</span> sản phẩm
-            </p>
-        </div>
 
-        <a href="{{ route('admin.products.create') }}" 
-           class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-100 transition transform hover:-translate-y-0.5 flex items-center justify-center">
-            <i class="fas fa-plus mr-2 text-xs"></i> Thêm mới
-        </a>
-    </div>
-    
-    {{-- filter --}}
-    <div class="p-6 border-b border-gray-100 bg-gray-50/30">
-        <form method="GET" action="{{ route('admin.products.index') }}" 
-              class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-            <div class="relative">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="Tìm tên sản phẩm..."
-                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 text-sm outline-none transition">
+        @if(session('error'))
+            <div class="rounded-[1.2rem] bg-[rgba(255,218,214,0.7)] px-5 py-4 text-sm font-semibold text-[var(--admin-danger-text)]">
+                {{ session('error') }}
             </div>
+        @endif
 
-            <input type="number" name="min_price" value="{{ request('min_price') }}" placeholder="Giá thấp nhất"
-                   class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 text-sm outline-none transition">
-
-            <input type="number" name="max_price" value="{{ request('max_price') }}" placeholder="Giá cao nhất"
-                   class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 text-sm outline-none transition">
-
-            <div class="flex gap-2">
-                <button type="submit" class="flex-1 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition">
-                    Lọc dữ liệu
-                </button>
-                <a href="{{ route('admin.products.index') }}" 
-                   class="px-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition flex items-center justify-center" title="Làm mới">
-                    <i class="fas fa-redo-alt text-gray-500"></i>
+        <section class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <p class="admin-kicker">Core module</p>
+                <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Danh sách sản phẩm</h1>
+                <p class="admin-copy mt-3 max-w-2xl text-sm">Quản lý nông sản, biến thể, giá bán, tồn kho, ảnh và dữ liệu import từ Excel trong cùng một không gian thao tác.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ route('admin.products.create') }}" class="admin-btn-primary">
+                    <i class="fas fa-plus text-sm"></i>
+                    Thêm sản phẩm
                 </a>
             </div>
-        </form>
-    </div>
+        </section>
 
-    {{-- table --}}
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="text-[10px] uppercase tracking-widest text-gray-400 font-black border-b border-gray-100 bg-gray-50/50">
-                    <th class="px-6 py-4">Sản phẩm</th>
-                    <th class="px-6 py-4">Loại</th>
-                    <th class="px-6 py-4">Giá bán</th>
-                    <th class="px-6 py-4">Danh mục</th>
-                    <th class="px-6 py-4 text-center">Thao tác</th>
-                </tr>
-            </thead>
+        <section class="grid gap-5 md:grid-cols-3">
+            <article class="admin-surface-card admin-card-accent p-6">
+                <p class="admin-kicker">Tổng sản phẩm</p>
+                <p class="admin-headline mt-3 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">{{ number_format($products->total(), 0, ',', '.') }}</p>
+                <p class="mt-3 text-sm text-[var(--admin-text-muted)]">Hiển thị {{ $products->count() }} sản phẩm trên trang hiện tại.</p>
+            </article>
 
-            <tbody class="divide-y divide-gray-50">
-                @forelse($products as $product)
-                <tr class="hover:bg-emerald-50/20 transition group">
-                    {{-- image + name --}}
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-4">
-                            <img src="{{ asset('storage/' . $product->image) }}"
-                                 onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&color=10b981&background=ecfdf5'"
-                                 class="w-14 h-14 rounded-2xl object-cover shadow-sm border border-gray-100 group-hover:scale-105 transition">
-                            <div class="max-w-[200px]">
-                                <h4 class="font-bold text-gray-800 truncate">
-                                    @if(request('keyword'))
-                                        {!! str_ireplace(request('keyword'), '<span class="bg-yellow-200 px-0.5 rounded">'.request('keyword').'</span>', $product->name) !!}
+            <article class="admin-surface-card p-6">
+                <p class="admin-kicker">Cần bổ sung tồn kho</p>
+                <p class="admin-headline mt-3 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">{{ number_format($products->getCollection()->filter(fn ($product) => ($product->product_type === 'simple' ? ($product->stock ?? 0) : $product->variants->sum('stock')) <= 5)->count(), 0, ',', '.') }}</p>
+                <p class="mt-3 text-sm text-[var(--admin-text-muted)]">Dựa trên dữ liệu sản phẩm hiện đang hiển thị.</p>
+            </article>
+
+            <article class="admin-surface-card p-6">
+                <p class="admin-kicker">Sản phẩm biến thể</p>
+                <p class="admin-headline mt-3 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">{{ number_format($products->getCollection()->where('product_type', 'variable')->count(), 0, ',', '.') }}</p>
+                <p class="mt-3 text-sm text-[var(--admin-text-muted)]">Nhóm nông sản có nhiều lựa chọn SKU, giá và tồn kho riêng.</p>
+            </article>
+        </section>
+
+        <section class="admin-panel p-6">
+            <div class="grid gap-6 xl:grid-cols-[1.35fr_1fr]">
+                <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4 rounded-[1.25rem] bg-[var(--admin-surface-low)] p-5">
+                    @csrf
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="admin-kicker">Import dữ liệu</p>
+                            <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Nhập sản phẩm từ Excel/CSV</h3>
+                            <p class="admin-copy mt-2 text-sm">Hỗ trợ cả sản phẩm thường và sản phẩm biến thể theo nhóm handle.</p>
+                        </div>
+                        <span class="admin-badge admin-badge--muted">Import</span>
+                    </div>
+                    <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required class="cursor-pointer file:mr-4 file:rounded-xl file:border-0 file:bg-[rgba(32,98,35,0.12)] file:px-4 file:py-3 file:text-sm file:font-bold file:text-[#206223]" />
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-file-import text-sm"></i>
+                        Thực hiện import
+                    </button>
+                </form>
+
+                <div class="rounded-[1.25rem] bg-[var(--admin-surface-low)] p-5">
+                    <p class="admin-kicker">Cột được hỗ trợ</p>
+                    <div class="mt-3 space-y-3 text-sm leading-7 text-[var(--admin-text-muted)]">
+                        <p><span class="font-semibold text-[var(--admin-text)]">Cơ bản:</span> <code>handle</code>, <code>name</code>, <code>category_id</code> hoặc <code>category</code>, <code>product_type</code>, <code>price</code>, <code>sale_price</code>, <code>cost_price</code>, <code>weight_grams</code>, <code>image</code>, <code>gallery_images</code>.</p>
+                        <p><span class="font-semibold text-[var(--admin-text)]">Biến thể:</span> <code>option1_name</code>/<code>option1_value</code>, <code>variant_sku</code>, <code>variant_price</code>, <code>variant_sale_price</code>, <code>variant_cost_price</code>, <code>variant_stock</code>, <code>variant_image</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @if(session('import_failures') && count(session('import_failures')))
+            <section class="admin-panel p-6">
+                <p class="admin-kicker">Import failures</p>
+                <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Một số dòng import bị lỗi</h3>
+                <div class="mt-5 grid gap-3">
+                    @foreach(array_slice(session('import_failures'), 0, 5) as $failure)
+                        <div class="rounded-[1.1rem] bg-[rgba(255,237,216,0.58)] px-4 py-4 text-sm">
+                            <p class="font-bold text-[var(--admin-text)]">Dòng {{ $failure['row'] }} - {{ $failure['name'] }}</p>
+                            <p class="mt-2 text-[var(--admin-warning-text)]">{{ implode(' | ', $failure['errors']) }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        <section class="admin-panel p-6">
+            <form method="GET" action="{{ route('admin.products.index') }}" class="grid gap-4 md:grid-cols-[1fr_auto]">
+                <div>
+                    <label class="admin-field-label">Tìm kiếm sản phẩm</label>
+                    <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="Tên sản phẩm..." />
+                </div>
+                <div class="flex items-end gap-3">
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-filter text-sm"></i>
+                        Lọc dữ liệu
+                    </button>
+                    <a href="{{ route('admin.products.index') }}" class="admin-btn-secondary">
+                        <i class="fas fa-rotate-right text-sm"></i>
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <section class="admin-table-shell">
+            <div class="overflow-x-auto">
+                <table class="min-w-[1080px]">
+                    <thead>
+                        <tr>
+                            <th class="px-7 py-4 text-left">Sản phẩm</th>
+                            <th class="px-5 py-4 text-left">Loại</th>
+                            <th class="px-5 py-4 text-left">Giá bán</th>
+                            <th class="px-5 py-4 text-left">Danh mục</th>
+                            <th class="px-5 py-4 text-left">Tồn kho</th>
+                            <th class="px-7 py-4 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($products as $product)
+                            @php
+                                $isVariable = $product->product_type === 'variable';
+                                $minVariantPrice = $isVariable ? $product->variants->map(fn ($variant) => $variant->sale_price && $variant->sale_price > 0 ? $variant->sale_price : $variant->price)->filter()->min() : null;
+                                $stock = $isVariable ? $product->variants->sum('stock') : ($product->stock ?? 0);
+                                $stockClass = $stock <= 5 ? 'admin-badge admin-badge--warning' : 'admin-badge admin-badge--success';
+                            @endphp
+                            <tr>
+                                <td class="px-7 py-5">
+                                    <div class="flex items-center gap-4">
+                                        <img
+                                            src="{{ $product->image ? asset('storage/' . $product->image) : 'https://ui-avatars.com/api/?name=' . urlencode($product->name) . '&background=206223&color=fff' }}"
+                                            alt="{{ $product->name }}"
+                                            class="h-14 w-14 rounded-2xl object-cover"
+                                        >
+                                        <div class="min-w-0">
+                                            <p class="truncate text-sm font-bold text-[var(--admin-text)]">{{ $product->name }}</p>
+                                            <p class="mt-1 text-xs text-[var(--admin-text-muted)]">{{ \Illuminate\Support\Str::limit($product->description, 64) }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-5">
+                                    <span class="{{ $isVariable ? 'admin-badge admin-badge--info' : 'admin-badge admin-badge--muted' }}">
+                                        {{ $isVariable ? 'Biến thể' : 'Thường' }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-5 text-sm font-bold text-[var(--admin-text)]">
+                                    @if($isVariable)
+                                        Từ {{ number_format((float) $minVariantPrice, 0, ',', '.') }}đ
                                     @else
-                                        {{ $product->name }}
+                                        {{ number_format((float) ($product->sale_price && $product->sale_price > 0 ? $product->sale_price : $product->price), 0, ',', '.') }}đ
                                     @endif
-                                </h4>
-                                <p class="text-xs text-gray-400 truncate">{{ $product->description }}</p>
-                            </div>
-                        </div>
-                    </td>
+                                </td>
+                                <td class="px-5 py-5 text-sm text-[var(--admin-text-muted)]">{{ $product->category->name ?? 'Chưa phân loại' }}</td>
+                                <td class="px-5 py-5">
+                                    <span class="{{ $stockClass }}">{{ number_format($stock, 0, ',', '.') }} SP</span>
+                                </td>
+                                <td class="px-7 py-5">
+                                    <div class="flex justify-end gap-2">
+                                        <a href="{{ route('admin.products.show', $product) }}" class="admin-action-icon" title="Chi tiết">
+                                            <i class="fas fa-eye text-sm"></i>
+                                        </a>
+                                        <a href="{{ route('admin.products.edit', $product) }}" class="admin-action-icon" title="Chỉnh sửa">
+                                            <i class="fas fa-pen text-sm"></i>
+                                        </a>
+                                        <form action="{{ route('admin.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="admin-action-icon hover:!bg-[rgba(255,218,214,0.45)] hover:!text-[var(--admin-danger-text)]" title="Xóa">
+                                                <i class="fas fa-trash text-sm"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-7 py-20">
+                                    <div class="admin-empty-state">
+                                        <i class="fas fa-box-open text-4xl opacity-30"></i>
+                                        <p class="text-sm">Không tìm thấy sản phẩm nào phù hợp với bộ lọc hiện tại.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-                    {{-- type badge --}}
-                    <td class="px-6 py-4">
-                        @if($product->product_type === 'variable')
-                            <span class="px-2.5 py-1 bg-purple-50 text-purple-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">Biến thể</span>
-                        @else
-                            <span class="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">Thường</span>
-                        @endif
-                    </td>
-
-                    {{-- price --}}
-                    <td class="px-6 py-4 text-sm font-black text-emerald-600">
-                        @if($product->product_type === 'variable')
-                            <span class="text-[10px] text-gray-400 font-normal block uppercase">Từ</span>
-                            {{ number_format($product->variants->min('price')) }}đ
-                        @else
-                            {{ number_format($product->price) }}đ
-                        @endif
-                    </td>
-
-                    {{-- category --}}
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                            {{ $product->category->name ?? 'N/A' }}
-                        </span>
-                    </td>
-
-                    {{-- actions --}}
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex justify-center items-center space-x-2">
-                            {{-- show --}}
-                            <a href="{{ route('admin.products.show', $product->id) }}" 
-                               class="w-9 h-9 flex items-center justify-center bg-gray-50 text-gray-500 rounded-xl hover:bg-emerald-500 hover:text-white transition shadow-sm">
-                                <i class="fas fa-eye text-xs"></i>
-                            </a>
-
-                            {{-- edit --}}
-                            <a href="{{ route('admin.products.edit', $product->id) }}" 
-                               class="w-9 h-9 flex items-center justify-center bg-gray-50 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition shadow-sm">
-                                <i class="fas fa-edit text-xs"></i>
-                            </a>
-
-                            {{-- delete --}}
-                            <form action="{{ route('admin.products.destroy', $product->id) }}" 
-                                  method="POST" class="inline"
-                                  onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
-                                @csrf 
-                                @method('DELETE')
-                                <button class="w-9 h-9 flex items-center justify-center bg-gray-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition shadow-sm">
-                                    <i class="fas fa-trash text-xs"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="px-6 py-20 text-center">
-                        <div class="flex flex-col items-center">
-                            <i class="fas fa-box-open text-4xl text-gray-200 mb-4"></i>
-                            <p class="text-gray-400 font-medium">Không tìm thấy sản phẩm nào phù hợp.</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+            @if($products->hasPages())
+                <div class="admin-pagination-shell border-t border-[rgba(112,122,108,0.12)] px-6 py-5">
+                    {{ $products->appends(request()->query())->links() }}
+                </div>
+            @endif
+        </section>
     </div>
-    
-    {{-- pagination --}}
-    <div class="p-6 border-t border-gray-100 bg-gray-50/30">
-        {{ $products->appends(request()->query())->links() }}
-    </div>
-
-</div>
-
-<style>
-    /* Tùy chỉnh Pagination của Laravel sang style Tailwind cho đẹp */
-    .pagination { @apply flex gap-2; }
-    .page-item { @apply rounded-lg overflow-hidden border border-gray-200; }
-    .page-link { @apply px-4 py-2 bg-white text-gray-600 text-sm; }
-    .page-item.active .page-link { @apply bg-emerald-500 text-white border-emerald-500; }
-</style>
-
 @endsection

@@ -1,151 +1,215 @@
 @extends('admin.layouts.master')
 
-@section('content')
-<div class="max-w-5xl mx-auto" x-data="productFormEdit()">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gray-50/50 gap-4">
-            <div>
-                <h2 class="text-xl font-bold text-gray-800">Chinh Sua Nong San</h2>
-                <p class="text-sm text-gray-500">Cap nhat thong tin cho san pham: <span class="font-bold text-emerald-600">{{ $product->name }}</span></p>
-            </div>
-
-            <div class="flex bg-white border border-gray-200 rounded-xl p-1 shadow-sm opacity-60 pointer-events-none">
-                <button type="button"
-                        :class="productType === 'simple' ? 'bg-emerald-500 text-white' : 'text-gray-500'"
-                        class="px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200">
-                    San pham thuong
-                </button>
-                <button type="button"
-                        :class="productType === 'variable' ? 'bg-emerald-500 text-white' : 'text-gray-500'"
-                        class="px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200">
-                    San pham bien the
-                </button>
-            </div>
-        </div>
-
-        @if ($errors->any())
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 m-8 mb-0 rounded-r-xl">
-                <h3 class="text-sm font-bold text-red-800">Co loi nhap lieu:</h3>
-                <ul class="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
-            @csrf
-            @method('PUT')
-            <input type="hidden" name="product_type" :value="productType">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Ten san pham <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name', $product->name) }}" required
-                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 outline-none transition">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Danh muc <span class="text-red-500">*</span></label>
-                    <select name="category_id" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 outline-none transition appearance-none">
-                        <option value="">Chon danh muc</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ old('category_id', $product->category_id) == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="space-y-2" x-show="productType === 'simple'" x-transition>
-                    <label class="text-sm font-bold text-gray-700">Gia ban goc (VND)</label>
-                    <input type="number" name="price" value="{{ old('price', $product->price) }}" placeholder="0" min="0"
-                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 outline-none transition">
-                </div>
-
-                <div class="space-y-2" x-show="productType === 'simple'" x-transition>
-                    <label class="text-sm font-bold text-gray-700">Gia giam (VND)</label>
-                    <input type="number" name="sale_price" value="{{ old('sale_price', $product->sale_price) }}" placeholder="0" min="0"
-                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 outline-none transition">
-                </div>
-
-                <div class="space-y-2" x-show="productType === 'simple'" x-transition>
-                    <label class="text-sm font-bold text-gray-700">Ton kho</label>
-                    <input type="number" name="stock" value="{{ old('stock', $product->stock ?? 0) }}" placeholder="0" min="0"
-                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 outline-none transition">
-                </div>
-            </div>
-
-            <hr class="border-gray-100">
-
-            <div x-show="productType === 'variable'" x-transition>
-                @include('admin.products.Components.variant-form-edit')
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1">
-                    @include('admin.products.Components.image-upload-edit')
-                </div>
-                <div class="lg:col-span-2">
-                    @include('admin.products.Components.description-form-edit')
-                </div>
-            </div>
-
-            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-100">
-                <a href="{{ route('admin.products.index') }}" class="px-8 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition">
-                    Huy bo
-                </a>
-                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-12 rounded-xl shadow-lg shadow-emerald-100 transition transform hover:-translate-y-0.5">
-                    Luu thay doi
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 @php
     $variantList = [];
-    foreach ($product->variants as $v) {
-        $variantValues = $v->variant_values;
-        if (is_string($variantValues)) {
-            $variantValues = json_decode($variantValues, true) ?: [];
-        }
-
+    foreach ($product->variants as $variant) {
         $variantList[] = [
-            'sku' => $v->sku,
-            'price' => (float) $v->price,
-            'sale_price' => $v->sale_price !== null ? (float) $v->sale_price : '',
-            'stock' => (int) $v->stock,
-            'image_url' => $v->image ? asset('storage/'.$v->image) : null,
-            'existing_image' => $v->image,
-            'attributes' => is_array($variantValues) ? $variantValues : [],
+            'sku' => $variant->sku,
+            'price' => (float) $variant->price,
+            'sale_price' => $variant->sale_price !== null ? (float) $variant->sale_price : '',
+            'cost_price' => $variant->cost_price !== null ? (float) $variant->cost_price : '',
+            'stock' => (int) $variant->stock,
+            'image_url' => $variant->image ? asset('storage/' . $variant->image) : null,
+            'existing_image' => $variant->image,
+            'attributes' => is_array($variant->variant_values) ? $variant->variant_values : (json_decode($variant->variant_values ?? '[]', true) ?: []),
         ];
     }
 @endphp
 
-<script>
-    function productFormEdit() {
-        return {
-            productType: "{{ old('product_type', $product->product_type) }}",
-            variants: {!! json_encode($variantList) !!},
+@section('title', 'Chỉnh sửa sản phẩm')
 
-            addVariant() {
-                this.variants.push({
-                    sku: '',
-                    price: '',
-                    sale_price: '',
-                    stock: '',
-                    image_url: null,
-                    existing_image: '',
-                    attributes: {}
-                });
-            },
+@section('content')
+    <div class="mx-auto max-w-7xl space-y-8" x-data="productFormEdit()">
+        <section class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+                <p class="admin-kicker">Sản phẩm & kho hàng</p>
+                <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Chỉnh sửa sản phẩm</h1>
+                <p class="admin-copy mt-3 max-w-3xl text-sm">Đang cập nhật cấu hình cho <strong class="text-[var(--admin-text)]">{{ $product->name }}</strong>. Giá, ảnh, tồn kho và biến thể sẽ được ghi đè theo dữ liệu mới.</p>
+            </div>
 
-            removeVariant(index) {
-                this.variants.splice(index, 1);
-            }
-        };
-    }
-</script>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ route('admin.products.show', $product) }}" class="admin-btn-secondary">
+                    <i class="fas fa-eye text-sm"></i>
+                    Xem chi tiết
+                </a>
+                <a href="{{ route('admin.products.index') }}" class="admin-btn-secondary">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                    Quay lại danh sách
+                </a>
+                <div class="admin-glass inline-flex rounded-[1rem] border border-[rgba(112,122,108,0.12)] p-1 shadow-sm opacity-70">
+                    <button
+                        type="button"
+                        @click="productType = 'simple'"
+                        class="rounded-[0.8rem] px-4 py-2 text-sm font-semibold transition"
+                        :class="productType === 'simple' ? 'bg-[var(--admin-primary)] text-white shadow-sm' : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text)]'"
+                    >
+                        Sản phẩm thường
+                    </button>
+                    <button
+                        type="button"
+                        @click="productType = 'variable'"
+                        class="rounded-[0.8rem] px-4 py-2 text-sm font-semibold transition"
+                        :class="productType === 'variable' ? 'bg-[var(--admin-primary)] text-white shadow-sm' : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text)]'"
+                    >
+                        Sản phẩm biến thể
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        @if ($errors->any())
+            <section class="rounded-[1.2rem] bg-[rgba(255,218,214,0.75)] px-6 py-5 text-sm text-[var(--admin-danger-text)] shadow-sm">
+                <p class="font-bold">Có lỗi dữ liệu cần xử lý.</p>
+                <ul class="mt-3 list-disc space-y-1 pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
+
+        <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="product_type" :value="productType">
+
+            <div class="grid gap-8 xl:grid-cols-[1.5fr_0.9fr]">
+                <div class="space-y-8">
+                    <section class="admin-surface-card p-7">
+                        <div class="mb-6">
+                            <p class="admin-kicker">Thông tin cơ bản</p>
+                            <h2 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Hồ sơ sản phẩm</h2>
+                        </div>
+
+                        <div class="grid gap-5 md:grid-cols-2">
+                            <div class="md:col-span-2">
+                                <label class="admin-field-label">Tên sản phẩm</label>
+                                <input type="text" name="name" value="{{ old('name', $product->name) }}" required>
+                            </div>
+
+                            <div>
+                                <label class="admin-field-label">Danh mục</label>
+                                <select name="category_id" required>
+                                    <option value="">Chọn danh mục</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}" {{ old('category_id', $product->category_id) == $cat->id ? 'selected' : '' }}>
+                                            {{ $cat->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="admin-field-label">Khối lượng mặc định (gram)</label>
+                                <input type="number" name="weight_grams" min="100" max="50000" value="{{ old('weight_grams', $product->weight_grams ?? 500) }}" required>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-surface-card p-7" x-show="productType === 'simple'" x-transition>
+                        <div class="mb-6">
+                            <p class="admin-kicker">Giá & tồn kho</p>
+                            <h2 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Thiết lập hàng hóa đơn</h2>
+                        </div>
+
+                        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                            <div>
+                                <label class="admin-field-label">Giá bán</label>
+                                <input type="number" name="price" min="0" value="{{ old('price', $product->price) }}" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="admin-field-label">Giá khuyến mãi</label>
+                                <input type="number" name="sale_price" min="0" value="{{ old('sale_price', $product->sale_price) }}" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="admin-field-label">Giá vốn</label>
+                                <input type="number" name="cost_price" min="0" value="{{ old('cost_price', $product->cost_price) }}" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="admin-field-label">Tồn kho</label>
+                                <input type="number" name="stock" min="0" value="{{ old('stock', $product->stock ?? 0) }}" placeholder="0">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-panel-muted p-6" x-show="productType === 'variable'" x-transition>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-[var(--admin-primary)]">deployed_code_history</span>
+                            <div>
+                                <p class="font-bold text-[var(--admin-text)]">Sản phẩm đang dùng biến thể</p>
+                                <p class="mt-2 text-sm leading-7 text-[var(--admin-text-muted)]">Toàn bộ biến thể hiện tại sẽ được dựng lại theo dữ liệu bạn nhập ở form bên dưới. Hãy kiểm tra kỹ giá, giá vốn, SKU và hình ảnh riêng của từng loại.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    @include('admin.products.Components.variant-form-edit')
+
+                    <section class="admin-surface-card p-7">
+                        @include('admin.products.Components.description-form-edit')
+                    </section>
+                </div>
+
+                <div class="space-y-8">
+                    <section class="admin-surface-card p-7">
+                        @include('admin.products.Components.image-upload-edit')
+                    </section>
+
+                    <section class="admin-panel-muted p-7">
+                        <p class="admin-kicker">Thông tin vận hành</p>
+                        <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Tóm tắt nhanh</h3>
+                        <div class="mt-5 space-y-4 text-sm leading-7 text-[var(--admin-text-muted)]">
+                            <div class="rounded-[1rem] bg-white px-4 py-4">
+                                <p class="font-semibold text-[var(--admin-text)]">ID sản phẩm</p>
+                                <p class="mt-2">#{{ $product->id }}</p>
+                            </div>
+                            <div class="rounded-[1rem] bg-white px-4 py-4">
+                                <p class="font-semibold text-[var(--admin-text)]">Ngày tạo</p>
+                                <p class="mt-2">{{ $product->created_at?->format('d/m/Y H:i') }}</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div class="admin-glass sticky bottom-4 z-20 flex flex-col gap-3 rounded-[1.2rem] border border-[rgba(112,122,108,0.12)] px-5 py-4 shadow-[0_30px_60px_-30px_rgba(25,28,30,0.22)] md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="text-sm font-bold text-[var(--admin-text)]">Sẵn sàng lưu thay đổi</p>
+                    <p class="mt-1 text-xs text-[var(--admin-text-muted)]">Dữ liệu sẽ cập nhật ngay ở storefront, giỏ hàng và các luồng đơn hàng mới.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="{{ route('admin.products.show', $product) }}" class="admin-btn-ghost">Hủy bỏ</a>
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-floppy-disk text-sm"></i>
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 @endsection
+
+@push('scripts')
+    <script>
+        function productFormEdit() {
+            return {
+                productType: @json(old('product_type', $product->product_type)),
+                variants: @json($variantList),
+                addVariant() {
+                    this.variants.push({
+                        sku: '',
+                        price: '',
+                        sale_price: '',
+                        cost_price: '',
+                        stock: '',
+                        image_url: null,
+                        existing_image: '',
+                        attributes: {},
+                    });
+                },
+                removeVariant(index) {
+                    this.variants.splice(index, 1);
+                },
+            };
+        }
+    </script>
+@endpush

@@ -1,135 +1,232 @@
 @extends('admin.layouts.master')
 
+@section('title', 'Chi tiết đơn hàng')
+
+@php
+    $statusMap = [
+        'pending' => ['Chờ xác nhận', 'admin-badge admin-badge--warning'],
+        'processing' => ['Đang xử lý', 'admin-badge admin-badge--info'],
+        'shipping' => ['Đang giao', 'admin-badge admin-badge--info'],
+        'completed' => ['Hoàn thành', 'admin-badge admin-badge--success'],
+        'cancelled' => ['Đã hủy', 'admin-badge admin-badge--danger'],
+    ];
+    $shipmentMap = [
+        'pending' => ['Chờ lấy hàng', 'admin-badge admin-badge--warning'],
+        'preparing' => ['Đang chuẩn bị', 'admin-badge admin-badge--info'],
+        'shipping' => ['Đang giao', 'admin-badge admin-badge--info'],
+        'delivered' => ['Đã giao', 'admin-badge admin-badge--success'],
+        'cancelled' => ['Đã hủy', 'admin-badge admin-badge--danger'],
+    ];
+    $paymentMap = [
+        'pending' => ['Chờ thanh toán', 'admin-badge admin-badge--warning'],
+        'paid' => ['Đã thanh toán', 'admin-badge admin-badge--success'],
+        'failed' => ['Thất bại', 'admin-badge admin-badge--danger'],
+        'cancelled' => ['Đã hủy', 'admin-badge admin-badge--danger'],
+    ];
+    [$statusLabel, $statusClass] = $statusMap[$order->status] ?? [$order->status_text, 'admin-badge admin-badge--muted'];
+    [$paymentLabel, $paymentClass] = $paymentMap[$order->payment?->status] ?? [$order->payment?->status_text ?? 'Chưa có', 'admin-badge admin-badge--muted'];
+    [$shipmentLabel, $shipmentClass] = $shipmentMap[$order->shipment?->status] ?? [$order->shipment?->status_text ?? 'Chưa có', 'admin-badge admin-badge--muted'];
+    $subtotal = $order->subtotal_amount ?? $order->total_amount;
+    $shippingFee = $order->shipping_fee_amount ?? 0;
+    $grandTotal = $order->payable_amount ?? $order->payable_total ?? $order->total_amount;
+@endphp
+
 @section('content')
-<div class="p-6">
-    <div class="mb-6 flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-gray-800">Chi tiet don hang: <span class="text-emerald-600">{{ $order->order_number }}</span></h2>
-        <a href="{{ route('admin.orders.index') }}" class="text-gray-500 hover:text-gray-700 font-medium">
-            <i class="fas fa-arrow-left mr-2"></i> Quay lai danh sach
-        </a>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-user text-emerald-500"></i> Thong tin giao hang
-                </h3>
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p class="text-gray-400">Nguoi nhan:</p>
-                        <p class="font-bold text-gray-800">{{ $order->full_name }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-400">So dien thoai:</p>
-                        <p class="font-bold text-gray-800">{{ $order->phone }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="text-gray-400">Dia chi:</p>
-                        <p class="font-bold text-gray-800">{{ $order->address }}</p>
-                    </div>
-                    @if($order->note)
-                    <div class="col-span-2">
-                        <p class="text-gray-400">Ghi chu:</p>
-                        <p class="font-bold text-gray-800">{{ $order->note }}</p>
-                    </div>
-                    @endif
+    <div class="mx-auto max-w-7xl space-y-8">
+        <section class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <div class="mb-2 flex items-center gap-3">
+                    <p class="admin-kicker">Đơn hàng</p>
+                    <span class="{{ $statusClass }}">{{ $statusLabel }}</span>
                 </div>
+                <h1 class="admin-headline text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">{{ $order->order_number }}</h1>
+                <p class="admin-copy mt-3 text-sm">Đặt lúc {{ $order->created_at->format('H:i, d/m/Y') }}. Theo dõi thông tin giao hàng, thanh toán, trạng thái và lịch sử xử lý trên cùng một màn hình.</p>
             </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ route('admin.orders.index') }}" class="admin-btn-secondary">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                    Quay lại danh sách
+                </a>
+            </div>
+        </section>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-gray-500 uppercase text-xs font-bold">
-                        <tr>
-                            <th class="px-6 py-4">San pham</th>
-                            <th class="px-6 py-4 text-center">So luong</th>
-                            <th class="px-6 py-4 text-right">Don gia</th>
-                            <th class="px-6 py-4 text-right">Thanh tien</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
+        <div class="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+            <div class="space-y-6">
+                <section class="admin-surface-card p-6">
+                    <div class="mb-6 flex items-start justify-between gap-3">
+                        <div>
+                            <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Danh sách sản phẩm</h3>
+                            <p class="admin-copy mt-2 text-sm">Chi tiết từng sản phẩm, biến thể, số lượng và giá trị thành tiền trong đơn.</p>
+                        </div>
+                        <span class="admin-badge admin-badge--muted">{{ $order->items->count() }} mục</span>
+                    </div>
+
+                    <div class="space-y-3">
                         @foreach($order->items as $item)
                             @php
                                 $product = $item->product;
                                 $variantValues = is_array($item->variant_values) ? $item->variant_values : [];
-                                $variantText = collect($variantValues)->map(fn($value, $name) => $name . ': ' . $value)->implode(' | ');
+                                $variantText = collect($variantValues)->map(fn ($value, $name) => $name . ': ' . $value)->implode(' • ');
                             @endphp
-                            <tr>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <img src="{{ $product && $product->image ? asset('storage/' . $product->image) : asset('images/default-product.png') }}"
-                                             class="w-12 h-12 rounded-lg object-cover">
-                                        <div>
-                                            <div class="font-medium">{{ $product?->name ?? 'San pham da xoa' }}</div>
-                                            @if($item->variant_sku || $variantText)
-                                                <div class="text-xs text-gray-500 mt-1">
-                                                    @if($item->variant_sku)
-                                                        <span class="font-mono">SKU: {{ $item->variant_sku }}</span>
-                                                    @endif
-                                                    @if($variantText)
-                                                        <span class="ml-2">{{ $variantText }}</span>
-                                                    @endif
-                                                </div>
+                            <div class="rounded-[1.2rem] bg-[var(--admin-surface-low)] px-4 py-4">
+                                <div class="grid gap-4 md:grid-cols-[1.8fr_auto_auto_auto] md:items-center">
+                                    <div class="flex items-center gap-4">
+                                        <img
+                                            src="{{ $product && $product->image ? asset('storage/' . $product->image) : asset('images/default-product.png') }}"
+                                            class="h-16 w-16 rounded-2xl object-cover"
+                                            alt="{{ $product?->name ?? 'Sản phẩm' }}"
+                                        >
+                                        <div class="min-w-0">
+                                            <p class="truncate text-sm font-bold text-[var(--admin-text)]">{{ $product?->name ?? 'Sản phẩm đã xóa' }}</p>
+                                            @if($item->variant_sku)
+                                                <p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--admin-text-muted)]">SKU: {{ $item->variant_sku }}</p>
+                                            @endif
+                                            @if($variantText)
+                                                <p class="mt-2 text-xs text-[var(--admin-text-muted)]">{{ $variantText }}</p>
                                             @endif
                                         </div>
                                     </div>
-                                </td>
-                                <td class="px-6 py-4 text-center">{{ $item->quantity }}</td>
-                                <td class="px-6 py-4 text-right">{{ number_format($item->price) }}d</td>
-                                <td class="px-6 py-4 text-right font-bold">{{ number_format($item->price * $item->quantity) }}d</td>
-                            </tr>
+                                    <div class="text-sm text-[var(--admin-text-muted)]">x{{ $item->quantity }}</div>
+                                    <div class="text-sm font-semibold text-[var(--admin-text)]">{{ number_format($item->price, 0, ',', '.') }}đ</div>
+                                    <div class="text-sm font-bold text-[#206223]">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</div>
+                                </div>
+                            </div>
                         @endforeach
-                    </tbody>
-                </table>
+                    </div>
+                </section>
+
+                <section class="admin-surface-card p-6">
+                    <div class="mb-6">
+                        <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Lịch sử trạng thái</h3>
+                        <p class="admin-copy mt-2 text-sm">Ghi nhận toàn bộ thay đổi đơn hàng từ lúc tạo, cập nhật bởi admin, thanh toán đến vận chuyển.</p>
+                    </div>
+
+                    <div class="space-y-5">
+                        @forelse($order->statusHistories as $history)
+                            @php([$historyLabel, $historyClass] = $statusMap[$history->status] ?? [$history->status, 'admin-badge admin-badge--muted'])
+                            <div class="relative pl-10">
+                                <span class="absolute left-0 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(32,98,35,0.12)] text-[#206223]">
+                                    <i class="fas fa-check text-[10px]"></i>
+                                </span>
+                                <div class="rounded-[1.15rem] bg-[var(--admin-surface-low)] px-4 py-4">
+                                    <div class="flex flex-wrap items-center gap-3">
+                                        <span class="{{ $historyClass }}">{{ $historyLabel }}</span>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--admin-text-muted)]">{{ $history->created_at?->format('H:i d/m/Y') }}</p>
+                                    </div>
+                                    <p class="mt-3 text-sm font-semibold text-[var(--admin-text)]">Nguồn cập nhật: {{ ucfirst($history->source ?? 'system') }}</p>
+                                    @if($history->note)
+                                        <p class="mt-2 text-sm leading-7 text-[var(--admin-text-muted)]">{{ $history->note }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="admin-empty-state rounded-[1.2rem] bg-[var(--admin-surface-low)] py-10">
+                                <i class="fas fa-timeline text-3xl opacity-30"></i>
+                                <p class="text-sm">Chưa có lịch sử trạng thái nào được ghi nhận.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </section>
             </div>
-        </div>
 
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold mb-4">Trang thai don hang</h3>
-                <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
-                    @csrf
-                    <select name="status" class="w-full p-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 mb-4">
-                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Cho xu ly</option>
-                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Dang dong goi</option>
-                        <option value="shipping" {{ $order->status == 'shipping' ? 'selected' : '' }}>Dang giao hang</option>
-                        <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Da hoan thanh</option>
-                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Da huy</option>
-                    </select>
-                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition">
-                        Cap nhat trang thai
-                    </button>
-                </form>
-            </div>
+            <div class="space-y-6">
+                <section class="admin-surface-card p-6">
+                    <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Cập nhật trạng thái</h3>
+                    <p class="admin-copy mt-2 text-sm">Đồng bộ trạng thái đơn hàng với payment và shipment theo quy tắc hiện tại của hệ thống.</p>
 
-            <div class="bg-slate-800 text-white p-6 rounded-2xl shadow-xl">
-                @php
-                    $subtotal = $order->subtotal_amount ?? $order->total_amount;
-                @endphp
+                    <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST" class="mt-6 space-y-4">
+                        @csrf
+                        <div>
+                            <label class="admin-field-label">Trạng thái đơn</label>
+                            <select name="status">
+                                <option value="pending" @selected($order->status === 'pending')>Chờ xác nhận</option>
+                                <option value="processing" @selected($order->status === 'processing')>Đang xử lý</option>
+                                <option value="shipping" @selected($order->status === 'shipping')>Đang giao</option>
+                                <option value="completed" @selected($order->status === 'completed')>Hoàn thành</option>
+                                <option value="cancelled" @selected($order->status === 'cancelled')>Đã hủy</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="admin-btn-primary w-full">
+                            <i class="fas fa-floppy-disk text-sm"></i>
+                            Lưu trạng thái mới
+                        </button>
+                    </form>
+                </section>
 
-                <div class="flex justify-between text-slate-400 text-sm mb-2">
-                    <span>Tam tinh:</span>
-                    <span>{{ number_format($subtotal) }}d</span>
-                </div>
+                <section class="admin-surface-card p-6">
+                    <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Thông tin khách hàng</h3>
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <p class="admin-kicker">Người nhận</p>
+                            <p class="mt-2 text-sm font-bold text-[var(--admin-text)]">{{ $order->full_name }}</p>
+                        </div>
+                        <div>
+                            <p class="admin-kicker">Liên hệ</p>
+                            <p class="mt-2 text-sm text-[var(--admin-text)]">{{ $order->phone }}</p>
+                            <p class="mt-1 text-sm text-[var(--admin-text-muted)]">{{ $order->email }}</p>
+                        </div>
+                        <div>
+                            <p class="admin-kicker">Địa chỉ giao hàng</p>
+                            <p class="mt-2 text-sm leading-7 text-[var(--admin-text)]">{{ $order->address }}</p>
+                        </div>
+                        @if($order->note)
+                            <div>
+                                <p class="admin-kicker">Ghi chú</p>
+                                <p class="mt-2 rounded-2xl bg-[var(--admin-surface-low)] px-4 py-3 text-sm leading-7 text-[var(--admin-text-muted)]">{{ $order->note }}</p>
+                            </div>
+                        @endif
+                    </div>
+                </section>
 
-                @if(($order->discount_amount ?? 0) > 0)
-                <div class="flex justify-between text-slate-400 text-sm mb-2">
-                    <span>Coupon{{ $order->coupon_code ? ' (' . $order->coupon_code . ')' : '' }}:</span>
-                    <span>-{{ number_format($order->discount_amount) }}d</span>
-                </div>
-                @endif
+                <section class="admin-surface-card p-6">
+                    <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Thanh toán & vận chuyển</h3>
+                    <div class="mt-6 space-y-5">
+                        <div>
+                            <p class="admin-kicker">Thanh toán</p>
+                            <div class="mt-3 flex flex-wrap items-center gap-3">
+                                <span class="admin-badge admin-badge--muted">{{ strtoupper($order->payment_method ?? 'COD') }}</span>
+                                <span class="{{ $paymentClass }}">{{ $paymentLabel }}</span>
+                            </div>
+                            @if($order->payment?->transaction_code)
+                                <p class="mt-3 text-sm text-[var(--admin-text-muted)]">Mã giao dịch: <span class="font-semibold text-[var(--admin-text)]">{{ $order->payment->transaction_code }}</span></p>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="admin-kicker">Vận chuyển</p>
+                            <div class="mt-3 flex flex-wrap items-center gap-3">
+                                <span class="admin-badge admin-badge--muted">{{ $order->shipment?->carrier ?? 'Chưa có' }}</span>
+                                <span class="{{ $shipmentClass }}">{{ $shipmentLabel }}</span>
+                            </div>
+                            @if($order->shipment?->tracking_code)
+                                <p class="mt-3 text-sm text-[var(--admin-text-muted)]">Mã vận đơn: <span class="font-semibold text-[var(--admin-text)]">{{ $order->shipment->tracking_code }}</span></p>
+                            @endif
+                        </div>
+                    </div>
+                </section>
 
-                <div class="flex justify-between text-slate-400 text-sm mb-4">
-                    <span>Phi van chuyen:</span>
-                    <span>0d</span>
-                </div>
-                <hr class="border-slate-700 mb-4">
-                <div class="flex justify-between text-xl font-bold">
-                    <span>TONG CONG:</span>
-                    <span class="text-emerald-400">{{ number_format($order->total_amount) }}d</span>
-                </div>
+                <section class="admin-surface-card p-6 bg-[linear-gradient(180deg,#1f2d22,#191c1e)] text-white">
+                    <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Tổng giá trị đơn</h3>
+                    <div class="mt-6 space-y-3 text-sm">
+                        <div class="flex items-center justify-between text-white/72">
+                            <span>Tạm tính</span>
+                            <span>{{ number_format($subtotal, 0, ',', '.') }}đ</span>
+                        </div>
+                        <div class="flex items-center justify-between text-white/72">
+                            <span>Giảm giá</span>
+                            <span>-{{ number_format($order->discount_amount ?? 0, 0, ',', '.') }}đ</span>
+                        </div>
+                        <div class="flex items-center justify-between text-white/72">
+                            <span>Phí vận chuyển</span>
+                            <span>{{ number_format($shippingFee, 0, ',', '.') }}đ</span>
+                        </div>
+                        <div class="h-px bg-white/10"></div>
+                        <div class="flex items-end justify-between">
+                            <span class="text-base font-semibold">Tổng thanh toán</span>
+                            <span class="admin-headline text-3xl font-bold tracking-[-0.04em] text-[#acf4a4]">{{ number_format($grandTotal, 0, ',', '.') }}đ</span>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
-</div>
 @endsection
