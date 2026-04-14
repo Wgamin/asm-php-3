@@ -1,86 +1,70 @@
-<div x-data="imageViewer()">
+<div x-data="imageUploadCreate()">
     <div class="space-y-6">
-        {{-- A. ẢNH ĐẠI DIỆN CHÍNH --}}
-        <div class="space-y-3">
-            <label class="text-sm font-bold text-gray-700 flex items-center gap-2">
-                <i class="fas fa-image text-emerald-500"></i> Ảnh đại diện chính <span class="text-red-500">*</span>
-            </label>
-            
-            <div class="relative group cursor-pointer border-2 border-dashed border-gray-200 rounded-2xl p-2 hover:border-emerald-400 transition-all bg-gray-50/50">
-                <input type="file" name="image" required accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" @change="previewMainImage">
-                
-                <template x-if="mainImageUrl">
-                    <img :src="mainImageUrl" class="w-full h-48 object-cover rounded-xl shadow-sm">
-                </template>
-                
-                <template x-if="!mainImageUrl">
-                    <div class="flex flex-col items-center py-8">
-                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
-                            <i class="fas fa-camera text-gray-400"></i>
-                        </div>
-                        <p class="text-xs text-gray-500 font-medium">Chọn ảnh nền chính</p>
-                    </div>
-                </template>
-            </div>
+        <div>
+            <p class="admin-kicker">Thư viện ảnh</p>
+            <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Ảnh sản phẩm</h3>
         </div>
 
-        <hr class="border-gray-100">
-
-        {{-- B. NHIỀU ẢNH PHỤ (GALLERY) --}}
-        <div class="space-y-3">
-            <label class="text-sm font-bold text-gray-700 flex items-center gap-2">
-                <i class="fas fa-images text-emerald-500"></i> Ảnh phụ (Gallery)
+        <div>
+            <label class="admin-field-label">Ảnh đại diện chính</label>
+            <label class="block cursor-pointer overflow-hidden rounded-[1.2rem] border border-dashed border-[rgba(112,122,108,0.3)] bg-[var(--admin-surface-low)] p-3 transition hover:border-[rgba(32,98,35,0.42)]">
+                <input type="file" name="image" accept="image/*" required class="hidden" @change="previewMainImage">
+                <template x-if="mainImageUrl">
+                    <img :src="mainImageUrl" alt="Ảnh đại diện" class="h-56 w-full rounded-[1rem] object-cover">
+                </template>
+                <template x-if="!mainImageUrl">
+                    <div class="flex h-56 flex-col items-center justify-center rounded-[1rem] bg-white text-center">
+                        <i class="fas fa-camera text-3xl text-[var(--admin-text-muted)] opacity-60"></i>
+                        <p class="mt-3 text-sm font-semibold text-[var(--admin-text)]">Chọn ảnh đại diện</p>
+                        <p class="mt-2 max-w-[16rem] text-xs leading-6 text-[var(--admin-text-muted)]">JPG, PNG hoặc WEBP. Nên dùng ảnh vuông để hiển thị đồng bộ.</p>
+                    </div>
+                </template>
             </label>
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Xem vườn, chứng nhận, cận cảnh...</p>
+        </div>
 
-            <div class="grid grid-cols-2 gap-3" id="gallery-preview">
-                {{-- Loop qua các ảnh đã chọn --}}
+        <div>
+            <label class="admin-field-label">Ảnh phụ / gallery</label>
+            <div class="grid grid-cols-2 gap-3">
                 <template x-for="(url, index) in galleryUrls" :key="index">
-                    <div class="relative aspect-square rounded-xl overflow-hidden border border-gray-100 shadow-sm group">
-                        <img :src="url" class="w-full h-full object-cover">
-                        <button type="button" @click="removeGalleryImage(index)" 
-                                class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i class="fas fa-times text-[10px]"></i>
+                    <div class="relative overflow-hidden rounded-[1rem] bg-white shadow-sm">
+                        <img :src="url" alt="Ảnh phụ" class="h-28 w-full object-cover">
+                        <button type="button" @click="removeGalleryImage(index)" class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white">
+                            <i class="fas fa-times text-xs"></i>
                         </button>
                     </div>
                 </template>
 
-                {{-- Nút bấm thêm ảnh phụ --}}
-                <div class="relative aspect-square border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center bg-gray-50 hover:bg-emerald-50 hover:border-emerald-300 transition-all cursor-pointer">
-                    <input type="file" name="images[]" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" @change="previewGallery">
-                    <i class="fas fa-plus text-gray-300 mb-1"></i>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Thêm ảnh</span>
-                </div>
+                <label class="flex h-28 cursor-pointer flex-col items-center justify-center rounded-[1rem] border border-dashed border-[rgba(112,122,108,0.3)] bg-[var(--admin-surface-low)] text-center transition hover:border-[rgba(32,98,35,0.42)]">
+                    <input type="file" name="images[]" multiple accept="image/*" class="hidden" @change="previewGallery">
+                    <i class="fas fa-plus text-lg text-[var(--admin-text-muted)]"></i>
+                    <p class="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--admin-text-muted)]">Thêm ảnh</p>
+                </label>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    function imageViewer() {
-        return {
-            mainImageUrl: null,
-            galleryUrls: [],
-
-            previewMainImage(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    this.mainImageUrl = URL.createObjectURL(file);
-                }
-            },
-
-            previewGallery(e) {
-                const files = Array.from(e.target.files);
-                files.forEach(file => {
-                    this.galleryUrls.push(URL.createObjectURL(file));
-                });
-            },
-
-            removeGalleryImage(index) {
-                this.galleryUrls.splice(index, 1);
-                // Lưu ý: Việc xóa này chỉ xóa URL Preview, để xóa thực sự trong input file cần logic phức tạp hơn 
-                // hoặc dùng DataTransfer API. Tuy nhiên với yêu cầu cơ bản, chọn lại là cách nhanh nhất.
-            }
+@push('scripts')
+    <script>
+        function imageUploadCreate() {
+            return {
+                mainImageUrl: null,
+                galleryUrls: [],
+                previewMainImage(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.mainImageUrl = URL.createObjectURL(file);
+                    }
+                },
+                previewGallery(event) {
+                    Array.from(event.target.files).forEach((file) => {
+                        this.galleryUrls.push(URL.createObjectURL(file));
+                    });
+                },
+                removeGalleryImage(index) {
+                    this.galleryUrls.splice(index, 1);
+                },
+            };
         }
-    }
-</script>
+    </script>
+@endpush

@@ -1,31 +1,34 @@
 @extends('admin.layouts.master')
 
+@section('title', 'Tạo coupon')
+
 @section('content')
-<div class="p-6">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+    <div class="mx-auto max-w-5xl space-y-8">
+        <section class="flex items-end justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Tạo coupon mới</h2>
-                <p class="text-sm text-gray-500 mt-1">Thiết lập mã giảm giá để người dùng dùng tại trang checkout.</p>
+                <p class="admin-kicker">Marketing setup</p>
+                <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Tạo coupon mới</h1>
+                <p class="admin-copy mt-3 max-w-2xl text-sm">Thiết lập mã giảm giá để khách hàng sử dụng tại checkout với điều kiện áp dụng rõ ràng.</p>
             </div>
-            <a href="{{ route('admin.coupons.index') }}" class="text-gray-500 hover:text-gray-700 font-medium">
-                <i class="fas fa-arrow-left mr-2"></i> Quay lại
+            <a href="{{ route('admin.coupons.index') }}" class="admin-btn-secondary">
+                <i class="fas fa-arrow-left text-sm"></i>
+                Quay lại
             </a>
-        </div>
+        </section>
 
-        <form action="{{ route('admin.coupons.store') }}" method="POST" class="p-6 space-y-6">
-            @csrf
-            @include('admin.coupons._form')
+        <section class="admin-surface-card p-7">
+            <form action="{{ route('admin.coupons.store') }}" method="POST" class="space-y-8">
+                @csrf
+                @include('admin.coupons._form')
 
-            <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                <a href="{{ route('admin.coupons.index') }}" class="px-5 py-3 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
-                    Hủy
-                </a>
-                <button type="submit" class="px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">
-                    Lưu coupon
-                </button>
-            </div>
-        </form>
+                <div class="flex justify-end gap-3 border-t border-[rgba(112,122,108,0.12)] pt-6">
+                    <a href="{{ route('admin.coupons.index') }}" class="admin-btn-ghost">Hủy</a>
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-floppy-disk text-sm"></i>
+                        Lưu coupon
+                    </button>
+                </div>
+            </form>
+        </section>
     </div>
-</div>
 @endsection

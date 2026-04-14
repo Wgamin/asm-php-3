@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "outline": "#707a6c",
+                        "surface-dim": "#d8dadc",
+                        "secondary-fixed-dim": "#b4cad6",
+                        "on-tertiary-fixed": "#2e1500",
+                        "on-secondary-container": "#526772",
+                        "primary-fixed-dim": "#91d78a",
+                        "secondary-container": "#cfe6f2",
+                        "on-background": "#191c1e",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#191c1e",
+                        "tertiary-fixed-dim": "#ffb77a",
+                        "on-tertiary-container": "#ffeee3",
+                        "primary-fixed": "#acf4a4",
+                        "inverse-surface": "#2d3133",
+                        "surface-bright": "#f7f9fb",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdcc2",
+                        "on-surface-variant": "#40493d",
+                        "primary": "#206223",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#cbffc2",
+                        "background": "#f7f9fb",
+                        "on-secondary-fixed-variant": "#354a53",
+                        "secondary-fixed": "#cfe6f2",
+                        "inverse-primary": "#91d78a",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#071e27",
+                        "tertiary-container": "#a55b00",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary": "#824600",
+                        "primary-container": "#3a7b3a",
+                        "surface-tint": "#2a6b2c",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface": "#f7f9fb",
+                        "on-primary-fixed-variant": "#0c5216",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#bfcaba",
+                        "surface-container": "#eceef0",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-fixed-variant": "#6d3a00",
+                        "secondary": "#4c616c",
+                        "on-primary-fixed": "#002203"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-stone-50 dark:bg-stone-900 flex flex-col border-r border-stone-200/50 dark:border-stone-800/50">
+<div class="px-6 py-8">
+<h1 class="text-xl font-bold text-green-900 dark:text-green-100 tracking-tighter">Nông Sản Việt</h1>
+<p class="text-xs text-on-surface-variant mt-1">Quản trị viên</p>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-green-700 dark:hover:text-green-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Bảng điều khiển</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-green-800 dark:text-green-400 font-bold border-l-4 border-green-800 dark:border-green-500 bg-green-50/50 dark:bg-green-900/20 rounded-r-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Sản phẩm</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-green-700 dark:hover:text-green-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Đơn hàng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-green-700 dark:hover:text-green-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Khách hàng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-green-700 dark:hover:text-green-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Tiếp thị</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-green-700 dark:hover:text-green-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Nội dung</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-green-700 dark:hover:text-green-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Hỗ trợ</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-green-700 dark:hover:text-green-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Hệ thống</span>
+</a>
+</nav>
+<div class="p-4 border-t border-stone-200/50 dark:border-stone-800/50">
+<a class="flex items-center gap-3 px-3 py-2 text-stone-500 dark:text-stone-400 font-medium hover:text-error dark:hover:text-error transition-colors duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-['Manrope'] font-semibold text-sm tracking-tight">Đăng xuất</span>
+</a>
+</div>
+</aside>
+<header class="sticky top-0 right-0 z-30 ml-64 w-[calc(100%-16rem)] bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200/50 dark:border-stone-800/50 flex items-center justify-between px-8 py-4 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-8">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="Tìm kiếm danh mục..." type="text"/>
+</div>
+<nav class="flex gap-6">
+<a class="text-stone-500 hover:text-green-700 font-['Inter'] text-sm transition-all duration-200" href="#">Trang chủ</a>
+<a class="text-stone-500 hover:text-green-700 font-['Inter'] text-sm transition-all duration-200" href="#">Báo cáo</a>
+<a class="text-green-800 font-semibold font-['Inter'] text-sm transition-all duration-200" href="#">Cài đặt</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-stone-500 hover:bg-stone-100 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-stone-500 hover:bg-stone-100 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-px bg-stone-200"></div>
+<button class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl text-sm font-semibold shadow-md active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                Tạo mới
+            </button>
+<img alt="Admin" class="w-9 h-9 rounded-full object-cover border-2 border-primary/20" data-alt="professional headshot of a smiling Vietnamese administrator in a modern office setting, soft corporate lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8EDmyG-JAvYj_DgfHDl3pep2qAybgPkQ0WldbcJB0uBdymiYXAEyjC77bBj5WFNwbk3H6_FUFIBC99zXk7mA8LPvGzwGgLzeKfmCmLtd1GPly3y7iWYmeGGskS1CtW7YQACT4jFSLmfhy6rlq76oiKAKiPus8SURq3HmlrFwRtQRTlEpj0fblMHu3FHl5ek3tR1fVjpUAIxnCH8mCZUKPzSMWgsi89Y3V8xSkzSsc1hOqWg8BQ3CQRPtQBthWuoM6yl9dzzcGuXk"/>
+</div>
+</header>
+<main class="ml-64 p-8 bg-surface min-h-[calc(100vh-72px)]">
+<div class="max-w-7xl mx-auto">
+<header class="mb-8">
+<h2 class="text-3xl font-bold text-on-surface font-headline tracking-tight">Quản lý danh mục</h2>
+<p class="text-on-surface-variant mt-1 font-body">Cấu trúc phân cấp và thuộc tính các nhóm nông sản.</p>
+</header>
+<div class="grid grid-cols-12 gap-8 items-start">
+<section class="col-span-12 lg:col-span-5 bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-semibold font-headline flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="account_tree">account_tree</span>
+                            Cấu trúc danh mục
+                        </h3>
+<span class="text-xs bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded-full font-bold">12 Nhóm</span>
+</div>
+<div class="space-y-2">
+<div class="group">
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low border-l-4 border-primary">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<span class="material-symbols-outlined text-primary" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+<span class="font-semibold text-sm">Trái cây</span>
+</div>
+<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<div class="ml-10 mt-2 space-y-2 border-l border-outline-variant/30 pl-4">
+<div class="group/sub">
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40 text-sm cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="subdirectory_arrow_right">subdirectory_arrow_right</span>
+<span class="text-sm font-medium">Trái cây nội địa</span>
+</div>
+<button class="p-1 text-on-surface-variant hover:text-error opacity-0 group-hover/sub:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="ml-8 mt-2 space-y-1 border-l border-outline-variant/20 pl-4">
+<div class="flex items-center justify-between p-2 rounded-lg bg-primary/5 text-primary">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-xs" data-icon="radio_button_checked">radio_button_checked</span>
+<span class="text-sm font-bold">Xoài Cát Hòa Lộc</span>
+</div>
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40 text-xs" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-sm">Bưởi Da Xanh</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40 text-sm cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="subdirectory_arrow_right">subdirectory_arrow_right</span>
+<span class="text-sm font-medium">Trái cây nhập khẩu</span>
+</div>
+</div>
+</div>
+</div>
+<div class="group">
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="keyboard_arrow_right">keyboard_arrow_right</span>
+<span class="font-medium text-sm">Rau củ quả</span>
+</div>
+<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<div class="group">
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="keyboard_arrow_right">keyboard_arrow_right</span>
+<span class="font-medium text-sm">Gạo &amp; Ngũ cốc</span>
+</div>
+<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 flex items-center justify-center gap-2 p-3 border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant hover:border-primary hover:text-primary transition-all font-semibold text-sm">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                        Thêm danh mục gốc
+                    </button>
+</section>
+<section class="col-span-12 lg:col-span-7 space-y-6">
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-outline-variant/10 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-xl font-bold font-headline">Chỉnh sửa danh mục</h3>
+<p class="text-sm text-on-surface-variant">Đang chỉnh sửa: <span class="font-semibold text-primary">Xoài Cát Hòa Lộc</span></p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 text-sm font-semibold text-on-surface hover:bg-surface-container-high rounded-xl transition-all">Hủy</button>
+<button class="px-6 py-2.5 text-sm font-semibold bg-gradient-to-r from-primary to-primary-container text-white rounded-xl shadow-lg active:scale-95 transition-all">Lưu thay đổi</button>
+</div>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-1.5">
+<label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant ml-1">Tên danh mục</label>
+<input class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all" type="text" value="Xoài Cát Hòa Lộc"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant ml-1">Đường dẫn (Slug)</label>
+<div class="flex items-center bg-surface-container-high rounded-xl px-4 py-3">
+<span class="text-xs text-on-surface-variant/50 mr-1">/cat/</span>
+<input class="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0" type="text" value="xoai-cat-hoa-loc"/>
+</div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant ml-1">Danh mục cha</label>
+<select class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary appearance-none">
+<option>Trái cây nội địa</option>
+<option>Trái cây nhập khẩu</option>
+<option>Rau củ hữu cơ</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant ml-1">Mô tả danh mục</label>
+<textarea class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary transition-all" rows="4">Đặc sản Xoài Cát Hòa Lộc chính gốc từ Tiền Giang, nổi tiếng với vị ngọt thanh, hương thơm đặc trưng và thịt quả mịn.</textarea>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant ml-1">Hình ảnh / Biểu tượng</label>
+<div class="flex items-start gap-6">
+<div class="w-32 h-32 rounded-2xl overflow-hidden bg-surface-container-high border-2 border-dashed border-outline-variant group relative cursor-pointer">
+<img alt="Xoài Cát" class="w-full h-full object-cover transition-transform group-hover:scale-110" data-alt="close-up of fresh ripe yellow mangoes on a rustic wooden table with soft morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaXfzxj3V-GnBvMfpiSNrL-DZahkCQOsRVGUfZTnNJzKRj-qqCwM2Cks0jN7YRNFyAU9O-xPUZ_dlCYr7vmdz_Y8Wru5KSGoOTROmbHmtTZbz6y2ZXVt8rQ_uWfFLBJvF6QzTnZlsm8GhGGhBvRsXzt-wo4gaBOJcXetUbQH8HmTITy3L_Eb51O2kHHslzWiWhuUmVh2HYZYTCFKly3knLEzoQK3bqwzn8uElaYPVIel-MVUrhDmWQkKzXvmzQ1jV6K1ZQZNLdSi4"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white" data-icon="photo_camera">photo_camera</span>
+</div>
+</div>
+<div class="flex-1 pt-2">
+<p class="text-xs text-on-surface-variant leading-relaxed">Tải lên hình ảnh đại diện cho danh mục. Kích thước khuyến nghị: 400x400px. Định dạng: PNG, JPG, WEBP.</p>
+<div class="mt-4 flex gap-3">
+<button class="px-4 py-2 bg-surface-container-high text-xs font-bold rounded-lg hover:bg-surface-container-highest transition-colors" type="button">Chọn ảnh mới</button>
+<button class="px-4 py-2 border border-error/30 text-error text-xs font-bold rounded-lg hover:bg-error/5 transition-colors" type="button">Xóa ảnh</button>
+</div>
+</div>
+</div>
+</div>
+</form>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed-variant" data-icon="trending_up">trending_up</span>
+</div>
+<h4 class="font-bold text-sm">Sản phẩm hoạt động</h4>
+</div>
+<p class="text-2xl font-bold font-headline tracking-tighter">1,248</p>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1 uppercase tracking-widest">+12% so với tháng trước</p>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed-variant" data-icon="visibility">visibility</span>
+</div>
+<h4 class="font-bold text-sm">Lượt truy cập nhóm</h4>
+</div>
+<p class="text-2xl font-bold font-headline tracking-tighter">45.2K</p>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1 uppercase tracking-widest">Trung bình 1.5k/ngày</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,35 +1,40 @@
 @extends('admin.layouts.master')
 
+@section('title', 'Chỉnh sửa coupon')
+
 @section('content')
-<div class="p-6">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+    <div class="mx-auto max-w-5xl space-y-8">
+        <section class="flex items-end justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Cập nhật coupon</h2>
-                <p class="text-sm text-gray-500 mt-1">Chỉnh sửa điều kiện, hạn dùng hoặc trạng thái hoạt động.</p>
+                <p class="admin-kicker">Marketing setup</p>
+                <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Chỉnh sửa coupon</h1>
+                <p class="admin-copy mt-3 max-w-2xl text-sm">Cập nhật điều kiện sử dụng, hạn dùng và trạng thái hoạt động của mã giảm giá.</p>
             </div>
-            <a href="{{ route('admin.coupons.index') }}" class="text-gray-500 hover:text-gray-700 font-medium">
-                <i class="fas fa-arrow-left mr-2"></i> Quay lại
+            <a href="{{ route('admin.coupons.index') }}" class="admin-btn-secondary">
+                <i class="fas fa-arrow-left text-sm"></i>
+                Quay lại
             </a>
-        </div>
+        </section>
 
-        <form action="{{ route('admin.coupons.update', $coupon) }}" method="POST" class="p-6 space-y-6">
-            @csrf
-            @method('PUT')
-            @include('admin.coupons._form', ['coupon' => $coupon])
+        <section class="admin-surface-card p-7">
+            <form action="{{ route('admin.coupons.update', $coupon) }}" method="POST" class="space-y-8">
+                @csrf
+                @method('PUT')
+                @include('admin.coupons._form', ['coupon' => $coupon])
 
-            <div class="flex justify-between items-center pt-4 border-t border-gray-100">
-                <div class="text-sm text-gray-500">
-                    Đã dùng {{ $coupon->used_count }} lượt
-                    @if($coupon->usage_limit)
-                        / {{ $coupon->usage_limit }} lượt
-                    @endif
+                <div class="flex flex-col gap-3 border-t border-[rgba(112,122,108,0.12)] pt-6 md:flex-row md:items-center md:justify-between">
+                    <p class="text-sm text-[var(--admin-text-muted)]">
+                        Đã dùng <strong class="text-[var(--admin-text)]">{{ $coupon->used_count }}</strong> lượt
+                        @if($coupon->usage_limit)
+                            / {{ $coupon->usage_limit }} lượt
+                        @endif
+                    </p>
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="fas fa-floppy-disk text-sm"></i>
+                        Cập nhật coupon
+                    </button>
                 </div>
-                <button type="submit" class="px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">
-                    Cập nhật coupon
-                </button>
-            </div>
-        </form>
+            </form>
+        </section>
     </div>
-</div>
 @endsection

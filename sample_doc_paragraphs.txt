@@ -1,0 +1,619 @@
+﻿   1: TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC CƠ SỞ TÂY NGUYÊN
+   2: -----🙞🙜🕮🙞🙜-----
+   3: ASSIGNMENT
+   4: BÁO CÁO PHP3
+   5: ĐỀ TÀI: XÂY DỰNG WEBSITE BÁN TRANG SỨC 
+   6: Giảng viên hướng dẫn:Lê Hồng Sơn
+   7:    Nhóm sinh viên thực hiện:Hoàng Thanh Hiếu – PK04060 
+   8: Bùi Tấn Tuấn – PK04033
+   9: Trần Bình Minh – PK04039
+  10: Nguyễn Long Quân – PK04078
+  11: Nguyễn Thị Kim Hiền – PK04314
+  12: Lê Thị Mỹ Duyên – PK04047
+  13: Buôn Ma Thuột, 09 tháng 03, 2026
+  14: MỤC LỤC
+  15: NHẬN XÉT CỦA GIẢNG VIÊN HƯỚNG DẪN
+  16: ................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+  17: Buôn Ma Thuột, 10-03-2026
+  18: Chữ ký
+  19: ĐÁNH GIÁ CỦA HỘI ĐỒNG
+  20: ................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+  21: Buôn Ma Thuột, 10-03-2026
+  22: HỘI ĐỒNG PHẢN BIỆN
+  23: LỜI CẢM ƠN
+  24: Nhóm ThinkHub xin chân thành gửi lời cảm ơn sâu sắc đến thầy Lê Hồng Sơn đã luôn tận tình hướng dẫn, hỗ trợ và đồng hành cùng nhóm trong suốt quá trình thực hiện dự án website bán trang sức. Những chỉ dẫn quý báu của thầy không chỉ giúp chúng em củng cố kiến thức chuyên môn mà còn định hướng tư duy thực tế, từ đó nâng cao kỹ năng làm việc nhóm và khả năng giải quyết vấn đề.
+  25: Bên cạnh đó, nhóm cũng xin cảm ơn các bạn bè đã luôn ủng hộ, đóng góp ý kiến và hỗ trợ nhiệt tình, giúp chúng em hoàn thiện dự án một cách tốt nhất.
+  26: Dự án website bán trang sức SORA là cơ hội quý giá để nhóm áp dụng những kiến thức đã học vào thực tiễn, đặc biệt trong việc xây dựng hệ thống thương mại điện tử. Trong quá trình thực hiện, nhóm cũng đã gặp không ít khó khăn về kỹ thuật và thời gian, nhưng đó cũng chính là những trải nghiệm giúp chúng em trưởng thành hơn.
+  27: Mặc dù đã cố gắng hết sức, nhóm hiểu rằng dự án vẫn còn những hạn chế nhất định. Vì vậy, chúng em rất mong nhận được những góp ý chân thành từ thầy cô để có thể hoàn thiện hơn trong tương lai.
+  28: Sau đây là bài báo cáo của nhóm ThinkHub, kính mong thầy cô theo dõi và đưa ra nhận xét.
+  29: Tp. Buôn Ma Thuột, 10 tháng 3 năm 2026
+  30: ThinkHub
+  31: GIỚI THIỆU DỰ ÁN
+  32:  Lý do thực hiện dự án:
+  33: Trong những năm gần đây, nhu cầu mua sắm trang sức trực tuyến tại Việt Nam đang có xu hướng gia tăng mạnh mẽ, đặc biệt trong bối cảnh thương mại điện tử phát triển nhanh chóng. Người tiêu dùng ngày càng ưu tiên các sản phẩm không chỉ có giá trị thẩm mỹ mà còn thể hiện cá tính và phong cách riêng. Bên cạnh đó, xu hướng mua sắm online giúp khách hàng tiết kiệm thời gian và dễ dàng tiếp cận đa dạng mẫu mã từ nhiều thương hiệu khác nhau.
+  34: Tuy nhiên, thực tế cho thấy nhiều cửa hàng kinh doanh trang sức hiện nay vẫn đang vận hành theo phương thức truyền thống hoặc bán thủ công thông qua mạng xã hội, file Excel hoặc các nền tảng rời rạc. Điều này dẫn đến nhiều hạn chế trong quá trình quản lý và kinh doanh:
+  35: Thông tin sản phẩm, tồn kho và đơn hàng không được đồng bộ, dễ xảy ra sai sót hoặc thất lạc dữ liệu.
+  36: Việc quản lý đơn hàng, thanh toán và giao hàng còn thủ công, tốn thời gian và thiếu tính chính xác.
+  37: Không có hệ thống thống kê, báo cáo doanh thu tự động để hỗ trợ việc ra quyết định kinh doanh.
+  38: Khách hàng gặp khó khăn trong việc tìm kiếm sản phẩm, so sánh giá và theo dõi tình trạng đơn hàng.
+  39: Chưa có hệ thống phân quyền rõ ràng giữa quản trị viên và người dùng, gây hạn chế trong việc quản lý hiệu quả.
+  40: Khảo sát thực tế từ người tiêu dùng trong lĩnh vực mua sắm trực tuyến cho thấy:
+  41: 70% khách hàng mong muốn có thể xem sản phẩm, đặt hàng và thanh toán trực tuyến một cách nhanh chóng, tiện lợi.
+  42: 65% người dùng quan tâm đến việc theo dõi đơn hàng và nhận thông báo cập nhật trạng thái theo thời gian thực.
+  43: 75% người kinh doanh cho biết họ gặp khó khăn trong việc quản lý đơn hàng, tồn kho và thống kê doanh thu khi không có hệ thống hỗ trợ.
+  44: Trước thực trạng đó, nhóm ThinkHub đề xuất xây dựng Website bán trang sức SORA nhằm mục tiêu:
+  45: Số hóa toàn bộ quy trình kinh doanh: từ quản lý sản phẩm, danh mục, tồn kho đến xử lý đơn hàng và thanh toán.
+  46: Hỗ trợ phân quyền rõ ràng giữa quản trị viên và khách hàng, đảm bảo quản lý hiệu quả và bảo mật thông tin.
+  47: Giúp khách hàng dễ dàng tìm kiếm, so sánh, lựa chọn sản phẩm và theo dõi đơn hàng mọi lúc, mọi nơi.
+  48: Tối ưu hóa quy trình vận hành, tiết kiệm thời gian và nâng cao hiệu quả kinh doanh.
+  49: Xây dựng nền tảng thương mại điện tử chuyên nghiệp, tạo tiền đề mở rộng quy mô và phát triển lâu dài.
+  50: Với hệ thống này, nhóm ThinkHub kỳ vọng sẽ mang đến một trải nghiệm mua sắm trang sức trực tuyến hiện đại, tiện lợi và đáng tin cậy, đồng thời góp phần nâng cao hiệu quả kinh doanh trong thời đại chuyển đổi số.
+  51:  Lược sử dự án:
+  52: Giới thiệu dự án
+  53: Dự án “Website bán trang sức SORA” được xây dựng nhằm hỗ trợ các cửa hàng kinh doanh trang sức quản lý hiệu quả sản phẩm, đơn hàng, khách hàng và hoạt động kinh doanh trên nền tảng trực tuyến. Hệ thống giúp số hóa các quy trình như đăng bán sản phẩm, quản lý tồn kho, xử lý đơn hàng, thanh toán và phân quyền theo vai trò (quản trị viên, khách hàng). Đồng thời, hệ thống cung cấp báo cáo thống kê doanh thu, giúp việc quản lý và ra quyết định trở nên dễ dàng hơn.
+  54: Dự án hướng đến mục tiêu nâng cao hiệu quả vận hành, tiết kiệm thời gian, hạn chế sai sót và mang lại trải nghiệm mua sắm trang sức hiện đại, tiện lợi cho người dùng.
+  55: Lược sử dự án
+  56: Thị trường hiện tại
+  57: Số liệu thống kê và so sánh
+  58: Số lượng khách hàng: Các cửa hàng nhỏ có trung bình từ 50 – 200 khách/tháng, cho thấy nhu cầu mua trang sức khá ổn định.
+  59: Phương thức bán hàng: Khoảng 75% shop bán qua Facebook/Zalo, chưa có hệ thống quản lý chuyên nghiệp.
+  60: Quản lý đơn hàng: Phần lớn vẫn xử lý thủ công, dễ nhầm lẫn thông tin khách hàng và sản phẩm.
+  61: Khó khăn chung: Thiếu hệ thống đồng bộ dẫn đến mất thời gian, sai sót và khó mở rộng kinh doanh.
+  62: Ưu điểm của Website bán trang sức SORA:
+  63: Tăng hiệu quả quản lý: Tự động hóa quản lý sản phẩm, danh mục, đơn hàng, khách hàng và tồn kho.
+  64: Dễ dàng theo dõi thông tin: Dữ liệu được lưu trữ tập trung, cập nhật liên tục, dễ tra cứu.
+  65: Tiết kiệm thời gian và chi phí: Giảm thao tác thủ công, hạn chế sai sót, giảm chi phí vận hành.
+  66: Nâng cao trải nghiệm khách hàng: Khách hàng dễ dàng tìm kiếm, so sánh và đặt hàng nhanh chóng.
+  67: Dễ dàng mở rộng: Có thể tích hợp thêm thanh toán online, chatbot, tích điểm, đánh giá sản phẩm…
+  68: Hỗ trợ ra quyết định: Cung cấp báo cáo doanh thu, sản phẩm bán chạy giúp kinh doanh hiệu quả hơn.
+  69: Cải thiện trải nghiệm người dùng: Giao diện thân thiện, dễ sử dụng trên nhiều thiết bị.
+  70: Điểm mạnh của dự án
+  71: Thị trường cạnh tranh tại TP. Buôn Ma Thuột
+  72: Các shop trang sức online: Linh hoạt, dễ tiếp cận khách hàng nhưng thiếu hệ thống quản lý chuyên nghiệp.
+  73: Cửa hàng truyền thống: Có uy tín nhưng chưa tận dụng tốt nền tảng online.
+  74: Thương hiệu lớn (PNJ, DOJI): Có hệ thống mạnh, thương hiệu uy tín nhưng chưa tối ưu cho thị trường địa phương nhỏ.
+  75: Dự án Website bán trang sức SORA sẽ tận dụng những ưu điểm của các mô hình hiện có, đồng thời khắc phục hạn chế về quản lý và trải nghiệm người dùng, hướng đến trở thành nền tảng mua sắm trang sức trực tuyến tiện lợi, hiện đại và phù hợp với thị trường địa phương.
+  76:  Mục đích nghiên cứu:
+  77: Mục đích nghiên cứu của dự án xây dựng Website bán trang sức SORA tại Thành phố Buôn Ma Thuột là nhằm hiểu rõ hơn về nhu cầu của khách hàng và người kinh doanh trang sức, từ đó phát triển một hệ thống bán hàng trực tuyến toàn diện, tiện lợi và hiệu quả. Cụ thể, nghiên cứu này được thực hiện với các mục đích chính sau:
+  78: Khảo sát nhu cầu người dùng: Nghiên cứu nhằm thu thập thông tin về nhu cầu của khách hàng và người bán trong việc tìm kiếm, quản lý sản phẩm, đặt hàng, thanh toán và theo dõi đơn hàng, cũng như các hoạt động mua sắm trực tuyến khác.
+  79: Đề xuất các chức năng cần thiết: Dựa trên dữ liệu khảo sát và phân tích, nghiên cứu sẽ giúp xác định các chức năng quan trọng cần có trong hệ thống, bao gồm quản lý sản phẩm, quản lý danh mục, giỏ hàng, đặt hàng, thanh toán, quản lý đơn hàng, đánh giá sản phẩm, báo cáo thống kê và hỗ trợ tương tác giữa các bên liên quan.
+  80: Đảm bảo hệ thống phát triển đáp ứng yêu cầu thực tế: Quá trình nghiên cứu sẽ giúp nhóm phát triển hiểu rõ các yêu cầu và mong đợi từ phía người dùng, từ đó đảm bảo hệ thống cuối cùng phù hợp với nhu cầu mua sắm và kinh doanh trang sức hiện tại, giúp tăng hiệu quả hoạt động.
+  81: Xác định phạm vi và đối tượng sử dụng: Nghiên cứu sẽ giúp xác định rõ đối tượng chính sử dụng hệ thống, bao gồm quản trị viên, khách hàng và các bộ phận hỗ trợ, từ đó phát triển giao diện và tính năng phù hợp với từng nhóm người dùng.
+  82: Phương pháp Nghiên cứu
+  83: Để thực hiện nghiên cứu một cách hiệu quả, nhóm em sẽ áp dụng các phương pháp sau:
+  84: Phương pháp khảo sát: Phương pháp này sẽ được áp dụng để thu thập thông tin từ một nhóm khách hàng rộng hơn, thông qua các nền tảng bán hàng trực tuyến và mạng xã hội. Bằng cách phát hành bảng khảo sát, nhóm em có thể thu thập quan điểm và mong muốn của khách hàng, từ đó giúp điều chỉnh các chức năng của hệ thống cho phù hợp hơn.
+  85: Phương pháp phân tích dữ liệu: Phương pháp này sẽ được sử dụng để phân tích dữ liệu thu thập được từ các nguồn khác nhau, bao gồm dữ liệu về thị trường, khách hàng và đối thủ cạnh tranh trong lĩnh vực kinh doanh trang sức. Qua việc phân tích dữ liệu, nhóm em có thể xác định rõ xu hướng và cơ hội của thị trường, từ đó phát triển chiến lược phù hợp cho hệ thống.
+  86:  Phạm vi dự án:
+  87: Dự án Xây Dựng Website bán trang sức SORA được xây dựng nhằm phục vụ hoạt động kinh doanh và quản lý cho các cửa hàng trang sức quy mô vừa và nhỏ tại Thành phố Buôn Ma Thuột. Hệ thống tập trung hỗ trợ các chức năng cốt lõi gồm:
+  88: Quản lý sản phẩm: Thêm, chỉnh sửa, xóa sản phẩm; quản lý thông tin chi tiết sản phẩm; upload nhiều hình ảnh; tạo combo sản phẩm và theo dõi số lượng tồn kho.
+  89: Quản lý danh mục và thương hiệu: Thêm, sửa, xóa danh mục và thương hiệu nhằm phân loại sản phẩm rõ ràng, dễ quản lý.
+  90: Quản lý đơn hàng: Theo dõi danh sách đơn hàng, xem chi tiết đơn và cập nhật trạng thái đơn hàng (chờ xác nhận, đang giao, đã hoàn thành, đã hủy).
+  91: Quản lý tương tác: Kiểm soát các hoạt động của người dùng như bình luận và đánh giá sản phẩm (ẩn hoặc xóa nội dung không phù hợp).
+  92: Quản lý marketing: Tạo và chỉnh sửa các chương trình quảng bá như banner, mã giảm giá (coupon) và chương trình tích điểm cho khách hàng.
+  93: Quản lý người dùng: Xem danh sách người dùng, khóa/mở tài khoản và phân quyền giữa các vai trò (admin/user).
+  94: Quản lý chatbot: Thiết lập và cập nhật nội dung trả lời tự động nhằm hỗ trợ khách hàng nhanh chóng.
+  95: Dashboard (Thống kê): Theo dõi các chỉ số quan trọng như doanh thu, số lượng đơn hàng và sản phẩm bán chạy để hỗ trợ ra quyết định kinh doanh.
+  96: Hệ thống Website bán trang sức SORA được phát triển với Frontend sử dụng Vue.js và Backend sử dụng Laravel, nhằm đảm bảo hiệu năng ổn định, dễ bảo trì và có khả năng mở rộng trong tương lai. Việc áp dụng các công nghệ hiện đại giúp hệ thống vận hành linh hoạt, tối ưu tốc độ xử lý và mang lại trải nghiệm người dùng thân thiện, trực quan.
+  97: Với phạm vi chức năng đã đề ra, hệ thống tập trung hỗ trợ đầy đủ các nghiệp vụ quản lý sản phẩm, đơn hàng, khách hàng, cũng như các hoạt động mua sắm trực tuyến. Tuy nhiên, dự án không bao gồm các chức năng nâng cao như quản lý tài chính hoặc quản lý nhân sự. Hệ thống hiện được xây dựng nhằm phục vụ cho một cửa hàng đơn lẻ, chưa hỗ trợ mô hình đa chi nhánh hoặc quản lý tập trung cho nhiều cửa hàng.
+  98:  Yêu cầu của dự án:
+  99: Yêu cầu chức năng:
+ 100: Hệ thống được thiết kế nhằm đáp ứng đầy đủ các nghiệp vụ của một website bán trang sức trực tuyến, với các chức năng chính như sau:
+ 101: 1.1. Quản lý sản phẩm
+ 102: Thêm/sửa/xóa thông tin sản phẩm.
+ 103: Quản lý hình ảnh sản phẩm (upload nhiều hình).
+ 104: Thiết lập giá, mô tả, số lượng tồn kho.
+ 105: Tạo combo sản phẩm.
+ 106: Tìm kiếm và lọc sản phẩm theo tên, giá, danh mục.
+ 107: 1.2 Quản lý danh mục và thương hiệu
+ 108: Thêm/sửa/xóa danh mục sản phẩm.
+ 109: Thêm/sửa/xóa thương hiệu.
+ 110: Phân loại sản phẩm theo danh mục và thương hiệu.
+ 111: 1.3 Quản lý đơn hàng
+ 112: Xem danh sách đơn hàng.
+ 113: Xem chi tiết từng đơn hàng.
+ 114: Cập nhật trạng thái đơn hàng: chờ xác nhận, đang giao, đã hoàn thành, đã hủy.
+ 115: Hỗ trợ xử lý hủy đơn, hoàn hàng/hoàn tiền, mua lại.
+ 116: 1.4 Quản lý khách hàng
+ 117: Lưu trữ thông tin khách hàng.
+ 118: Theo dõi lịch sử mua hàng.
+ 119: Quản lý trạng thái tài khoản (khóa/mở).
+ 120: 1.5 Quản lý giỏ hàng và thanh toán
+ 121: Cho phép khách hàng thêm sản phẩm vào giỏ hàng.
+ 122: Cập nhật số lượng sản phẩm trong giỏ.
+ 123: Thực hiện đặt hàng và nhập mã giảm giá (coupon).
+ 124: Áp dụng điểm tích lũy để giảm giá.
+ 125: 1.6 Quản lý tương tác và đánh giá
+ 126: Quản lý bình luận của khách hàng (ẩn/xóa).
+ 127: Quản lý đánh giá sản phẩm (reviews).
+ 128: Cho phép khách hàng đánh giá và phản hồi sản phẩm.
+ 129: 1.7 Quản lý marketing
+ 130: Tạo và chỉnh sửa banner quảng cáo.
+ 131: Tạo và quản lý mã giảm giá (coupon).
+ 132: Quản lý chương trình tích điểm khách hàng.
+ 133: 1.8 Báo cáo thống kê
+ 134: Thống kê doanh thu theo thời gian.
+ 135: Thống kê số lượng đơn hàng.
+ 136: Thống kê sản phẩm bán chạy.
+ 137: Hỗ trợ xuất báo cáo.
+ 138: 1.8 Quản trị hệ thống
+ 139: Cung cấp tài khoản đăng nhập cho Admin và User.
+ 140: Phân quyền truy cập theo vai trò.
+ 141: Đảm bảo bảo mật thông tin người dùng.
+ 142: Đối tượng sử dụng:
+ 143: Hệ thống được thiết kế nhằm phục vụ hai nhóm người dùng chính:
+ 144: 1. Quản trị viên (Admin)
+ 145: Là người quản lý toàn bộ hệ thống.
+ 146: Có quyền thêm, sửa, xóa sản phẩm, danh mục, thương hiệu.
+ 147: Quản lý đơn hàng, khách hàng và các hoạt động marketing.
+ 148: Theo dõi báo cáo thống kê và hiệu quả kinh doanh.
+ 149: Phân quyền và quản lý tài khoản người dùng.
+ 150: 2. Khách hàng (User)
+ 151: Đăng ký, đăng nhập và quản lý tài khoản cá nhân.
+ 152: Tìm kiếm, xem và lựa chọn sản phẩm.
+ 153: Thêm vào giỏ hàng, đặt hàng và thanh toán.
+ 154: Theo dõi trạng thái đơn hàng, lịch sử mua hàng.
+ 155: Đánh giá, bình luận sản phẩm và sử dụng chatbot hỗ trợ.
+ 156: Yêu cầu hệ thống:
+ 157: Để đảm bảo hệ thống hoạt động ổn định, bảo mật và hiệu quả, cần đáp ứng các yêu cầu sau:
+ 158: Khả năng mở rộng (Scalability):
+ 159: Hệ thống có thể mở rộng thêm tính năng như thanh toán online, chatbot nâng cao hoặc tích hợp đa cửa hàng trong tương lai.
+ 160: Hiệu năng (Performance):
+ 161: Đảm bảo tốc độ tải trang nhanh, xử lý ổn định khi có nhiều người dùng truy cập cùng lúc.
+ 162: Tính bảo mật (Security):
+ 163: Mỗi người dùng có tài khoản riêng, phân quyền rõ ràng.
+ 164: Bảo vệ thông tin đăng nhập và dữ liệu quan trọng.
+ 165: Khả năng sao lưu và phục hồi dữ liệu (Backup & Recovery):
+ 166: Hỗ trợ sao lưu dữ liệu định kỳ và phục hồi khi có sự cố.
+ 167: Giao diện thân thiện và dễ sử dụng (Usability):
+ 168: Thiết kế dễ sử dụng, phù hợp với nhiều đối tượng người dùng.
+ 169: Tính tương thích (Compatibility):
+ 170: Hệ thống chạy tốt trên nhiều trình duyệt (Chrome, Firefox, Edge...) và thiết bị (máy tính, máy tính bảng)
+ 171: Frontend (Giao diện người dung):
+ 172: Sử dụng Vue.js để xây dựng giao diện.
+ 173: Thiết kế responsive, tương thích trên nhiều thiết bị.
+ 174: Backend (Xử lý nghiệp vụ):
+ 175: Sử dụng Laravel (PHP Framework) để xây dựng hệ thống.
+ 176: Cung cấp RESTful API, dễ bảo trì và mở rộng.
+ 177: Cơ sở dữ liệu:
+ 178: Sử dụng MySQL để lưu trữ dữ liệu, đảm bảo ổn định và dễ triển khai.
+ 179:  Nhóm phát triển dự án:
+ 180:  Lập kế hoạch dự án:
+ 181: Link: PHP3-SORA
+ 182: PHẦN MỀM – CÔNG NGHỆ SỬ DỤNG
+ 183: Laravel.
+ 184: Laravel là một framework PHP mã nguồn mở, được phát triển theo mô hình MVC (Model - View - Controller), giúp xây dựng các ứng dụng web nhanh chóng, bảo mật và dễ bảo trì. Trong dự án Website bán trang sức SORA, Laravel được sử dụng để phát triển phần backend, xử lý toàn bộ logic nghiệp vụ như quản lý sản phẩm, đơn hàng, người dùng và dữ liệu hệ thống.
+ 185: Laravel cung cấp nhiều công cụ mạnh mẽ như hệ thống routing linh hoạt, migration và seeder giúp quản lý cơ sở dữ liệu hiệu quả. Ngoài ra, Laravel tích hợp Eloquent ORM, cho phép truy vấn dữ liệu theo hướng đối tượng, giúp giảm thiểu việc viết các câu lệnh SQL phức tạp.
+ 186: Bên cạnh đó, Laravel còn hỗ trợ các tính năng bảo mật như CSRF Token, xác thực người dùng, mã hóa mật khẩu và middleware để kiểm soát luồng xử lý. Framework cũng hỗ trợ xây dựng API (RESTful), giúp kết nối hiệu quả với frontend Vue.js.
+ 187: Visual Studio Code (VS Code)
+ 188: Visual Studio Code (VS Code) là trình soạn thảo mã nguồn miễn phí, được phát triển bởi Microsoft, được sử dụng trong dự án Website bán trang sức SORA để lập trình và quản lý mã nguồn.
+ 189: VS Code hỗ trợ nhiều ngôn ngữ lập trình thông qua các extension, đặc biệt phù hợp với các công nghệ sử dụng trong dự án như PHP, JavaScript và Vue.js. Công cụ này cung cấp các tính năng như tự động hoàn thành mã (IntelliSense), debug, tìm kiếm, quản lý Git và hỗ trợ làm việc nhóm hiệu quả.
+ 190: Việc sử dụng VS Code giúp nhóm phát triển tăng năng suất làm việc, dễ dàng chỉnh sửa, kiểm tra và triển khai mã nguồn trong quá trình xây dựng hệ thống.
+ 191: Vue.
+ 192: Vue.js là một framework JavaScript mã nguồn mở được sử dụng để xây dựng giao diện người dùng (frontend) cho hệ thống SORA. Vue giúp tạo ra các giao diện web hiện đại, mượt mà và có khả năng tương tác cao.
+ 193: Vue cho phép kết hợp HTML, CSS và JavaScript một cách linh hoạt. Với cơ chế data binding và Virtual DOM, Vue giúp tối ưu hiệu suất và cập nhật giao diện nhanh chóng khi dữ liệu thay đổi.
+ 194: Một số tính năng nổi bật được sử dụng trong dự án gồm:
+ 195: Component: Chia nhỏ giao diện thành các phần độc lập, dễ quản lý và tái sử dụng.
+ 196: Directive (v-if, v-for, v-model…): Hỗ trợ xử lý logic trực tiếp trong giao diện.
+ 197: Vue Router: Điều hướng giữa các trang trong ứng dụng.
+ 198: State management: Quản lý dữ liệu dùng chung giữa các component.
+ 199: Nhờ đó, Vue giúp nâng cao trải nghiệm người dùng trong quá trình mua sắm trang sức trực tuyến.
+ 200: GitHub.
+ 201: GitHub là nền tảng lưu trữ mã nguồn trực tuyến, sử dụng hệ thống quản lý phiên bản Git, được nhóm sử dụng để quản lý và phát triển dự án Website bán trang sức SORA.
+ 202: GitHub cho phép:
+ 203: Lưu trữ và quản lý mã nguồn.
+ 204: Làm việc nhóm hiệu quả thông qua các tính năng như pull request, branch và merge.
+ 205: Theo dõi lịch sử thay đổi của dự án.
+ 206: Trong quá trình phát triển, nhóm sử dụng các thao tác cơ bản của Git như:
+ 207: Commit: Lưu thay đổi
+ 208: Push: Đẩy code lên repository
+ 209: Pull: Cập nhật code mới
+ 210: Merge: Gộp code từ các nhánh
+ 211: Việc sử dụng GitHub giúp đảm bảo tính nhất quán của mã nguồn, hỗ trợ làm việc nhóm và nâng cao chất lượng dự án.
+ 212: KHẢO SÁT, PHÂN TÍCH THIẾT KẾ
+ 213:  Khảo sát bài toán thực tế:
+ 214: 1.Đối tượng User
+ 215: Mục tiêu: 
+ 216: Tiếp cận và mua sắm trang sức nhanh chóng, tiện lợi.
+ 217: Dễ dàng theo dõi đơn hàng và thông tin cá nhân.
+ 218: Phương pháp khảo sát: 
+ 219: Bảng hỏi trực tuyến (Google Forms/Facebook): Các câu hỏi lựa chọn và mở về trải nghiệm mua sắm online.
+ 220: Phỏng vấn nhóm nhỏ: Nhóm 3–5 khách hàng chia sẻ về thói quen mua hàng và mong muốn khi sử dụng website.
+ 221: Nhu cầu cụ thể:
+ 222: Xem sản phẩm, tìm kiếm và lọc theo giá, loại, thương hiệu.
+ 223: Xem chi tiết sản phẩm (hình ảnh, mô tả, đánh giá).
+ 224: Thêm vào giỏ hàng, yêu thích, so sánh sản phẩm.
+ 225: Đặt hàng, nhập mã giảm giá, sử dụng điểm tích lũy.
+ 226: Theo dõi đơn hàng và lịch sử mua hàng.
+ 227: Đánh giá và bình luận sản phẩm.
+ 228: 2.Đối tượng Quản trị viên
+ 229: Mục tiêu:
+ 230: Quản lý toàn bộ hoạt động kinh doanh của website.
+ 231: Theo dõi và tối ưu doanh thu, hiệu quả vận hành.
+ 232: Phương pháp khảo sát:
+ 233: Phỏng vấn trực tiếp: Thảo luận để hiểu quy trình quản lý sản phẩm, đơn hàng.
+ 234: Phân tích dữ liệu: Nghiên cứu cách vận hành của các shop online hiện có.
+ 235: Nhu cầu cụ thể:
+ 236: Quản lý sản phẩm, danh mục, thương hiệu.
+ 237: Quản lý đơn hàng và cập nhật trạng thái.
+ 238: Quản lý khách hàng và tài khoản người dùng.
+ 239: Quản lý đánh giá, bình luận.
+ 240: Tạo banner, mã giảm giá (coupon), chương trình tích điểm.
+ 241: Xem báo cáo doanh thu, đơn hàng, sản phẩm bán chạy.
+ 242: 3.Đối tượng Nhân viên
+ 243: Mục tiêu: 
+ 244: Phỏng vấn trực tiếp nhân viên bán hàng online.
+ 245: Quan sát quy trình xử lý đơn hàng thực tế.
+ 246: Nhu cầu cụ thể:
+ 247: Xem và xử lý đơn hàng.
+ 248: Cập nhật trạng thái đơn hàng.
+ 249: Hỗ trợ khách hàng (chat, tư vấn sản phẩm).
+ 250: Tra cứu thông tin sản phẩm và khách hàng.
+ 251: 4.Đối tượng Quản lý
+ 252: Mục tiêu: 
+ 253: Theo dõi hoạt động kinh doanh và đưa ra quyết định.
+ 254: Tối ưu chiến lược bán hàng và marketing.
+ 255: Nhu cầu cụ thể:
+ 256: Xem báo cáo doanh thu, đơn hàng theo thời gian.
+ 257: Theo dõi sản phẩm bán chạy.
+ 258: Đánh giá hiệu quả chương trình khuyến mãi.
+ 259: Quản lý hoạt động chung của hệ thống.
+ 260: 5.Đối tượng Kinh doanh
+ 261: Mục tiêu: 
+ 262: Thu hút khách hàng và tăng doanh số bán hàng.
+ 263: Xây dựng chương trình khuyến mãi hiệu quả.
+ 264: Nhu cầu cụ thể:
+ 265: Tạo banner quảng cáo.
+ 266: Quản lý mã giảm giá (coupon).
+ 267: Xây dựng chương trình tích điểm khách hàng.
+ 268: Theo dõi hiệu quả chiến dịch marketing.
+ 269:  Phân tích thực thể và mối quan hệ:
+ 270: Phân tích thực thể
+ 271: Dự án xây dựng website bán trang sức SORA là một hệ thống thông tin được thiết kế nhằm hỗ trợ hoạt động kinh doanh và quản lý bán hàng trực tuyến. Trong dự án này, chúng tôi xác định các thực thể chính như sau:
+ 272: 1.  Thực thể Khách hàng
+ 273: Thực thể Khách hàng đại diện cho người dùng mua sắm trên hệ thống.
+ 274: Các thuộc tính:
+ 275: Thông tin cá nhân: tên, địa chỉ, số điện thoại, email
+ 276: Thông tin tài khoản: username, mật khẩu
+ 277: Điểm tích lũy
+ 278: Trạng thái tài khoản: hoạt động / khóa
+ 279: Chức năng:
+ 280: Đăng ký / đăng nhập
+ 281: Cập nhật thông tin cá nhân
+ 282: Mua hàng, đặt đơn
+ 283: Xem lịch sử đơn hàng
+ 284: Đánh giá sản phẩm
+ 285: 2. Thực thể Quản trị viên
+ 286: Đại diện cho người quản lý hệ thống.
+ 287: Các thuộc tính:
+ 288: Thông tin cá nhân
+ 289: Tài khoản đăng nhập
+ 290: Vai trò / quyền hạn
+ 291: Chức năng:
+ 292: Quản lý sản phẩm, đơn hàng
+ 293: Quản lý người dùng
+ 294: Quản lý khuyến mãi
+ 295: Xem báo cáo thống kê
+ 296: 3. Thực thể Sản phẩm
+ 297: Đại diện cho các sản phẩm trang sức.
+ 298: Các thuộc tính:
+ 299: Mã sản phẩm
+ 300: Tên sản phẩm
+ 301: Giá
+ 302: Số lượng tồn kho
+ 303: Mô tả
+ 304: Hình ảnh
+ 305: Mã danh mục, thương hiệu
+ 306: Trạng thái
+ 307: Chức năng:
+ 308: Thêm / sửa / xóa sản phẩm
+ 309: Hiển thị sản phẩm
+ 310: Tìm kiếm sản phẩm
+ 311: 4. Thực thể Danh mục
+ 312: Phân loại sản phẩm.
+ 313: Thuộc tính:
+ 314: Mã danh mục
+ 315: Tên danh mục
+ 316: Mô tả
+ 317: Chức năng:
+ 318: Thêm/ sửa/ xóa danh mục
+ 319: 5. Thực thể Thương hiệu
+ 320: Đại diện cho nhãn hiệu sản phẩm.
+ 321: Thuộc tính:
+ 322: Mã thương hiệu
+ 323: Tên thương hiệu
+ 324: Mô tả
+ 325: Chức năng:
+ 326: Quản lý thương hiệu
+ 327: 6.Thực thể Đơn hàng
+ 328: Đại diện cho giao dịch mua hàng.
+ 329: Thuộc tính:
+ 330: Mã đơn hàng
+ 331: Mã khách hàng
+ 332: Tổng tiền
+ 333: Trạng thái đơn hàng
+ 334: Ngày đặt hàng
+ 335: Chức năng:
+ 336: Tạo đơn hàng
+ 337: Cập nhật trạng thái
+ 338: Theo dõi đơn
+ 339: 7. Thực thể Chi tiết đơn hàng
+ 340: Đại diện cho các sản phẩm trong đơn hàng.
+ 341: Thuộc tính:
+ 342: Mã đơn hàng
+ 343: Mã sản phẩm
+ 344: Số lượng
+ 345: Giá
+ 346: Thành tiền
+ 347: Chức năng:
+ 348: Thêm sản phẩm vào đơn
+ 349: Cập nhật số lượng
+ 350: Tính tổng tiền
+ 351: 8. Thực thể Giỏ hàng
+ 352: Đại diện cho sản phẩm khách chọn mua.
+ 353: Thuộc tính:
+ 354: Mã giỏ hàng
+ 355: Mã khách hàng
+ 356: Danh sách sản phẩm
+ 357: Chức năng:
+ 358: Thêm / xóa sản phẩm
+ 359: Cập nhật số lượng
+ 360: 9. Thực thể Thanh toán
+ 361: Đại diện cho giao dịch thanh toán.
+ 362: Thuộc tính:
+ 363: Mã giao dịch
+ 364: Mã đơn hàng
+ 365: Số tiền
+ 366: Phương thức thanh toán
+ 367: Trạng thái
+ 368: Chức năng:
+ 369: Xử lý thanh toán
+ 370: Theo dõi giao dịch
+ 371: 10. Thực thể Đánh giá
+ 372: Phản hồi của khách hàng.
+ 373: Thuộc tính:
+ 374: Mã đánh giá
+ 375: Mã sản phẩm
+ 376: Mã khách hàng
+ 377: Số sao
+ 378: Nội dung
+ 379: Chức năng:
+ 380: Viết đánh giá
+ 381: Quản lý đánh giá
+ 382: 11. Thực thể Coupon
+ 383: Chương trình ưu đãi.
+ 384: Thuộc tính:
+ 385: Mã coupon
+ 386: Giá trị giảm
+ 387: Ngày bắt đầu / kết thúc
+ 388: Trạng thái
+ 389: Chức năng:
+ 390: Tạo / quản lý mã giảm giá
+ 391: 12.  Thực thể Banner
+ 392: Quảng cáo hiển thị trên website.
+ 393: Thuộc tính:
+ 394: Mã banner
+ 395: Hình ảnh
+ 396: Tiêu đề
+ 397: Trạng thái
+ 398: 13. Thực thể Điểm tích lũy
+ 399: Hệ thống tích điểm khách hàng.
+ 400: Thuộc tính:
+ 401: Mã khách hàng
+ 402: Số điểm
+ 403: Lịch sử điểm
+ 404: Chức năng:
+ 405: Cộng / trừ điểm
+ 406: Quy đổi điểm
+ 407:  Sơ đồ hệ thống:
+ 408: Sơ đồ thực thể ERD:
+ 409: Use case:
+ 410: Mô tả các Use Case:
+ 411: Đặc tả Use Case 
+ 412: 3.3.4.1 UC01: Đăng nhập.
+ 413: Mô tả Use Case:
+ 414: 3.3.4.2 UC02: Đăng ký.
+ 415: Mô tả Use Case:
+ 416: 3.3.4.3 UC03: Đăng xuất.
+ 417: Mô tả Use Case:
+ 418: 3.3.4.4 UC04: Lấy lại mật khẩu.
+ 419: Mô tả Use Case:
+ 420: 3.3.4.5 UC05: Quản lý slide, banner
+ 421: Mô tả Use Case:
+ 422: 3.3.4.6 UC06: Quản lý danh mục sản phẩm
+ 423: Mô tả Use Case:
+ 424: 3.3.4.7 UC07: Quản lý danh sách sản phẩm
+ 425: Mô tả Use Case:
+ 426: 3.3.4.8 UC08: Quản lý danh sách đặt hàng
+ 427: Mô tả Use Case:
+ 428: 3.3.4.9 UC09: Quản lý Phân quyền (Role)
+ 429: Mô tả Use Case:
+ 430: 3.3.4.10 UC010: Tiếp nhận/Xử lý đơn hàng
+ 431: Mô tả Use Case:
+ 432: 3.3.4.11 UC011: Thống kê
+ 433: Mô tả Use Case:
+ 434: 3.3.4.12  UC012: Quản lý đánh giá, bình luận
+ 435: Mô tả Use Case:
+ 436: 3.3.4.13 UC013: Quản lý coupon
+ 437: Mô tả Use Case:
+ 438: 3.3.4.14 UC14: Quản lý doanh thu:
+ 439: Mô tả Use Case:
+ 440: 3.3.4.15 UC015: Liên hệ
+ 441: Mô tả Use Case:
+ 442: 3.3.4.16 UC016: Quản lý Profile
+ 443: Mô tả Use Case:
+ 444: 3.3.4.17 UC017: Xem sản phẩm
+ 445: Mô tả Use Case:
+ 446: 3.3.4.18 UC018: Tìm kiếm sản phẩm
+ 447: Mô tả Use Case:
+ 448: 3.3.4.19 UC019: Giỏ hàng
+ 449: Mô tả Use Case:
+ 450: 3.3.4.20  UC020: Thanh toán
+ 451: Mô tả Use Case:
+ 452: 3.3.4.21 UC021: Bình luận
+ 453: Mô tả Use Case:
+ 454: 3.3.4.22 UC022: Đánh giá
+ 455: Mô tả Use Case:
+ 456: 3.3.4.23 UC023: Lịch sử đơn hàng
+ 457: Mô tả Use Case:
+ 458:  Cấu trúc vai trò hệ thống:
+ 459: Sơ đồ luồng dữ liệu DFD:
+ 460: Sơ đồ DFD mức ngữ cảnh.
+ 461: Sơ đồ DFD mức 0:
+ 462: Sơ đồ DFD mức 1:
+ 463: Chức năng đăng nhập.
+ 464: DFD tự động hóa & báo cáo.
+ 465: Link chi tiết : 
+ 466: Chi_tiết_DFD_tự_động_hóa
+ 467: https://drive.google.com/file/d/1mIOfHr4yEs0yrD-pIpDItwgQp05s9_dH/view?usp=sharing
+ 468: Chức năng quản lý lớp học & lịch học.
+ 469: Sơ đồ luồng hoạt động (AD):
+ 470: Sơ đồ luồng chức năng đăng nhập 
+ 471: Sơ đồ luồng chức năng đăng xuất 
+ 472: Sơ đồ luồng chức năng thống kê 
+ 473: Sơ đồ luồng hoạt động quản lý học sinh     
+ 474: Sơ đồ luồng chức năng quản lý lớp học
+ 475: 3.5.2.6Sơ đồ khách hàng đăng ký khóa học
+ 476: Thiết kế cơ sở dữ liệu:
+ 477: Bảng admins:
+ 478: Bảng attributes:
+ 479: Bảng attribute_values:
+ 480: Bảng brands:
+ 481: Bảng categories:
+ 482: Bảng carts:
+ 483: Bảng cart_items:
+ 484: Bảng orders:
+ 485: Bảng coupons:
+ 486: Bảng combos:
+ 487: Bảng users:
+ 488: Bảng products:
+ 489: Bảng product_variants:
+ 490: Bảng orders:
+ 491: Bảng order_items:
+ 492: Bảng reviews:
+ 493: THIẾT KẾ GIAO DIỆN
+ 494: Sơ đồ tổ chức giao diện:
+ 495: Khi admin truy cập
+ 496: Khi user truy cập
+ 497: Figma:
+ 498: Link: https://www.figma.com/design/i2myLwqKUI9qWLQ1xjaMTx/ThinkHub?node-id=0-1&t=did6sbQW0svFSS32-1
+ 499: Chi tiết giao diện User:
+ 500: Giao diện đăng nhập 
+ 501: Phân tích chức năng:
+ 502: Giao diện Đăng ký
+ 503: Phân tích chức năng:
+ 504: Giao diện Trang chủ
+ 505: Phân tích chức năng
+ 506: Giao diện Trang sản phẩm
+ 507: Phân tích chức năng
+ 508: Giao diện Trang chi tiết sản phẩm
+ 509: Phân tích chức năng
+ 510: Giao diện Trang Combo
+ 511: Phân tích chức năng
+ 512: Giao diện Trang Yêu thích
+ 513: Phân tích chức năng
+ 514: Giao diện Trang So sánh
+ 515: Giao diện Trang Bản giá vàng
+ 516: Giao diện Trang Giỏ hàng
+ 517: Giao diện Trang Checkout
+ 518: Phân tích chức năng
+ 519: Giao diện Trang About
+ 520: Giao diện Trang Liên hệ
+ 521: Giao diện Trang Dịch vụ
+ 522: Giao diện Trang Profile
+ 523: Giao diện Trang Lịch sử đơn hàng
+ 524: Giao diện Trang Đơn hàng chi tiết
+ 525: Giao diện hệ thống Admin
+ 526: Giao diện trang Đăng Ký:
+ 527: Phân tích chức năng
+ 528: Giao diện trang Đăng Nhập:
+ 529: Phân tích chức năng
+ 530: Giao diện trang Quên mật khẩu:
+ 531: Giao diện trang Tổng quan:
+ 532: Giao diện trang Phân quyền:
+ 533: Danh sách chức vụ
+ 534: Sửa
+ 535: Thêm
+ 536: Xóa
+ 537: Cài đặt cấp độ trang
+ 538: Giao diện trang Tài khoản:
+ 539: 4.4.6.1 Nội bộ
+ 540: Chi tiết
+ 541: Sửa
+ 542: Thêm
+ 543: Xóa
+ 544: 4.4.6.2 Khách hàng
+ 545: Chi tiết
+ 546: Thêm 
+ 547: Sửa
+ 548: Xóa
+ 549: 4.4.6.3 Hạng thành viên
+ 550: Thêm
+ 551: Sửa 
+ 552: Xóa
+ 553: Giao diện trang Sản phẩm:
+ 554: 4.4.7.1 Danh mục
+ 555: Chi tiết
+ 556: Thêm
+ 557: Sửa
+ 558: Xóa
+ 559: 4.4.7.2 Thương hiệu
+ 560: Chi tiết
+ 561: Thêm
+ 562: Sửa
+ 563: Xóa
+ 564: 4.4.7.3 SP & Biến thể
+ 565: Chi tiết
+ 566: Thêm
+ 567: Sửa
+ 568: Xóa
+ 569: 4.4.7.4 Combo Sản phẩm
+ 570: Chi tiết
+ 571: Thêm
+ 572: Sửa
+ 573: Xóa
+ 574: 4.4.7.5 Kho hàng
+ 575: Giao diện trang Đơn hàng:
+ 576: 4.4.8.1 Danh sách đơn
+ 577: Chi tiết
+ 578: 4..4.8.1 Hoàn trả
+ 579: Chi tiết
+ 580: Cập nhật
+ 581: Giao diện trang Marketing:
+ 582: 4.4.9.1 Banner
+ 583: Thêm
+ 584: Sửa
+ 585: Xóa
+ 586: 4.4.9.2 Mã giảm giá
+ 587: Chi tiết
+ 588: Thêm
+ 589: Sửa
+ 590: Xóa
+ 591: 4.4.9.3 Chân dung SORA
+ 592: 4.4.9.4 Đánh giá
+ 593: Phản hồi
+ 594: Xóa
+ 595:  Giao diện trang dịch vụ
+ 596: 4.4.10.1 Hộp thư liên hệ
+ 597: Phản hồi
+ 598: Xóa
+ 599: KIỂM THỬ DỰ ÁN
+ 600: Đường dẫn tài liệu kiểm thử dự án: TESTCASE-SORA
+ 601: Phần trăm test case:
+ 602: Nhận xét chung:
+ 603: - Tỷ lệ Pass ở mức tương đối cao (≈ 79.4%), cho thấy phần lớn các chức năng hoạt động đúng theo yêu cầu.
+ 604: - Tuy nhiên, với 151 test case bị Fail (chiếm hơn 1/5 tổng số) (≈ 20.6%), vẫn còn một số vấn đề cần được xem xét và sửa lỗi kịp thời.
+ 605: - Nhóm cần ưu tiên xử lý các test case bị Fail, sau đó thực hiện kiểm thử lại (retest) để xác minh tính ổn định của hệ thống.
+ 606: -  Đánh giá kết quả kiểm thử sau khi fix bug: giảm Test Case FAIL xuống 5.2% và nâng Test Case PASS lên 94.8%.
+ 607: Sau khi fix bug:
+ 608: ĐÓNG GÓI VÀ TRIỂN KHAI
+ 609: KẾT LUẬN
+ 610: Kết quả đạt được:
+ 611: Với 3 tháng làm việc, nhóm Arise đã đã khảo sát và xây dựng được mô hình cấu trúc hệ thống luồng liên kết các chức năng của dự án.
+ 612: Thuận lợi:
+ 613: Có sự hỗ trợ của công nghệ tiên tiến.
+ 614: Có nhiều nguồn tài liệu và sự hỗ trợ từ giảng viên hướng dẫn để thực hiện dự án.
+ 615: Có thời gian đủ dài để phân chia thời gian làm việc, khảo sát, xây dựng và hoàn thiện các khía cạnh nghiệp vụ công việc của dự án.
+ 616: Khó khăn:
+ 617: Không ứng dụng hoàn toàn được các chức năng của công nghệ.
+ 618: Các nguồn tài liệu xem đọc thường bị bỏ qua nội dung trọng yếu để áp dụng thường phải xem lại lần nữa tốn thời gian quay lại để tham khảo tài liệu.
+ 619: Thời gian không được tối ưu hóa trong việc phân chia để phù hợp cho việc  hoàn thiện các nghiệp vụ chức năng của hệ thống chức năng dự án.

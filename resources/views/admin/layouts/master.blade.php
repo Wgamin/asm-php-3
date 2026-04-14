@@ -3,71 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - @yield('title')</title>
-    
+    <title>Nông Sản Việt Admin - @yield('title', 'Trang quản trị')</title>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    <!-- Font Awesome -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Alpine.js cho interactivity -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <style>
-        [x-cloak] { display: none !important; }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-    </style>
+    @stack('styles')
 </head>
-<body class="bg-slate-50 font-sans antialiased"
-      x-data="{
-          sidebarOpen: true,
-          mobileSidebar: false,
-          isMobile: window.innerWidth < 1024,
-          init() {
-              window.addEventListener('resize', () => {
-                  this.isMobile = window.innerWidth < 1024;
+<body
+    class="admin-shell admin-body-font antialiased"
+    x-data="{
+        sidebarOpen: true,
+        mobileSidebar: false,
+        isMobile: window.innerWidth < 1024,
+        init() {
+            window.addEventListener('resize', () => {
+                this.isMobile = window.innerWidth < 1024;
 
-                  if (!this.isMobile) {
-                      this.mobileSidebar = false;
-                  }
-              });
-          }
-      }"
-      :class="{ 'overflow-hidden': mobileSidebar && isMobile }">
-
-    <!-- Mobile Overlay -->
+                if (!this.isMobile) {
+                    this.mobileSidebar = false;
+                }
+            });
+        }
+    }"
+    :class="{ 'overflow-hidden': mobileSidebar && isMobile }"
+>
     @include('admin.layouts.partials.mobile-overlay')
 
-    <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
+    <div class="min-h-screen">
         @include('admin.layouts.partials.sidebar')
 
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Navigation -->
+        <main class="min-h-screen lg:ml-64 flex flex-col">
             @include('admin.layouts.partials.top-nav')
 
-            <!-- Page Content -->
-            <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
-                <!-- Alerts -->
+            <div class="admin-content flex-1 overflow-y-auto">
                 @if(session('success') || session('error'))
                     @include('admin.layouts.partials.alert')
                 @endif
@@ -76,5 +50,7 @@
             </div>
         </main>
     </div>
+
+    @stack('scripts')
 </body>
 </html>

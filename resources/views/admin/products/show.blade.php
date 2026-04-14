@@ -1,192 +1,198 @@
 @extends('admin.layouts.master')
 
+@section('title', 'Chi tiết sản phẩm')
+
 @section('content')
-<div class="max-w-7xl mx-auto mt-8 px-4 pb-12" x-data="{ activeImg: '{{ asset('storage/' . $product->image) }}' }">
-    {{-- Nút Quay lại --}}
-    <div class="mb-6">
-        <a href="{{ route('admin.products.index') }}" class="text-gray-500 hover:text-emerald-600 transition flex items-center gap-2 text-sm font-bold">
-            <i class="fas fa-arrow-left"></i> QUAY LẠI DANH SÁCH
-        </a>
-    </div>
+    @php
+        $mainImage = $product->image ? asset('storage/' . $product->image) : null;
+    @endphp
 
-    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
-            
-            {{-- BÊN TRÁI: GALLERY HÌNH ẢNH (5 Cột) --}}
-            <div class="lg:col-span-5 bg-gray-50/50 p-6 md:p-10 border-r border-gray-100">
-                {{-- Ảnh lớn đang xem --}}
-                <div class="sticky top-10 space-y-6">
-                    <div class="relative aspect-square bg-white rounded-[1.5rem] shadow-xl shadow-gray-200/50 overflow-hidden border border-white">
-                        <img :src="activeImg" class="w-full h-full object-cover transition duration-500 transform hover:scale-105">
-                        
-                        <div class="absolute top-4 left-4 flex flex-col gap-2">
-                            <span class="bg-emerald-500 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">
-                                {{ $product->category->name }}
-                            </span>
-                            @if($product->isVariable())
-                            <span class="bg-purple-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">
-                                Biến thể
-                            </span>
-                            @endif
-                            
-                            @if(!$product->isVariable() && $product->sale_price > 0 && $product->price > 0)
-                                <span class="bg-red-500 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">
-                                    Giảm {{ round((($product->price - $product->sale_price) / $product->price) * 100) }}%
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Danh sách ảnh phụ --}}
-                    <div class="grid grid-cols-4 gap-3">
-                        {{-- Thumbnail ảnh chính --}}
-                        <button @click="activeImg = '{{ asset('storage/' . $product->image) }}'" 
-                            class="aspect-square rounded-xl border-2 transition-all overflow-hidden bg-white"
-                            :class="activeImg === '{{ asset('storage/' . $product->image) }}' ? 'border-emerald-500 ring-2 ring-emerald-100' : 'border-transparent opacity-60 hover:opacity-100'">
-                            <img src="{{ asset('storage/' . $product->image) }}" class="w-full h-full object-cover">
-                        </button>
-
-                        {{-- Thumbnails ảnh phụ từ gallery --}}
-                        @foreach($product->images as $img)
-                        <button @click="activeImg = '{{ asset('storage/' . $img->image_path) }}'" 
-                            class="aspect-square rounded-xl border-2 transition-all overflow-hidden bg-white"
-                            :class="activeImg === '{{ asset('storage/' . $img->image_path) }}' ? 'border-emerald-500 ring-2 ring-emerald-100' : 'border-transparent opacity-60 hover:opacity-100'">
-                            <img src="{{ asset('storage/' . $img->image_path) }}" class="w-full h-full object-cover">
-                        </button>
-                        @endforeach
-                    </div>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase text-center tracking-widest">Click ảnh nhỏ hoặc ảnh biến thể để phóng to</p>
-                </div>
+    <div class="mx-auto max-w-7xl space-y-8" x-data="{ activeImage: @js($mainImage) }">
+        <section class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+                <p class="admin-kicker">Sản phẩm & kho hàng</p>
+                <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">{{ $product->name }}</h1>
+                <p class="admin-copy mt-3 max-w-3xl text-sm">Theo dõi hồ sơ hàng hóa, thư viện ảnh, giá bán, giá vốn và cấu hình biến thể của sản phẩm ngay trên một màn hình.</p>
             </div>
 
-            {{-- BÊN PHẢI: THÔNG TIN CHI TIẾT (7 Cột) --}}
-            <div class="lg:col-span-7 p-8 md:p-12 space-y-8">
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="text-gray-400 font-bold text-xs tracking-tighter uppercase">Mã sản phẩm: #{{ $product->id }}{{ date('y') }}</span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-                        <span class="text-emerald-600 font-bold text-xs uppercase">{{ $product->created_at->format('d/m/Y') }}</span>
-                    </div>
-                    <h1 class="text-4xl font-black text-gray-900 leading-[1.1] mb-4 uppercase">{{ $product->name }}</h1>
-                    
-                    <div class="inline-flex items-center bg-emerald-50 px-6 py-4 rounded-2xl border border-emerald-100 gap-3">
-                        @if($product->isVariable())
-                            <span class="text-emerald-600 font-bold">Giá từ:</span>
-                            <span class="text-4xl font-black text-emerald-700">
-                                {{ number_format($product->variants->min('price'), 0, ',', '.') }}đ
-                            </span>
-                        @else
-                            @if($product->sale_price > 0)
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-400 line-through">
-                                        {{ number_format($product->price, 0, ',', '.') }}đ
-                                    </span>
-                                    <span class="text-4xl font-black text-emerald-700">
-                                        {{ number_format($product->sale_price, 0, ',', '.') }}đ
-                                    </span>
-                                </div>
-                            @else
-                                <span class="text-4xl font-black text-emerald-700">
-                                    {{ number_format($product->price, 0, ',', '.') }}đ
-                                </span>
-                            @endif
-                        @endif
-                    </div>
-                </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ route('admin.products.index') }}" class="admin-btn-secondary">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                    Danh sách sản phẩm
+                </a>
+                <a href="{{ route('admin.products.edit', $product) }}" class="admin-btn-primary">
+                    <i class="fas fa-pen text-sm"></i>
+                    Chỉnh sửa sản phẩm
+                </a>
+            </div>
+        </section>
 
-                <div class="bg-gray-50 border-l-4 border-emerald-500 p-5 rounded-r-2xl">
-                    <p class="text-gray-600 italic leading-relaxed">
-                        {{ $product->description ?? 'Chưa có mô tả ngắn cho nông sản này.' }}
-                    </p>
-                </div>
-
-                <hr class="border-gray-100">
-
-                {{-- DANH SÁCH BIẾN THỂ --}}
-                @if($product->isVariable())
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest">Cấu hình biến thể</h3>
-                        <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold">{{ $product->variants->count() }} loại</span>
-                    </div>
-                    
-                    <div class="overflow-hidden border border-gray-100 rounded-[1.5rem] shadow-sm">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-gray-50 text-gray-400 font-bold uppercase text-[10px] tracking-widest">
-                                <tr>
-                                    <th class="px-6 py-4">Ảnh</th>
-                                    <th class="px-6 py-4">Phân loại</th>
-                                    <th class="px-6 py-4">Mã SKU</th>
-                                    <th class="px-6 py-4">Giá bán</th>
-                                    <th class="px-6 py-4 text-center">Tồn kho</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                                @foreach($product->variants as $variant)
-                                <tr class="hover:bg-emerald-50/30 transition-colors">
-                                    {{-- Cột Ảnh Biến Thể --}}
-                                    <td class="px-6 py-4">
-                                        @if($variant->image)
-                                            <button @click="activeImg = '{{ asset('storage/' . $variant->image) }}'" class="w-12 h-12 rounded-lg border border-gray-200 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all">
-                                                <img src="{{ asset('storage/' . $variant->image) }}" class="w-full h-full object-cover">
-                                            </button>
-                                        @else
-                                            <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300">
-                                                <i class="fas fa-image"></i>
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach(is_string($variant->variant_values) ? json_decode($variant->variant_values, true) : $variant->variant_values as $key => $value)
-                                                <span class="bg-white border border-gray-200 px-3 py-1 rounded-lg text-[11px] shadow-sm">
-                                                    <span class="text-gray-400 font-medium">{{ $key }}:</span> 
-                                                    <span class="text-gray-900 font-black">{{ $value }}</span>
-                                                </span>
-                                            @endforeach
+        <div class="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
+            <div class="space-y-8">
+                <section class="admin-surface-card overflow-hidden">
+                    <div class="grid gap-0 lg:grid-cols-[1fr_0.95fr]">
+                        <div class="border-b border-[rgba(112,122,108,0.12)] bg-[rgba(242,244,246,0.55)] p-6 lg:border-b-0 lg:border-r">
+                            <div class="overflow-hidden rounded-[1.25rem] bg-white shadow-sm">
+                                @if($mainImage)
+                                    <img :src="activeImage || '{{ $mainImage }}'" alt="{{ $product->name }}" class="h-[24rem] w-full object-cover">
+                                @else
+                                    <div class="flex h-[24rem] items-center justify-center bg-[var(--admin-surface-low)] text-[var(--admin-text-muted)]">
+                                        <div class="text-center">
+                                            <i class="fas fa-image text-4xl opacity-40"></i>
+                                            <p class="mt-3 text-sm">Chưa có ảnh đại diện</p>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">{{ $variant->sku }}</td>
-                                    
-                                    <td class="px-6 py-4">
-                                        @if(isset($variant->sale_price) && $variant->sale_price > 0)
-                                            <span class="block text-xs text-gray-400 line-through">{{ number_format($variant->price, 0, ',', '.') }}đ</span>
-                                            <span class="font-black text-emerald-600">{{ number_format($variant->sale_price, 0, ',', '.') }}đ</span>
-                                        @else
-                                            <span class="font-black text-emerald-600">{{ number_format($variant->price, 0, ',', '.') }}đ</span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if($mainImage || $product->images->isNotEmpty())
+                                <div class="mt-4 grid grid-cols-5 gap-3">
+                                    @if($mainImage)
+                                        <button type="button" @click="activeImage = '{{ $mainImage }}'" class="overflow-hidden rounded-[1rem] border border-[rgba(112,122,108,0.16)] bg-white shadow-sm">
+                                            <img src="{{ $mainImage }}" alt="{{ $product->name }}" class="h-20 w-full object-cover">
+                                        </button>
+                                    @endif
+                                    @foreach($product->images as $galleryImage)
+                                        <button type="button" @click="activeImage = '{{ asset('storage/' . $galleryImage->image_path) }}'" class="overflow-hidden rounded-[1rem] border border-[rgba(112,122,108,0.16)] bg-white shadow-sm">
+                                            <img src="{{ asset('storage/' . $galleryImage->image_path) }}" alt="{{ $product->name }}" class="h-20 w-full object-cover">
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="p-7">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="admin-badge admin-badge--success">{{ $product->category?->name ?? 'Chưa phân loại' }}</span>
+                                <span class="admin-badge admin-badge--muted">{{ $product->isVariable() ? 'Biến thể' : 'Sản phẩm đơn' }}</span>
+                            </div>
+
+                            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                                <article class="admin-panel-muted p-4">
+                                    <p class="admin-kicker">Giá hiệu lực</p>
+                                    <p class="mt-3 text-2xl font-bold text-[var(--admin-text)]">{{ number_format($product->effective_price, 0, ',', '.') }}đ</p>
+                                </article>
+                                <article class="admin-panel-muted p-4">
+                                    <p class="admin-kicker">Giá vốn</p>
+                                    <p class="mt-3 text-2xl font-bold text-[var(--admin-text)]">{{ number_format($product->effective_cost_price, 0, ',', '.') }}đ</p>
+                                </article>
+                                <article class="admin-panel-muted p-4">
+                                    <p class="admin-kicker">Tồn kho</p>
+                                    <p class="mt-3 text-2xl font-bold text-[var(--admin-text)]">{{ $product->isVariable() ? number_format($product->variants->sum('stock'), 0, ',', '.') : number_format($product->stock ?? 0, 0, ',', '.') }}</p>
+                                </article>
+                                <article class="admin-panel-muted p-4">
+                                    <p class="admin-kicker">Khối lượng</p>
+                                    <p class="mt-3 text-2xl font-bold text-[var(--admin-text)]">{{ number_format($product->weight_grams ?? 0, 0, ',', '.') }}g</p>
+                                </article>
+                            </div>
+
+                            <dl class="mt-6 space-y-4 text-sm">
+                                <div class="flex items-center justify-between gap-4 border-b border-[rgba(112,122,108,0.12)] pb-4">
+                                    <dt class="text-[var(--admin-text-muted)]">Mã sản phẩm</dt>
+                                    <dd class="font-semibold text-[var(--admin-text)]">#{{ $product->id }}</dd>
+                                </div>
+                                <div class="flex items-center justify-between gap-4 border-b border-[rgba(112,122,108,0.12)] pb-4">
+                                    <dt class="text-[var(--admin-text-muted)]">Ngày tạo</dt>
+                                    <dd class="font-semibold text-[var(--admin-text)]">{{ $product->created_at?->format('d/m/Y H:i') }}</dd>
+                                </div>
+                                <div class="flex items-center justify-between gap-4">
+                                    <dt class="text-[var(--admin-text-muted)]">Cập nhật gần nhất</dt>
+                                    <dd class="font-semibold text-[var(--admin-text)]">{{ $product->updated_at?->format('d/m/Y H:i') }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-surface-card p-7">
+                    <div class="mb-5">
+                        <p class="admin-kicker">Mô tả ngắn</p>
+                        <h2 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Tóm tắt bán hàng</h2>
+                    </div>
+                    <p class="text-sm leading-7 text-[var(--admin-text-muted)]">{{ $product->description ?: 'Chưa có mô tả ngắn cho sản phẩm này.' }}</p>
+                </section>
+
+                <section class="admin-surface-card p-7">
+                    <div class="mb-5">
+                        <p class="admin-kicker">Nội dung chi tiết</p>
+                        <h2 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Thông tin hiển thị trên storefront</h2>
+                    </div>
+                    <div class="prose max-w-none text-sm leading-7 text-[var(--admin-text-muted)]">
+                        {!! $product->content ?: '<p>Chưa có nội dung chi tiết.</p>' !!}
+                    </div>
+                </section>
+            </div>
+
+            <div class="space-y-8">
+                <section class="admin-panel-muted p-7">
+                    <div class="mb-5">
+                        <p class="admin-kicker">Tập ảnh</p>
+                        <h2 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Thư viện sản phẩm</h2>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        @forelse($product->images as $galleryImage)
+                            <button type="button" @click="activeImage = '{{ asset('storage/' . $galleryImage->image_path) }}'" class="overflow-hidden rounded-[1rem] bg-white shadow-sm">
+                                <img src="{{ asset('storage/' . $galleryImage->image_path) }}" alt="{{ $product->name }}" class="h-32 w-full object-cover">
+                            </button>
+                        @empty
+                            <div class="col-span-2 rounded-[1rem] bg-white px-5 py-8 text-center text-sm text-[var(--admin-text-muted)]">
+                                Chưa có ảnh phụ cho sản phẩm này.
+                            </div>
+                        @endforelse
+                    </div>
+                </section>
+
+                @if($product->isVariable())
+                    <section class="admin-surface-card p-7">
+                        <div class="mb-5 flex items-center justify-between gap-4">
+                            <div>
+                                <p class="admin-kicker">Biến thể</p>
+                                <h2 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Danh sách cấu hình</h2>
+                            </div>
+                            <span class="admin-badge admin-badge--info normal-case tracking-normal">{{ $product->variants->count() }} biến thể</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            @foreach($product->variants as $variant)
+                                <article class="rounded-[1rem] bg-[var(--admin-surface-low)] p-4">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p class="font-semibold text-[var(--admin-text)]">{{ $variant->sku ?: 'Chưa có SKU' }}</p>
+                                            <div class="mt-2 flex flex-wrap gap-2">
+                                                @foreach(($variant->variant_values ?? []) as $key => $value)
+                                                    <span class="admin-badge admin-badge--muted normal-case tracking-normal">{{ $key }}: {{ $value }}</span>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        @if($variant->image)
+                                            <img src="{{ asset('storage/' . $variant->image) }}" alt="{{ $variant->sku }}" class="h-14 w-14 rounded-[0.9rem] object-cover">
                                         @endif
-                                    </td>
-
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="px-3 py-1 rounded-full text-[11px] font-black {{ $variant->stock > 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
-                                            {{ $variant->stock }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                    </div>
+                                    <div class="mt-4 grid gap-3 sm:grid-cols-4">
+                                        <div class="rounded-[0.9rem] bg-white px-3 py-3 text-sm">
+                                            <p class="admin-kicker">Giá bán</p>
+                                            <p class="mt-2 font-semibold text-[var(--admin-text)]">{{ number_format($variant->price, 0, ',', '.') }}đ</p>
+                                        </div>
+                                        <div class="rounded-[0.9rem] bg-white px-3 py-3 text-sm">
+                                            <p class="admin-kicker">Giá giảm</p>
+                                            <p class="mt-2 font-semibold text-[var(--admin-text)]">{{ $variant->sale_price ? number_format($variant->sale_price, 0, ',', '.') . 'đ' : 'Không có' }}</p>
+                                        </div>
+                                        <div class="rounded-[0.9rem] bg-white px-3 py-3 text-sm">
+                                            <p class="admin-kicker">Giá vốn</p>
+                                            <p class="mt-2 font-semibold text-[var(--admin-text)]">{{ number_format($variant->cost_price ?? 0, 0, ',', '.') }}đ</p>
+                                        </div>
+                                        <div class="rounded-[0.9rem] bg-white px-3 py-3 text-sm">
+                                            <p class="admin-kicker">Tồn kho</p>
+                                            <p class="mt-2 font-semibold text-[var(--admin-text)]">{{ number_format($variant->stock, 0, ',', '.') }}</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    </section>
                 @endif
-
-                {{-- Nội dung bài viết --}}
-                <div class="space-y-4">
-                    <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest">Mô tả chi tiết bài viết</h3>
-                    <div class="prose prose-emerald max-w-none text-gray-700 leading-relaxed bg-white border border-gray-100 p-8 rounded-[1.5rem]">
-                        {!! $product->content !!}
-                    </div>
-                </div>
-
-                {{-- Nút thao tác --}}
-                <div class="flex flex-col sm:flex-row gap-4 pt-6">
-                    <a href="{{ route('admin.products.edit', $product->id) }}" 
-                       class="flex-1 bg-gray-900 text-white text-center py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-600 transition shadow-xl shadow-gray-200">
-                        <i class="fas fa-edit mr-2"></i> Chỉnh sửa nông sản
-                    </a>
-                </div>
             </div>
         </div>
     </div>
-</div>
 @endsection

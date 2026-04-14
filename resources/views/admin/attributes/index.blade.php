@@ -1,109 +1,86 @@
 @extends('admin.layouts.master')
 
+@section('title', 'Thuộc tính')
+
 @section('content')
-<div class="p-8 max-w-7xl mx-auto">
-    <div class="mb-8">
-        <h2 class="text-3xl font-extrabold text-gray-900">Quản lý Thuộc tính</h2>
-        <p class="text-gray-500 mt-1 text-sm">Thiết lập các nhóm phân loại như Màu sắc, Kích thước để dùng cho sản phẩm biến thể.</p>
-    </div>
+    <div class="mx-auto max-w-7xl">
+        <div class="grid gap-6 xl:grid-cols-[360px_1fr]">
+            <section class="admin-surface-card h-fit p-6 xl:sticky xl:top-28">
+                <p class="admin-kicker">Variants setup</p>
+                <h1 class="admin-headline mt-2 text-3xl font-bold tracking-[-0.04em] text-[var(--admin-text)]">Tạo thuộc tính</h1>
+                <p class="admin-copy mt-3 text-sm">Thiết lập các nhóm phân loại như kích cỡ, độ tươi, trọng lượng hoặc màu sắc để phục vụ sản phẩm biến thể.</p>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {{-- CỘT TRÁI: THÊM THUỘC TÍNH MỚI --}}
-        <div class="lg:col-span-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 sticky top-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-plus-circle text-lg"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-800">Tạo thuộc tính</h3>
-                </div>
-
-                <form action="{{ route('admin.attributes.store') }}" method="POST" class="space-y-5">
+                <form action="{{ route('admin.attributes.store') }}" method="POST" class="mt-6 space-y-5">
                     @csrf
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Tên thuộc tính</label>
-                        <input type="text" name="name" required
-                               placeholder="VD: Màu sắc, Size, Chất liệu..." 
-                               class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 outline-none transition bg-gray-50/50">
-                        @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        <label class="admin-field-label">Tên thuộc tính</label>
+                        <input type="text" name="name" required placeholder="Ví dụ: Kích cỡ, Độ tươi...">
+                        @error('name')
+                            <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
+                        @enderror
                     </div>
-
-                    <button type="submit" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-gray-200">
+                    <button type="submit" class="admin-btn-primary w-full">
+                        <i class="fas fa-plus text-sm"></i>
                         Lưu thuộc tính
                     </button>
                 </form>
-            </div>
-        </div>
+            </section>
 
-        {{-- CỘT PHẢI: DANH SÁCH & GIÁ TRỊ CON --}}
-        <div class="lg:col-span-8 space-y-6">
-            @forelse($attributes as $attr)
-            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:border-emerald-200 transition-all">
-                {{-- Header Thuộc tính --}}
-                <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
-                            <i class="fas fa-tag text-emerald-500"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-lg font-black text-gray-800">{{ $attr->name }}</h4>
-                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">ID: #{{ $attr->id }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-2">
-                        {{-- Nút Xóa Thuộc tính --}}
-                        <form action="{{ route('admin.attributes.destroy', $attr->id) }}" method="POST" onsubmit="return confirm('Xóa thuộc tính sẽ xóa tất cả giá trị con. Bạn chắc chứ?')">
-                            @csrf @method('DELETE')
-                            <button class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-300 hover:bg-red-50 hover:text-red-500 transition-all">
-                                <i class="fas fa-trash-alt text-sm"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                {{-- Nội dung: Các giá trị con --}}
-                <div class="p-6">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-3 tracking-widest">Các giá trị hiện có</label>
-                    <div class="flex flex-wrap gap-2 mb-6">
-                        @forelse($attr->attributeValues as $val)
-                        <div class="inline-flex items-center bg-white border border-gray-100 px-4 py-1.5 rounded-2xl shadow-sm group/val hover:border-red-200 transition-all">
-                            <span class="text-sm font-semibold text-gray-700">{{ $val->value }}</span>
-                            <form action="{{ route('admin.attributes.destroyValue', $val->id) }}" method="POST" class="ml-2">
-                                @csrf @method('DELETE')
-                                <button class="text-gray-300 hover:text-red-500 transition-colors">
-                                    <i class="fas fa-times-circle text-xs"></i>
+            <section class="space-y-5">
+                @forelse($attributes as $attr)
+                    <article class="admin-surface-card overflow-hidden">
+                        <div class="flex flex-wrap items-start justify-between gap-4 px-6 py-5">
+                            <div>
+                                <p class="admin-kicker">Attribute #{{ $attr->id }}</p>
+                                <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em] text-[var(--admin-text)]">{{ $attr->name }}</h3>
+                            </div>
+                            <form action="{{ route('admin.attributes.destroy', $attr->id) }}" method="POST" onsubmit="return confirm('Xóa thuộc tính này sẽ xóa luôn tất cả giá trị con. Bạn chắc chứ?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="admin-action-icon hover:!bg-[rgba(255,218,214,0.45)] hover:!text-[var(--admin-danger-text)]" title="Xóa thuộc tính">
+                                    <i class="fas fa-trash text-sm"></i>
                                 </button>
                             </form>
                         </div>
-                        @empty
-                        <p class="text-xs text-gray-400 italic">Chưa có giá trị nào (như Đỏ, Xanh...)</p>
-                        @endforelse
-                    </div>
 
-                    {{-- Form thêm giá trị nhanh --}}
-                    <form action="{{ route('admin.attributes.storeValue', $attr->id) }}" method="POST">
-                        @csrf
-                        <div class="flex gap-2 p-1.5 bg-gray-50 rounded-2xl border border-gray-100 focus-within:border-emerald-300 transition-all">
-                            <input type="text" name="value" required
-                                   placeholder="Thêm giá trị cho {{ $attr->name }}..." 
-                                   class="flex-1 bg-transparent px-4 py-2 text-sm outline-none">
-                            <button type="submit" class="bg-white text-emerald-600 px-6 py-2 rounded-xl text-xs font-black shadow-sm border border-emerald-100 hover:bg-emerald-500 hover:text-white transition-all">
-                                <i class="fas fa-plus mr-1"></i> THÊM
-                            </button>
+                        <div class="px-6 pb-6">
+                            <div class="rounded-[1.2rem] bg-[var(--admin-surface-low)] p-5">
+                                <p class="admin-field-label">Các giá trị hiện có</p>
+                                <div class="flex flex-wrap gap-2">
+                                    @forelse($attr->attributeValues as $val)
+                                        <div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--admin-text)] shadow-[0_18px_30px_-24px_rgba(25,28,30,0.2)]">
+                                            <span>{{ $val->value }}</span>
+                                            <form action="{{ route('admin.attributes.destroyValue', $val->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="text-[var(--admin-text-muted)] transition hover:text-[var(--admin-danger-text)]">
+                                                    <i class="fas fa-xmark text-xs"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @empty
+                                        <p class="text-sm text-[var(--admin-text-muted)]">Chưa có giá trị nào cho thuộc tính này.</p>
+                                    @endforelse
+                                </div>
+
+                                <form action="{{ route('admin.attributes.storeValue', $attr->id) }}" method="POST" class="mt-5 flex gap-3">
+                                    @csrf
+                                    <input type="text" name="value" required placeholder="Thêm giá trị mới cho {{ $attr->name }}...">
+                                    <button type="submit" class="admin-btn-primary whitespace-nowrap">
+                                        <i class="fas fa-plus text-xs"></i>
+                                        Thêm
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    </form>
-                </div>
-            </div>
-            @empty
-            <div class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-                <i class="fas fa-layer-group text-4xl text-gray-200 mb-4"></i>
-                <p class="text-gray-500 font-bold">Chưa có thuộc tính nào được tạo.</p>
-                <p class="text-xs text-gray-400">Hãy bắt đầu bằng cách thêm ở form bên trái.</p>
-            </div>
-            @endforelse
+                    </article>
+                @empty
+                    <div class="admin-empty-state rounded-[1.25rem] bg-[var(--admin-surface-low)] py-24">
+                        <i class="fas fa-layer-group text-4xl opacity-30"></i>
+                        <p class="text-sm">Chưa có thuộc tính nào được tạo.</p>
+                    </div>
+                @endforelse
+            </section>
         </div>
     </div>
-</div>
 @endsection
