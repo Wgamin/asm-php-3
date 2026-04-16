@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -31,7 +31,35 @@ class AiChatbotController extends Controller
             ], 503);
         }
 
-        $history = $this->history($request);
+        // ===== SEARCH SẢN PHẨM TRƯỚC =====
+$msg = strtolower($data['message']);
+
+$products = Product::all()->filter(function ($p) use ($msg) {
+    return str_contains(strtolower($p->name), $msg);
+})->take(5);
+
+if ($products->count() > 0) {
+
+    $reply = "Shop có sản phẩm này 🍀:\n\n";
+
+    foreach ($products as $p) {
+        $reply .= "- {$p->name}\n";
+        $reply .= "Giá: " . number_format($p->price) . "đ\n";
+
+        if ($p->image) {
+            $reply .= "Hình: " . asset('storage/' . $p->image) . "\n";
+        }
+
+        $reply .= "\n";
+    }
+
+    return response()->json([
+        'message' => [
+            'role' => 'model',
+            'message' => $reply,
+        ],
+    ]);
+}
         $history[] = [
             'id' => (string) str()->uuid(),
             'role' => 'user',
@@ -64,21 +92,21 @@ class AiChatbotController extends Controller
             ]);
 
         if ($response->failed()) {
-            $errorMessage = (string) data_get($response->json(), 'error.message', '');
 
-            Log::warning('Gemini API request failed', [
-                'status' => $response->status(),
-                'response' => $response->json(),
-            ]);
+    Log::warning('Gemini API request failed', [
+        'status' => $response->status(),
+        'response' => $response->json(),
+    ]);
 
-            return response()->json([
-                'message' => $errorMessage !== ''
-                    ? 'Gemini từ chối yêu cầu: '.$errorMessage
-                    : 'Không thể kết nối Gemini lúc này.',
-            ], 502);
-        }
+    return response()->json([
+        'message' => 'Dạ hệ thống đang bận 😥 Bạn thử lại sau giúp mình nha!',
+    ], 200);
+}
 
         $reply = $this->extractReply($response->json());
+        if ($reply && str_contains(strtolower($reply), 'high demand')) {
+    $reply = 'Dạ hệ thống đang bận 😥 Bạn thử lại sau giúp mình nha!';
+}
         if ($reply === null) {
             return response()->json([
                 'message' => 'Gemini không trả về nội dung hợp lệ.',
