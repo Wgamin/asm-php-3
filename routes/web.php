@@ -26,6 +26,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\PaymentController;
+use Illuminate\Support\Facades\Http;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/san-pham', [PublicProductController::class, 'index'])->name('products.index');
