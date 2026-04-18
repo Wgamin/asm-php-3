@@ -25,7 +25,9 @@
             <div>
                 <p class="admin-kicker">Dashboard vận hành</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Tổng quan hệ thống</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Theo dõi người dùng, đơn hàng, doanh thu, lợi nhuận và tín hiệu vận hành quan trọng trong một màn hình tổng hợp.</p>
+                <x-admin-info class="mt-3">
+                    Theo dõi người dùng, đơn hàng, doanh thu, lợi nhuận và tín hiệu vận hành quan trọng trong một màn hình tổng hợp.
+                </x-admin-info>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <div class="admin-panel-muted flex items-center gap-3 px-4 py-3 text-sm text-[var(--admin-text-muted)]">
@@ -107,8 +109,12 @@
             <article class="admin-surface-card p-7">
                 <div class="mb-8 flex items-start justify-between gap-3">
                     <div>
-                        <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Doanh thu 7 ngày gần nhất</h3>
-                        <p class="admin-copy mt-2 text-sm">Thống kê doanh thu đã hoàn tất theo từng ngày để theo dõi nhịp tăng trưởng ngắn hạn.</p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Doanh thu 7 ngày gần nhất</h3>
+                            <x-admin-info>
+                                Thống kê doanh thu đã hoàn tất theo từng ngày để theo dõi nhịp tăng trưởng ngắn hạn.
+                            </x-admin-info>
+                        </div>
                     </div>
                     <span class="admin-badge admin-badge--muted">7 ngày</span>
                 </div>
@@ -134,8 +140,12 @@
             <article class="admin-surface-card p-7">
                 <div class="mb-6 flex items-start justify-between gap-3">
                     <div>
-                        <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Top sản phẩm bán chạy</h3>
-                        <p class="admin-copy mt-2 text-sm">Nhóm sản phẩm có sản lượng hoàn tất cao nhất trong kỳ gần nhất.</p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Top sản phẩm bán chạy</h3>
+                            <x-admin-info>
+                                Nhóm sản phẩm có sản lượng hoàn tất cao nhất trong kỳ gần nhất.
+                            </x-admin-info>
+                        </div>
                     </div>
                     <a href="{{ route('admin.products.index') }}" class="text-sm font-semibold text-[#206223] hover:underline">Xem tất cả</a>
                 </div>
@@ -169,8 +179,12 @@
             <article class="admin-surface-card p-7">
                 <div class="mb-6 flex items-start justify-between gap-3">
                     <div>
-                        <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Thành viên mới</h3>
-                        <p class="admin-copy mt-2 text-sm">Những tài khoản người dùng mới đăng ký gần đây trên hệ thống.</p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Thành viên mới</h3>
+                            <x-admin-info>
+                                Những tài khoản người dùng mới đăng ký gần đây trên hệ thống.
+                            </x-admin-info>
+                        </div>
                     </div>
                     <a href="{{ route('admin.users.index') }}" class="text-sm font-semibold text-[#206223] hover:underline">Xem tất cả</a>
                 </div>
@@ -199,8 +213,12 @@
             <article class="admin-table-shell">
                 <div class="flex items-start justify-between gap-3 px-7 py-6">
                     <div>
-                        <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Đơn hàng gần đây</h3>
-                        <p class="admin-copy mt-2 text-sm">5 đơn mới nhất với thông tin thanh toán và trạng thái xử lý hiện tại.</p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Đơn hàng gần đây</h3>
+                            <x-admin-info>
+                                5 đơn mới nhất với thông tin thanh toán và trạng thái xử lý hiện tại.
+                            </x-admin-info>
+                        </div>
                     </div>
                     <a href="{{ route('admin.orders.index') }}" class="text-sm font-semibold text-[#206223] hover:underline">Quản lý đơn</a>
                 </div>

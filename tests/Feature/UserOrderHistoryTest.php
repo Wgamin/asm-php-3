@@ -142,6 +142,61 @@ it('allows customers to cancel a pending unpaid order and restores stock', funct
     expect($coupon->fresh()->used_count)->toBe(0);
 });
 
+it('allows customers to cancel a pending online order without over-restoring stock', function () {
+    $user = User::factory()->create();
+    $product = createUserOrderHistoryProduct();
+    $product->update(['stock' => 3]);
+
+    $coupon = Coupon::create([
+        'code' => 'ONLINE20K',
+        'name' => 'Online 20K',
+        'type' => 'fixed',
+        'value' => 20000,
+        'used_count' => 0,
+        'is_active' => true,
+    ]);
+
+    $order = createUserOrderHistoryOrder($user, $product, [
+        'coupon_id' => $coupon->id,
+        'coupon_code' => $coupon->code,
+        'discount_amount' => 20000,
+        'total_amount' => 40000,
+        'payable_amount' => 60000,
+        'payment_method' => 'vnpay',
+    ]);
+
+    Payment::create([
+        'order_id' => $order->id,
+        'method' => 'vnpay',
+        'provider' => 'vnpay',
+        'amount' => 60000,
+        'status' => 'pending',
+        'metadata' => [
+            'inventory_applied' => false,
+            'coupon_usage_applied' => false,
+        ],
+    ]);
+
+    Shipment::create([
+        'order_id' => $order->id,
+        'method' => 'fast',
+        'carrier' => 'Nong San Viet Express',
+        'fee_amount' => 20000,
+        'status' => 'pending',
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(route('profile.orders.cancel', $order));
+
+    $response->assertRedirect(route('profile.orders.show', $order));
+
+    expect($order->fresh()->status)->toBe('cancelled');
+    expect($order->payment()->first()->status)->toBe('cancelled');
+    expect($product->fresh()->stock)->toBe(3);
+    expect($coupon->fresh()->used_count)->toBe(0);
+});
+
 it('does not allow customers to cancel an order that is already paid or being processed', function () {
     $user = User::factory()->create();
     $product = createUserOrderHistoryProduct();

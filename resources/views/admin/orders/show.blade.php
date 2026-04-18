@@ -40,7 +40,11 @@
                     <span class="{{ $statusClass }}">{{ $statusLabel }}</span>
                 </div>
                 <h1 class="admin-headline text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">{{ $order->order_number }}</h1>
-                <p class="admin-copy mt-3 text-sm">Đặt lúc {{ $order->created_at->format('H:i, d/m/Y') }}. Theo dõi thông tin giao hàng, thanh toán, trạng thái và lịch sử xử lý trên cùng một màn hình.</p>
+                <div class="mt-3">
+                    <x-admin-info>
+                        Đặt lúc {{ $order->created_at->format('H:i, d/m/Y') }}. Theo dõi thông tin giao hàng, thanh toán, trạng thái và lịch sử xử lý trên cùng một màn hình.
+                    </x-admin-info>
+                </div>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <a href="{{ route('admin.orders.index') }}" class="admin-btn-secondary">
@@ -55,8 +59,12 @@
                 <section class="admin-surface-card p-6">
                     <div class="mb-6 flex items-start justify-between gap-3">
                         <div>
-                            <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Danh sách sản phẩm</h3>
-                            <p class="admin-copy mt-2 text-sm">Chi tiết từng sản phẩm, biến thể, số lượng và giá trị thành tiền trong đơn.</p>
+                            <div class="flex items-center gap-2">
+                                <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Danh sách sản phẩm</h3>
+                                <x-admin-info>
+                                    Chi tiết từng sản phẩm, biến thể, số lượng và giá trị thành tiền trong đơn.
+                                </x-admin-info>
+                            </div>
                         </div>
                         <span class="admin-badge admin-badge--muted">{{ $order->items->count() }} mục</span>
                     </div>
@@ -97,8 +105,12 @@
 
                 <section class="admin-surface-card p-6">
                     <div class="mb-6">
-                        <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Lịch sử trạng thái</h3>
-                        <p class="admin-copy mt-2 text-sm">Ghi nhận toàn bộ thay đổi đơn hàng từ lúc tạo, cập nhật bởi admin, thanh toán đến vận chuyển.</p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Lịch sử trạng thái</h3>
+                            <x-admin-info>
+                                Ghi nhận toàn bộ thay đổi đơn hàng từ lúc tạo, cập nhật bởi admin, thanh toán đến vận chuyển.
+                            </x-admin-info>
+                        </div>
                     </div>
 
                     <div class="space-y-5">
@@ -131,8 +143,12 @@
 
             <div class="space-y-6">
                 <section class="admin-surface-card p-6">
-                    <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Cập nhật trạng thái</h3>
-                    <p class="admin-copy mt-2 text-sm">Đồng bộ trạng thái đơn hàng với payment và shipment theo quy tắc hiện tại của hệ thống.</p>
+                    <div class="flex items-center gap-2">
+                        <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Cập nhật trạng thái</h3>
+                        <x-admin-info>
+                            Đồng bộ trạng thái đơn hàng với payment và shipment theo quy tắc hiện tại của hệ thống.
+                        </x-admin-info>
+                    </div>
 
                     <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST" class="mt-6 space-y-4">
                         @csrf

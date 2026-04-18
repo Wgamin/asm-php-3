@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\UserAddress;
 use App\Services\CouponService;
+use App\Services\OrderFulfillmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -98,7 +98,7 @@ class ProfileController extends Controller
         return view('profile.order-show', compact('order'));
     }
 
-    public function cancelOrder(Order $order)
+    public function cancelOrder(Order $order, OrderFulfillmentService $orderFulfillmentService)
     {
         $order = $this->ownedOrder($order);
         $order->load(['items.product', 'items.variant', 'payment', 'shipment']);
@@ -107,24 +107,8 @@ class ProfileController extends Controller
             return back()->with('error', 'Don hang nay khong the huy o thoi diem hien tai.');
         }
 
-        DB::transaction(function () use ($order) {
-            foreach ($order->items as $item) {
-                if ($item->variant_id && $item->variant instanceof ProductVariant) {
-                    $item->variant->increment('stock', $item->quantity);
-                    continue;
-                }
-
-                if ($item->product instanceof Product) {
-                    $item->product->increment('stock', $item->quantity);
-                }
-            }
-
-            if ($order->coupon_id) {
-                Coupon::whereKey($order->coupon_id)
-                    ->where('used_count', '>', 0)
-                    ->decrement('used_count');
-            }
-
+        DB::transaction(function () use ($order, $orderFulfillmentService) {
+            $orderFulfillmentService->release($order);
             $order->update(['status' => 'cancelled']);
 
             if ($order->shipment) {

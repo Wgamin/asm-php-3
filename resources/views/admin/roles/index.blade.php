@@ -7,7 +7,11 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Người dùng hệ thống</h1>
-            <p class="text-sm text-gray-500 mt-1">Quản lý tài khoản khách hàng và nhân viên quản trị.</p>
+            <div class="mt-2">
+                <x-admin-info>
+                    Quản lý tài khoản khách hàng và nhân viên quản trị.
+                </x-admin-info>
+            </div>
         </div>
         <div class="flex items-center gap-3">
             <div class="relative">

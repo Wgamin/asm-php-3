@@ -8,7 +8,11 @@
         <div class="p-8">
             <div class="text-center mb-10">
                 <h2 class="text-3xl font-bold text-slate-800">Chào mừng trở lại!</h2>
-                <p class="text-slate-500 mt-2 text-sm">Vui lòng đăng nhập để tiếp tục mua sắm</p>
+                <div class="mt-3 flex justify-center">
+                    <x-admin-info>
+                        Vui lòng đăng nhập để tiếp tục mua sắm.
+                    </x-admin-info>
+                </div>
             </div>
 
             @if($errors->any())

@@ -8,7 +8,9 @@
             <div>
                 <p class="admin-kicker">Sản phẩm & kho hàng</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Tạo sản phẩm mới</h1>
-                <p class="admin-copy mt-3 max-w-3xl text-sm">Thiết lập thông tin cơ bản, giá bán, tồn kho, khối lượng và thư viện ảnh cho một nông sản mới trong hệ thống.</p>
+                <x-admin-info class="mt-3">
+                    Thiết lập thông tin cơ bản, giá bán, tồn kho, khối lượng và thư viện ảnh cho một nông sản mới trong hệ thống.
+                </x-admin-info>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
@@ -115,8 +117,12 @@
                         <div class="flex items-start gap-3">
                             <span class="material-symbols-outlined text-[var(--admin-primary)]">deployed_code_history</span>
                             <div>
-                                <p class="font-bold text-[var(--admin-text)]">Sản phẩm đang dùng biến thể</p>
-                                <p class="mt-2 text-sm leading-7 text-[var(--admin-text-muted)]">Giá bán, giá vốn và tồn kho sẽ được quản lý riêng theo từng biến thể bên dưới. Mỗi biến thể có thể gắn thuộc tính, SKU và hình ảnh độc lập.</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-[var(--admin-text)]">Sản phẩm đang dùng biến thể</p>
+                                    <x-admin-info>
+                                        Giá bán, giá vốn và tồn kho sẽ được quản lý riêng theo từng biến thể bên dưới. Mỗi biến thể có thể gắn thuộc tính, SKU và hình ảnh độc lập.
+                                    </x-admin-info>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -138,12 +144,20 @@
                         <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Gợi ý nhập liệu</h3>
                         <div class="mt-5 space-y-4 text-sm leading-7 text-[var(--admin-text-muted)]">
                             <div class="rounded-[1rem] bg-white px-4 py-4">
-                                <p class="font-semibold text-[var(--admin-text)]">Ảnh đại diện</p>
-                                <p class="mt-2">Nên dùng ảnh vuông, nền sáng, kích thước tối thiểu 1200 x 1200 để đồng bộ với storefront.</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-semibold text-[var(--admin-text)]">Ảnh đại diện</p>
+                                    <x-admin-info>
+                                        Nên dùng ảnh vuông, nền sáng, kích thước tối thiểu 1200 x 1200 để đồng bộ với storefront.
+                                    </x-admin-info>
+                                </div>
                             </div>
                             <div class="rounded-[1rem] bg-white px-4 py-4">
-                                <p class="font-semibold text-[var(--admin-text)]">Biến thể</p>
-                                <p class="mt-2">Chỉ tạo biến thể khi mỗi tổ hợp thật sự cần quản lý giá, ảnh hoặc tồn kho riêng.</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-semibold text-[var(--admin-text)]">Biến thể</p>
+                                    <x-admin-info>
+                                        Chỉ tạo biến thể khi mỗi tổ hợp thật sự cần quản lý giá, ảnh hoặc tồn kho riêng.
+                                    </x-admin-info>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -152,8 +166,12 @@
 
             <div class="admin-glass sticky bottom-4 z-20 flex flex-col gap-3 rounded-[1.2rem] border border-[rgba(112,122,108,0.12)] px-5 py-4 shadow-[0_30px_60px_-30px_rgba(25,28,30,0.22)] md:flex-row md:items-center md:justify-between">
                 <div>
-                    <p class="text-sm font-bold text-[var(--admin-text)]">Sẵn sàng tạo sản phẩm</p>
-                    <p class="mt-1 text-xs text-[var(--admin-text-muted)]">Hệ thống sẽ lưu thông tin chính, thư viện ảnh và biến thể ngay trong một lần gửi.</p>
+                    <div class="flex items-center gap-2">
+                        <p class="text-sm font-bold text-[var(--admin-text)]">Sẵn sàng tạo sản phẩm</p>
+                        <x-admin-info>
+                            Hệ thống sẽ lưu thông tin chính, thư viện ảnh và biến thể ngay trong một lần gửi.
+                        </x-admin-info>
+                    </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="{{ route('admin.products.index') }}" class="admin-btn-ghost">Hủy bỏ</a>

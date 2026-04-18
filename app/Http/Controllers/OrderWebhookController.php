@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\OrderFulfillmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class OrderWebhookController extends Controller
 {
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order, OrderFulfillmentService $orderFulfillmentService)
     {
         $configuredSecret = trim((string) env('ORDER_WEBHOOK_SECRET', ''));
         $receivedSecret = trim((string) $request->header('X-Webhook-Secret', ''));
@@ -37,7 +38,9 @@ class OrderWebhookController extends Controller
 
         $order->load(['payment', 'shipment']);
 
-        DB::transaction(function () use ($order, $validated, $request) {
+        DB::transaction(function () use ($order, $validated, $request, $orderFulfillmentService) {
+            $previousOrderStatus = $order->status;
+
             if (! empty($validated['status'])) {
                 $order->update(['status' => $validated['status']]);
             }
@@ -67,6 +70,21 @@ class OrderWebhookController extends Controller
                 if ($paymentData !== []) {
                     $order->payment->update($paymentData);
                 }
+            }
+
+            if (($validated['payment_status'] ?? null) === 'paid') {
+                $order->loadMissing(['items.product', 'items.variant', 'payment']);
+                $orderFulfillmentService->apply($order);
+
+                if ($order->status === 'pending') {
+                    $order->update(['status' => 'processing']);
+                }
+            } elseif (
+                in_array($validated['payment_status'] ?? null, ['failed', 'cancelled'], true)
+                || (($validated['status'] ?? null) === 'cancelled' && in_array($previousOrderStatus, ['pending', 'processing'], true))
+            ) {
+                $order->loadMissing(['items.product', 'items.variant', 'payment']);
+                $orderFulfillmentService->release($order);
             }
 
             if ($order->shipment && (

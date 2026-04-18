@@ -34,6 +34,17 @@ class ChatController extends Controller
         return view('admin.chat.index', compact('customers', 'selectedCustomer', 'messages'));
     }
 
+    public function conversations(): JsonResponse
+    {
+        $admin = Auth::user();
+
+        return response()->json([
+            'customers' => $this->conversationCustomers($admin->id)
+                ->map(fn (User $customer) => $this->presentCustomer($customer))
+                ->values(),
+        ]);
+    }
+
     public function messages(User $user): JsonResponse
     {
         abort_if($user->role === 'admin', 404);
@@ -135,6 +146,19 @@ class ChatController extends Controller
             'time' => $message->created_at?->format('H:i'),
             'created_at' => $message->created_at?->toIso8601String(),
             'read_at' => $message->read_at?->toIso8601String(),
+        ];
+    }
+
+    protected function presentCustomer(User $customer): array
+    {
+        return [
+            'id' => $customer->id,
+            'name' => $customer->name,
+            'email' => $customer->email,
+            'last_message' => (string) ($customer->chat_last_message ?? ''),
+            'last_time' => (string) ($customer->chat_last_time ?? ''),
+            'unread_count' => (int) ($customer->chat_unread_count ?? 0),
+            'url' => route('admin.chat.index', ['user' => $customer->id]),
         ];
     }
 }

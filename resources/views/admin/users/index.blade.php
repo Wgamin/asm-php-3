@@ -14,7 +14,9 @@
             <div>
                 <p class="admin-kicker">CRM cơ bản</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Danh sách khách hàng</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Quản lý tài khoản mua hàng, theo dõi thời gian tham gia và thực hiện thao tác nhanh như chỉnh sửa hoặc xóa hồ sơ người dùng.</p>
+                <x-admin-info class="mt-3">
+                    Quản lý tài khoản mua hàng, theo dõi thời gian tham gia và thực hiện thao tác nhanh như chỉnh sửa hoặc xóa hồ sơ người dùng.
+                </x-admin-info>
             </div>
             <a href="{{ route('admin.users.create') }}" class="admin-btn-primary">
                 <i class="fas fa-user-plus text-sm"></i>

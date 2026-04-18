@@ -8,7 +8,11 @@
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-3xl font-black text-slate-900">Giỏ hàng của bạn</h1>
-                <p class="text-slate-500 mt-2">Kiểm tra lại sản phẩm, số lượng và mã giảm giá trước khi sang bước thanh toán.</p>
+                <div class="mt-3">
+                    <x-admin-info>
+                        Kiểm tra lại sản phẩm, số lượng và mã giảm giá trước khi sang bước thanh toán.
+                    </x-admin-info>
+                </div>
             </div>
 
             @if(!empty($cart))

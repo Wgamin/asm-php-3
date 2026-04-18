@@ -20,7 +20,9 @@
             <div>
                 <p class="admin-kicker">Core module</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Danh sách sản phẩm</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Quản lý nông sản, biến thể, giá bán, tồn kho, ảnh và dữ liệu import từ Excel trong cùng một không gian thao tác.</p>
+                <x-admin-info class="mt-3">
+                    Quản lý nông sản, biến thể, giá bán, tồn kho, ảnh và dữ liệu import từ Excel trong cùng một không gian thao tác.
+                </x-admin-info>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <a href="{{ route('admin.products.create') }}" class="admin-btn-primary">
@@ -51,32 +53,43 @@
         </section>
 
         <section class="admin-panel p-6">
-            <div class="grid gap-6 xl:grid-cols-[1.35fr_1fr]">
-                <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4 rounded-[1.25rem] bg-[var(--admin-surface-low)] p-5">
-                    @csrf
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="admin-kicker">Import dữ liệu</p>
-                            <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Nhập sản phẩm từ Excel/CSV</h3>
-                            <p class="admin-copy mt-2 text-sm">Hỗ trợ cả sản phẩm thường và sản phẩm biến thể theo nhóm handle.</p>
+            <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data" class="w-full space-y-4 rounded-[1.25rem] bg-[var(--admin-surface-low)] p-5">
+                @csrf
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="admin-kicker">Import dữ liệu</p>
+                        <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Nhập sản phẩm từ Excel/CSV</h3>
+                        <div class="mt-3 flex items-center gap-2">
+                            <x-admin-info>
+                                Hỗ trợ cả sản phẩm thường và sản phẩm biến thể theo nhóm handle.
+                            </x-admin-info>
+                            <p class="admin-kicker">Cột được hỗ trợ</p>
+                            <x-admin-info>
+                                <div class="space-y-3">
+                                    <p>
+                                        <span class="font-semibold text-[var(--admin-text)]">Cơ bản:</span>
+                                        <code>handle</code>, <code>name</code>, <code>category_id</code> hoặc <code>category</code>,
+                                        <code>product_type</code>, <code>price</code>, <code>sale_price</code>, <code>cost_price</code>,
+                                        <code>weight_grams</code>, <code>image</code>, <code>gallery_images</code>.
+                                    </p>
+                                    <p>
+                                        <span class="font-semibold text-[var(--admin-text)]">Biến thể:</span>
+                                        <code>option1_name</code>/<code>option1_value</code>, <code>variant_sku</code>,
+                                        <code>variant_price</code>, <code>variant_sale_price</code>, <code>variant_cost_price</code>,
+                                        <code>variant_stock</code>, <code>variant_image</code>.
+                                    </p>
+                                </div>
+                            </x-admin-info>
                         </div>
-                        <span class="admin-badge admin-badge--muted">Import</span>
                     </div>
-                    <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required class="cursor-pointer file:mr-4 file:rounded-xl file:border-0 file:bg-[rgba(32,98,35,0.12)] file:px-4 file:py-3 file:text-sm file:font-bold file:text-[#206223]" />
-                    <button type="submit" class="admin-btn-primary">
-                        <i class="fas fa-file-import text-sm"></i>
-                        Thực hiện import
-                    </button>
-                </form>
-
-                <div class="rounded-[1.25rem] bg-[var(--admin-surface-low)] p-5">
-                    <p class="admin-kicker">Cột được hỗ trợ</p>
-                    <div class="mt-3 space-y-3 text-sm leading-7 text-[var(--admin-text-muted)]">
-                        <p><span class="font-semibold text-[var(--admin-text)]">Cơ bản:</span> <code>handle</code>, <code>name</code>, <code>category_id</code> hoặc <code>category</code>, <code>product_type</code>, <code>price</code>, <code>sale_price</code>, <code>cost_price</code>, <code>weight_grams</code>, <code>image</code>, <code>gallery_images</code>.</p>
-                        <p><span class="font-semibold text-[var(--admin-text)]">Biến thể:</span> <code>option1_name</code>/<code>option1_value</code>, <code>variant_sku</code>, <code>variant_price</code>, <code>variant_sale_price</code>, <code>variant_cost_price</code>, <code>variant_stock</code>, <code>variant_image</code>.</p>
-                    </div>
+                    <span class="admin-badge admin-badge--muted">Import</span>
                 </div>
-            </div>
+                <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required class="cursor-pointer file:mr-4 file:rounded-xl file:border-0 file:bg-[rgba(32,98,35,0.12)] file:px-4 file:py-3 file:text-sm file:font-bold file:text-[#206223]" />
+                <button type="submit" class="admin-btn-primary">
+                    <i class="fas fa-file-import text-sm"></i>
+                    Thực hiện import
+                </button>
+            </form>
         </section>
 
         @if(session('import_failures') && count(session('import_failures')))

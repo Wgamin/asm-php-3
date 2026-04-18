@@ -8,7 +8,9 @@
             <div>
                 <p class="admin-kicker">CRM cơ bản</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Thêm khách hàng mới</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Tạo tài khoản mua hàng mới để quản lý hoặc hỗ trợ vận hành nội bộ trong môi trường admin.</p>
+                <x-admin-info class="mt-3">
+                    Tạo tài khoản mua hàng mới để quản lý hoặc hỗ trợ vận hành nội bộ trong môi trường admin.
+                </x-admin-info>
             </div>
             <a href="{{ route('admin.users.index') }}" class="admin-btn-secondary">
                 <i class="fas fa-arrow-left text-sm"></i>
@@ -39,9 +41,13 @@
                 </div>
 
                 <div>
-                    <label class="admin-field-label">Mật khẩu khởi tạo</label>
+                    <div class="flex items-center gap-2">
+                        <label class="admin-field-label">Mật khẩu khởi tạo</label>
+                        <x-admin-info>
+                            Khách hàng có thể đổi lại mật khẩu sau khi đăng nhập.
+                        </x-admin-info>
+                    </div>
                     <input type="password" name="password" required placeholder="Tối thiểu 6 ký tự">
-                    <p class="mt-2 text-xs text-[var(--admin-text-muted)]">Khách hàng có thể đổi lại mật khẩu sau khi đăng nhập.</p>
                     @error('password')
                         <p class="mt-2 text-sm text-[var(--admin-danger-text)]">{{ $message }}</p>
                     @enderror

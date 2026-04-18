@@ -8,7 +8,9 @@
             <section class="admin-surface-card h-fit p-6 xl:sticky xl:top-28">
                 <p class="admin-kicker">Variants setup</p>
                 <h1 class="admin-headline mt-2 text-3xl font-bold tracking-[-0.04em] text-[var(--admin-text)]">Tạo thuộc tính</h1>
-                <p class="admin-copy mt-3 text-sm">Thiết lập các nhóm phân loại như kích cỡ, độ tươi, trọng lượng hoặc màu sắc để phục vụ sản phẩm biến thể.</p>
+                <x-admin-info class="mt-3">
+                    Thiết lập các nhóm phân loại như kích cỡ, độ tươi, trọng lượng hoặc màu sắc để phục vụ sản phẩm biến thể.
+                </x-admin-info>
 
                 <form action="{{ route('admin.attributes.store') }}" method="POST" class="mt-6 space-y-5">
                     @csrf
