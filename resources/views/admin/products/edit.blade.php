@@ -24,7 +24,9 @@
             <div>
                 <p class="admin-kicker">Sản phẩm & kho hàng</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Chỉnh sửa sản phẩm</h1>
-                <p class="admin-copy mt-3 max-w-3xl text-sm">Đang cập nhật cấu hình cho <strong class="text-[var(--admin-text)]">{{ $product->name }}</strong>. Giá, ảnh, tồn kho và biến thể sẽ được ghi đè theo dữ liệu mới.</p>
+                <x-admin-info class="mt-3">
+                    Đang cập nhật cấu hình cho <strong class="text-[var(--admin-text)]">{{ $product->name }}</strong>. Giá, ảnh, tồn kho và biến thể sẽ được ghi đè theo dữ liệu mới.
+                </x-admin-info>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
@@ -136,8 +138,12 @@
                         <div class="flex items-start gap-3">
                             <span class="material-symbols-outlined text-[var(--admin-primary)]">deployed_code_history</span>
                             <div>
-                                <p class="font-bold text-[var(--admin-text)]">Sản phẩm đang dùng biến thể</p>
-                                <p class="mt-2 text-sm leading-7 text-[var(--admin-text-muted)]">Toàn bộ biến thể hiện tại sẽ được dựng lại theo dữ liệu bạn nhập ở form bên dưới. Hãy kiểm tra kỹ giá, giá vốn, SKU và hình ảnh riêng của từng loại.</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-[var(--admin-text)]">Sản phẩm đang dùng biến thể</p>
+                                    <x-admin-info>
+                                        Toàn bộ biến thể hiện tại sẽ được dựng lại theo dữ liệu bạn nhập ở form bên dưới. Hãy kiểm tra kỹ giá, giá vốn, SKU và hình ảnh riêng của từng loại.
+                                    </x-admin-info>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -173,8 +179,12 @@
 
             <div class="admin-glass sticky bottom-4 z-20 flex flex-col gap-3 rounded-[1.2rem] border border-[rgba(112,122,108,0.12)] px-5 py-4 shadow-[0_30px_60px_-30px_rgba(25,28,30,0.22)] md:flex-row md:items-center md:justify-between">
                 <div>
-                    <p class="text-sm font-bold text-[var(--admin-text)]">Sẵn sàng lưu thay đổi</p>
-                    <p class="mt-1 text-xs text-[var(--admin-text-muted)]">Dữ liệu sẽ cập nhật ngay ở storefront, giỏ hàng và các luồng đơn hàng mới.</p>
+                    <div class="flex items-center gap-2">
+                        <p class="text-sm font-bold text-[var(--admin-text)]">Sẵn sàng lưu thay đổi</p>
+                        <x-admin-info>
+                            Dữ liệu sẽ cập nhật ngay ở storefront, giỏ hàng và các luồng đơn hàng mới.
+                        </x-admin-info>
+                    </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="{{ route('admin.products.show', $product) }}" class="admin-btn-ghost">Hủy bỏ</a>

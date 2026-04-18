@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\OrderFulfillmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -56,7 +57,7 @@ class OrderController extends Controller
         return view('admin.orders.show', compact('order'));
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id, OrderFulfillmentService $orderFulfillmentService)
     {
         $validated = $request->validate([
             'status' => ['required', 'in:pending,processing,shipping,completed,cancelled'],
@@ -64,8 +65,9 @@ class OrderController extends Controller
 
         $order = Order::with(['payment', 'shipment'])->findOrFail($id);
 
-        DB::transaction(function () use ($order, $validated) {
+        DB::transaction(function () use ($order, $validated, $orderFulfillmentService) {
             $status = $validated['status'];
+            $previousStatus = $order->status;
 
             $order->update(['status' => $status]);
 
@@ -91,6 +93,12 @@ class OrderController extends Controller
                         'status' => 'paid',
                         'paid_at' => $order->payment->paid_at ?? now(),
                     ]);
+                } elseif ($status === 'cancelled' && $previousStatus !== 'cancelled' && in_array($previousStatus, ['pending', 'processing'], true)) {
+                    $orderFulfillmentService->release($order);
+
+                    if ($order->payment->status !== 'paid') {
+                        $order->payment->update(['status' => 'cancelled']);
+                    }
                 } elseif ($status === 'cancelled' && $order->payment->status !== 'paid') {
                     $order->payment->update(['status' => 'cancelled']);
                 }

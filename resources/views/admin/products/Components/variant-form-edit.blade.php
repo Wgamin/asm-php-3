@@ -2,8 +2,12 @@
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="admin-kicker">Biến thể & thuộc tính</p>
-            <h2 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Danh sách biến thể</h2>
-            <p class="mt-2 text-sm text-[var(--admin-text-muted)]">Cập nhật lại biến thể hiện có hoặc thêm tổ hợp mới cho sản phẩm này.</p>
+            <div class="mt-2 flex items-center gap-2">
+                <h2 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Danh sách biến thể</h2>
+                <x-admin-info>
+                    Cập nhật lại biến thể hiện có hoặc thêm tổ hợp mới cho sản phẩm này.
+                </x-admin-info>
+            </div>
         </div>
         <button type="button" @click="addVariant()" class="admin-btn-primary">
             <i class="fas fa-plus text-sm"></i>

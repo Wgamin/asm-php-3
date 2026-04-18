@@ -31,7 +31,9 @@
             <div>
                 <p class="admin-kicker">Vận hành giao dịch</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Danh sách đơn hàng</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Theo dõi luồng xử lý đơn, thanh toán và vận chuyển từ một màn hình tập trung có filter theo mã đơn, khách hàng, trạng thái và thời gian đặt.</p>
+                <x-admin-info class="mt-3">
+                    Theo dõi luồng xử lý đơn, thanh toán và vận chuyển từ một màn hình tập trung có filter theo mã đơn, khách hàng, trạng thái và thời gian đặt.
+                </x-admin-info>
             </div>
             <div class="admin-panel-muted flex items-center gap-3 px-4 py-3 text-sm text-[var(--admin-text-muted)]">
                 <i class="fas fa-boxes-stacked text-[#206223]"></i>

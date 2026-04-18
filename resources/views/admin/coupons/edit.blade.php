@@ -8,7 +8,9 @@
             <div>
                 <p class="admin-kicker">Marketing setup</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Chỉnh sửa coupon</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Cập nhật điều kiện sử dụng, hạn dùng và trạng thái hoạt động của mã giảm giá.</p>
+                <x-admin-info class="mt-3">
+                    Cập nhật điều kiện sử dụng, hạn dùng và trạng thái hoạt động của mã giảm giá.
+                </x-admin-info>
             </div>
             <a href="{{ route('admin.coupons.index') }}" class="admin-btn-secondary">
                 <i class="fas fa-arrow-left text-sm"></i>

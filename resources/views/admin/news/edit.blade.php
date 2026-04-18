@@ -8,7 +8,11 @@
             <div>
                 <p class="admin-kicker">Content & CMS</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Chỉnh sửa bài viết</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">{{ $article->title }}</p>
+                <div class="mt-3">
+                    <x-admin-info>
+                        {{ $article->title }}
+                    </x-admin-info>
+                </div>
             </div>
             <a href="{{ route('admin.news.index') }}" class="admin-btn-secondary">
                 <i class="fas fa-arrow-left text-sm"></i>

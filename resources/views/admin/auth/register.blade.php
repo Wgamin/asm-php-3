@@ -7,7 +7,9 @@
         <div>
             <p class="admin-kicker">Admin onboarding</p>
             <h1 class="admin-headline mt-2 text-3xl font-bold tracking-[-0.04em] text-[var(--admin-text)]">Tạo tài khoản quản trị</h1>
-            <p class="admin-copy mt-3 text-sm">Tạo tài khoản admin mới cho môi trường nội bộ. Chỉ dùng cho nhu cầu quản trị và kiểm thử.</p>
+            <x-admin-info class="mt-3">
+                Tạo tài khoản admin mới cho môi trường nội bộ. Chỉ dùng cho nhu cầu quản trị và kiểm thử.
+            </x-admin-info>
         </div>
 
         <form action="{{ route('admin.register') }}" method="POST" class="space-y-5">

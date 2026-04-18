@@ -12,7 +12,11 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-slate-900">Chat ho tro</h1>
-                    <p class="mt-1 text-sm text-slate-500">Trao doi truc tiep voi shop theo thoi gian gan realtime.</p>
+                    <div class="mt-3">
+                        <x-admin-info>
+                            Trao doi truc tiep voi shop theo thoi gian gan realtime.
+                        </x-admin-info>
+                    </div>
                 </div>
             </div>
 
@@ -26,15 +30,14 @@
                 @endif
             </div>
 
-            <div class="mt-6 space-y-4 text-sm text-slate-500">
-                <div class="flex items-start gap-3">
-                    <i class="fas fa-circle text-[8px] mt-1.5 text-emerald-500"></i>
-                    <span>Khung chat se tu dong lam moi moi 4 giay.</span>
-                </div>
-                <div class="flex items-start gap-3">
-                    <i class="fas fa-circle text-[8px] mt-1.5 text-emerald-500"></i>
-                    <span>Phu hop cho tu van don hang, giao hang va ho tro sau mua.</span>
-                </div>
+            <div class="mt-6 flex items-center gap-2 text-sm text-slate-500">
+                <span class="font-semibold text-slate-700">Luu y</span>
+                <x-admin-info>
+                    <div class="space-y-2">
+                        <p>Khung chat se tu dong lam moi moi 4 giay.</p>
+                        <p>Phu hop cho tu van don hang, giao hang va ho tro sau mua.</p>
+                    </div>
+                </x-admin-info>
             </div>
         </div>
 

@@ -6,7 +6,12 @@
         </div>
 
         <div>
-            <label class="admin-field-label">Ảnh đại diện chính</label>
+            <div class="flex items-center gap-2">
+                <label class="admin-field-label">Ảnh đại diện chính</label>
+                <x-admin-info>
+                    JPG, PNG hoặc WEBP. Nên dùng ảnh vuông để hiển thị đồng bộ.
+                </x-admin-info>
+            </div>
             <label class="block cursor-pointer overflow-hidden rounded-[1.2rem] border border-dashed border-[rgba(112,122,108,0.3)] bg-[var(--admin-surface-low)] p-3 transition hover:border-[rgba(32,98,35,0.42)]">
                 <input type="file" name="image" accept="image/*" required class="hidden" @change="previewMainImage">
                 <template x-if="mainImageUrl">
@@ -16,7 +21,6 @@
                     <div class="flex h-56 flex-col items-center justify-center rounded-[1rem] bg-white text-center">
                         <i class="fas fa-camera text-3xl text-[var(--admin-text-muted)] opacity-60"></i>
                         <p class="mt-3 text-sm font-semibold text-[var(--admin-text)]">Chọn ảnh đại diện</p>
-                        <p class="mt-2 max-w-[16rem] text-xs leading-6 text-[var(--admin-text-muted)]">JPG, PNG hoặc WEBP. Nên dùng ảnh vuông để hiển thị đồng bộ.</p>
                     </div>
                 </template>
             </label>

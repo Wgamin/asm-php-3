@@ -50,10 +50,28 @@ return [
         ),
     ],
 
-    'gemini' => [
-    'api_key' => env('GEMINI_API_KEY'),
-    'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
-    'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
-],
+    'momo' => [
+        'base_url' => env('MOMO_BASE_URL', 'https://test-payment.momo.vn'),
+        'partner_code' => env('MOMO_PARTNER_CODE'),
+        'access_key' => env('MOMO_ACCESS_KEY'),
+        'secret_key' => env('MOMO_SECRET_KEY'),
+        'redirect_url' => env('MOMO_REDIRECT_URL'),
+        'ipn_url' => env('MOMO_IPN_URL'),
+        'request_type' => env('MOMO_REQUEST_TYPE', 'payWithMethod'),
+        'store_name' => env('MOMO_STORE_NAME', env('APP_NAME', 'Laravel')),
+        'store_id' => env('MOMO_STORE_ID', 'nongsanviet'),
+    ],
+
+    'zalopay' => [
+        'base_url' => env('ZALOPAY_BASE_URL', 'https://sb-openapi.zalopay.vn'),
+        'app_id' => env('ZALOPAY_APP_ID'),
+        'key1' => env('ZALOPAY_KEY1'),
+        'key2' => env('ZALOPAY_KEY2'),
+        'callback_url' => env('ZALOPAY_CALLBACK_URL'),
+        'redirect_url' => env('ZALOPAY_REDIRECT_URL'),
+        'bank_code' => env('ZALOPAY_BANK_CODE', ''),
+        'preferred_payment_methods' => env('ZALOPAY_PREFERRED_PAYMENT_METHODS', 'domestic_card,account,international_card'),
+        'expire_duration_seconds' => (int) env('ZALOPAY_EXPIRE_DURATION_SECONDS', 900),
+    ],
 
 ];
