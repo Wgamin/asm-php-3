@@ -62,4 +62,16 @@ return [
         'store_id' => env('MOMO_STORE_ID', 'nongsanviet'),
     ],
 
+    'zalopay' => [
+        'base_url' => env('ZALOPAY_BASE_URL', 'https://sb-openapi.zalopay.vn'),
+        'app_id' => env('ZALOPAY_APP_ID'),
+        'key1' => env('ZALOPAY_KEY1'),
+        'key2' => env('ZALOPAY_KEY2'),
+        'callback_url' => env('ZALOPAY_CALLBACK_URL'),
+        'redirect_url' => env('ZALOPAY_REDIRECT_URL'),
+        'bank_code' => env('ZALOPAY_BANK_CODE', ''),
+        'preferred_payment_methods' => env('ZALOPAY_PREFERRED_PAYMENT_METHODS', 'domestic_card,account,international_card'),
+        'expire_duration_seconds' => (int) env('ZALOPAY_EXPIRE_DURATION_SECONDS', 900),
+    ],
+
 ];

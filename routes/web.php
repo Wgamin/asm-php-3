@@ -49,6 +49,8 @@ Route::get('/order-success', [OrderController::class, 'success'])->name('order.s
 Route::post('/webhooks/orders/{order}', [OrderWebhookController::class, 'update'])->name('webhooks.orders.update');
 Route::get('/payment/momo-return', [PaymentController::class, 'momoReturn'])->name('payment.momoReturn');
 Route::post('/payment/momo/ipn', [PaymentController::class, 'momoIpn'])->name('payment.momoIpn');
+Route::get('/payment/zalopay-return', [PaymentController::class, 'zalopayReturn'])->name('payment.zalopayReturn');
+Route::post('/payment/zalopay/callback', [PaymentController::class, 'zalopayCallback'])->name('payment.zalopayCallback');
 Route::prefix('ai-chat')->as('ai-chat.')->group(function () {
     Route::get('/messages', [AiChatbotController::class, 'messages'])->name('messages');
     Route::post('/messages', [AiChatbotController::class, 'send'])->name('send');
@@ -108,6 +110,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/vnpay', [PaymentController::class, 'createPayment'])->name('payment.vnpay');
     Route::get('/payment/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('payment.vnpayReturn');
     Route::post('/payment/momo', [PaymentController::class, 'createMomoPayment'])->name('payment.momo');
+    Route::post('/payment/zalopay', [PaymentController::class, 'createZalopayPayment'])->name('payment.zalopay');
 
     // --- Wishlist ---
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');

@@ -116,7 +116,7 @@ class OrderController extends Controller
             'phone' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:30'],
             'address' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:500'],
             'shipping_provider' => ['nullable', 'string', 'max:50'],
-            'payment_method' => ['required', 'string', Rule::in(['cod', 'vnpay', 'momo'])],
+            'payment_method' => ['required', 'string', Rule::in(['cod', 'vnpay', 'momo', 'zalopay'])],
             'note' => ['nullable', 'string'],
         ]);
 
@@ -201,6 +201,7 @@ class OrderController extends Controller
                 'provider' => match ($request->payment_method) {
                     'vnpay' => 'vnpay',
                     'momo' => 'momo',
+                    'zalopay' => 'zalopay',
                     default => 'cash_on_delivery',
                 },
                 'amount' => $payableAmount,
@@ -209,6 +210,7 @@ class OrderController extends Controller
                     'label' => match ($request->payment_method) {
                         'vnpay' => 'Thanh toan online VNPay',
                         'momo' => 'Thanh toan online MoMo test',
+                        'zalopay' => 'Thanh toan online ZaloPay test',
                         default => 'Thu tien khi giao hang',
                     },
                     'inventory_applied' => false,
@@ -286,6 +288,14 @@ class OrderController extends Controller
                 ]);
 
                 return app(\App\Http\Controllers\PaymentController::class)->createMomoPayment($request);
+            }
+
+            if ($request->payment_method === 'zalopay') {
+                $request->merge([
+                    'order_id' => $order->id,
+                ]);
+
+                return app(\App\Http\Controllers\PaymentController::class)->createZalopayPayment($request);
             }
 
             // Nếu chọn COD

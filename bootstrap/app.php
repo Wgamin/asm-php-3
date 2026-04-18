@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhooks/orders/*',
             'ai-chat/messages',
             'payment/momo/ipn',
+            'payment/zalopay/callback',
         ]);
 
         $middleware->alias([

@@ -244,6 +244,34 @@
                                             </div>
                                         </div>
                                     </label>
+
+                                    <label class="block cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="payment_method"
+                                            value="zalopay"
+                                            class="peer sr-only"
+                                            {{ $selectedPaymentMethod === 'zalopay' ? 'checked' : '' }}
+                                        >
+                                        <div class="flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50 peer-checked:bg-[linear-gradient(180deg,#fafaf9,#f3f4f6)]">
+                                            <span class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+                                                <i class="fas fa-credit-card text-xl"></i>
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="text-base font-bold text-slate-900">ZaloPay</p>
+                                                    <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Gateway</span>
+                                                </div>
+                                                <p class="mt-1 text-sm leading-6 text-slate-500">Chuyển sang ZaloPay sandbox để test thẻ ATM, tài khoản ngân hàng, thẻ quốc tế và callback thanh toán thử.</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-500 md:inline-flex">Bank / Card</span>
+                                                <span class="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-300 bg-white transition peer-checked:border-emerald-500 peer-checked:shadow-[0_0_0_4px_rgba(16,185,129,0.14)]">
+                                                    <span class="h-3 w-3 rounded-full bg-emerald-500 opacity-0 scale-75 transition duration-150 peer-checked:scale-100 peer-checked:opacity-100"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
 

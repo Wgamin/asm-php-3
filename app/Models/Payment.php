@@ -56,6 +56,7 @@ class Payment extends Model
         return match ($this->method) {
             'vnpay' => 'VNPay',
             'momo' => 'MoMo',
+            'zalopay' => 'ZaloPay',
             default => 'COD',
         };
     }
