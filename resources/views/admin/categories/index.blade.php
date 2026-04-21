@@ -8,7 +8,9 @@
             <section class="admin-surface-card h-fit p-6 xl:sticky xl:top-28">
                 <p class="admin-kicker">Taxonomy</p>
                 <h1 class="admin-headline mt-2 text-3xl font-bold tracking-[-0.04em] text-[var(--admin-text)]">Thêm danh mục</h1>
-                <p class="admin-copy mt-3 text-sm">Tạo cấu trúc phân cấp để tổ chức nhóm nông sản và phục vụ lọc sản phẩm ngoài storefront.</p>
+                <x-admin-info class="mt-3">
+                    Tạo cấu trúc phân cấp để tổ chức nhóm nông sản và phục vụ lọc sản phẩm ngoài storefront.
+                </x-admin-info>
 
                 <form action="{{ route('admin.categories.store') }}" method="POST" class="mt-6 space-y-5">
                     @csrf

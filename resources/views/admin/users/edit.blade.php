@@ -8,7 +8,11 @@
             <div>
                 <p class="admin-kicker">CRM cơ bản</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Chỉnh sửa khách hàng</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Đang chỉnh sửa hồ sơ của <strong class="text-[var(--admin-text)]">{{ $user->email }}</strong>.</p>
+                <div class="mt-3">
+                    <x-admin-info>
+                        Đang chỉnh sửa hồ sơ của <strong class="text-[var(--admin-text)]">{{ $user->email }}</strong>.
+                    </x-admin-info>
+                </div>
             </div>
             <a href="{{ route('admin.users.index') }}" class="admin-btn-secondary">
                 <i class="fas fa-arrow-left text-sm"></i>

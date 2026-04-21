@@ -46,8 +46,12 @@
         <section class="admin-panel-muted p-6">
             <div class="mb-5">
                 <p class="admin-kicker">SEO metadata</p>
-                <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Tối ưu công cụ tìm kiếm</h3>
-                <p class="mt-2 text-sm text-[var(--admin-text-muted)]">Nếu để trống, hệ thống sẽ dùng tiêu đề và mô tả ngắn làm dữ liệu mặc định.</p>
+                <div class="mt-2 flex items-center gap-2">
+                    <h3 class="admin-headline text-2xl font-bold tracking-[-0.03em]">Tối ưu công cụ tìm kiếm</h3>
+                    <x-admin-info>
+                        Nếu để trống, hệ thống sẽ dùng tiêu đề và mô tả ngắn làm dữ liệu mặc định.
+                    </x-admin-info>
+                </div>
             </div>
 
             <div class="space-y-5">

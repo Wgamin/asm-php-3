@@ -3,11 +3,19 @@
 @section('title', 'Hỗ trợ khách hàng')
 
 @section('content')
-    <div class="mx-auto max-w-7xl space-y-8">
+    <div
+        id="admin-chat-page"
+        class="mx-auto max-w-7xl space-y-8"
+        data-conversations-url="{{ route('admin.chat.conversations') }}"
+        data-chat-index-url="{{ route('admin.chat.index') }}"
+        data-selected-customer-id="{{ $selectedCustomer?->id ?? '' }}"
+    >
         <section>
             <p class="admin-kicker">Customer support</p>
             <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Hỗ trợ khách hàng</h1>
-            <p class="admin-copy mt-3 max-w-3xl text-sm">Theo dõi hội thoại giữa khách hàng và đội vận hành theo kiểu inbox tập trung, tối ưu cho phản hồi nhanh và làm việc nhiều phiên song song.</p>
+            <x-admin-info class="mt-3">
+                Theo dõi hội thoại giữa khách hàng và đội vận hành theo kiểu inbox tập trung, tối ưu cho phản hồi nhanh và làm việc nhiều phiên song song.
+            </x-admin-info>
         </section>
 
         <div class="grid gap-6 xl:grid-cols-[340px_1fr]">
@@ -17,7 +25,7 @@
                     <h3 class="admin-headline mt-2 text-2xl font-bold tracking-[-0.03em]">Hội thoại</h3>
                 </div>
 
-                <div class="max-h-[720px] overflow-y-auto px-3 py-3">
+                <div id="admin-chat-customers" class="max-h-[720px] overflow-y-auto px-3 py-3">
                     @forelse($customers as $customer)
                         <a
                             href="{{ route('admin.chat.index', ['user' => $customer->id]) }}"
@@ -104,16 +112,21 @@
 @push('scripts')
 <script>
     (() => {
-        const root = document.getElementById('admin-chat-root');
+        const page = document.getElementById('admin-chat-page');
 
-        if (!root) {
+        if (!page) {
             return;
         }
 
-        const customerId = root.dataset.customerId;
-        const messagesUrl = @json(url('/admin/chat')) + `/${customerId}/messages`;
-        const sendUrl = @json(url('/admin/chat')) + `/${customerId}/messages`;
+        const root = document.getElementById('admin-chat-root');
+        const conversationsUrl = page.dataset.conversationsUrl;
+        const chatIndexUrl = page.dataset.chatIndexUrl;
+        const selectedCustomerId = Number(page.dataset.selectedCustomerId || 0);
+        const customersList = document.getElementById('admin-chat-customers');
         const csrfToken = @json(csrf_token());
+        const customerId = root ? Number(root.dataset.customerId || 0) : 0;
+        const messagesUrl = customerId ? @json(url('/admin/chat')) + `/${customerId}/messages` : null;
+        const sendUrl = customerId ? @json(url('/admin/chat')) + `/${customerId}/messages` : null;
         const list = document.getElementById('admin-chat-messages');
         const form = document.getElementById('admin-chat-form');
         const input = document.getElementById('admin-chat-input');
@@ -126,12 +139,80 @@
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
 
-        const shouldStickBottom = () => list.scrollTop + list.clientHeight >= list.scrollHeight - 80;
+        const customerUrl = (id) => {
+            const url = new URL(chatIndexUrl, window.location.origin);
+            url.searchParams.set('user', id);
+
+            return `${url.pathname}${url.search}`;
+        };
+
+        const renderCustomers = (customers) => {
+            if (!customersList) {
+                return;
+            }
+
+            if (!customers.length) {
+                customersList.innerHTML = `
+                    <div class="admin-empty-state min-h-[20rem]">
+                        <i class="fas fa-comments text-4xl opacity-30"></i>
+                        <p class="text-sm">Chua co hoi thoai nao.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const activeCustomerId = customerId || selectedCustomerId;
+
+            customersList.innerHTML = customers.map((customer) => {
+                const isActive = activeCustomerId === Number(customer.id);
+                const customerHref = customer.url || customerUrl(customer.id);
+
+                return `
+                    <a
+                        href="${escapeHtml(customerHref)}"
+                        class="mb-2 block rounded-[1.2rem] px-4 py-4 transition ${isActive ? 'bg-[rgba(32,98,35,0.1)]' : 'hover:bg-[rgba(95,103,92,0.08)]'}"
+                    >
+                        <div class="flex items-start gap-3">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(customer.name)}&background=206223&color=fff&bold=true" alt="${escapeHtml(customer.name)}" class="h-10 w-10 rounded-2xl object-cover">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-bold text-[var(--admin-text)]">${escapeHtml(customer.name)}</p>
+                                        <p class="mt-1 truncate text-xs text-[var(--admin-text-muted)]">${escapeHtml(customer.email ?? '')}</p>
+                                    </div>
+                                    ${Number(customer.unread_count || 0) > 0 ? `
+                                        <span class="flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[#ba1a1a] px-1 text-[10px] font-bold text-white">
+                                            ${Number(customer.unread_count || 0)}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <p class="mt-3 line-clamp-2 text-sm leading-6 text-[var(--admin-text-muted)]">${escapeHtml(customer.last_message || 'Chua co tin nhan')}</p>
+                                <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[rgba(95,103,92,0.7)]">${escapeHtml(customer.last_time || 'Moi bat dau')}</p>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        };
+
+        const shouldStickBottom = () => {
+            if (!list) {
+                return false;
+            }
+
+            return list.scrollTop + list.clientHeight >= list.scrollHeight - 80;
+        };
         const scrollToBottom = () => {
-            list.scrollTop = list.scrollHeight;
+            if (list) {
+                list.scrollTop = list.scrollHeight;
+            }
         };
 
         const renderMessages = (messages) => {
+            if (!list) {
+                return;
+            }
+
             const stick = shouldStickBottom();
 
             list.innerHTML = messages.map((message) => `
@@ -148,7 +229,39 @@
             }
         };
 
+        const fetchConversations = async () => {
+            try {
+                const response = await fetch(`${conversationsUrl}?_=${Date.now()}`, {
+                    cache: 'no-store',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const payload = await response.json();
+                const customers = Array.isArray(payload.customers) ? payload.customers : [];
+
+                if (!customerId && !selectedCustomerId && customers[0]?.id) {
+                    window.location.assign(customers[0].url || customerUrl(customers[0].id));
+                    return;
+                }
+
+                renderCustomers(customers);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
         const fetchMessages = async () => {
+            if (!messagesUrl) {
+                return;
+            }
+
             try {
                 const response = await fetch(`${messagesUrl}?_=${Date.now()}`, {
                     cache: 'no-store',
@@ -169,7 +282,13 @@
             }
         };
 
-        form.addEventListener('submit', async (event) => {
+        const refresh = async () => {
+            await fetchMessages();
+            await fetchConversations();
+        };
+
+        if (form && input && errorBox && sendUrl) {
+            form.addEventListener('submit', async (event) => {
             event.preventDefault();
             errorBox.classList.add('hidden');
             errorBox.textContent = '';
@@ -203,17 +322,22 @@
                 }
 
                 input.value = '';
-                await fetchMessages();
+                await refresh();
                 input.focus();
             } catch (error) {
                 console.error(error);
                 errorBox.textContent = 'Không thể gửi tin nhắn.';
                 errorBox.classList.remove('hidden');
             }
-        });
+            });
+        }
 
-        fetchMessages().then(scrollToBottom);
-        setInterval(fetchMessages, 4000);
+        refresh().then(() => {
+            if (root) {
+                scrollToBottom();
+            }
+        });
+        setInterval(refresh, 4000);
     })();
 </script>
 @endpush

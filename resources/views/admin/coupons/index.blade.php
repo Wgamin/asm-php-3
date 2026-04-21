@@ -8,7 +8,9 @@
             <div>
                 <p class="admin-kicker">Khách hàng & marketing</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Quản lý coupon</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Tạo, chỉnh sửa và theo dõi hiệu quả của mã giảm giá theo điều kiện đơn hàng, giới hạn sử dụng và khung thời gian áp dụng.</p>
+                <x-admin-info class="mt-3">
+                    Tạo, chỉnh sửa và theo dõi hiệu quả của mã giảm giá theo điều kiện đơn hàng, giới hạn sử dụng và khung thời gian áp dụng.
+                </x-admin-info>
             </div>
             <a href="{{ route('admin.coupons.create') }}" class="admin-btn-primary">
                 <i class="fas fa-ticket-simple text-sm"></i>

@@ -325,10 +325,17 @@
                 x-transition
                 class="w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl"
             >
-                <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3">
-                    <div>
+                <div class="flex items-center justify-between border-b border-slate-100 bg-[linear-gradient(180deg,#f7faf8,#ffffff)] px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <span class="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#e9f7ef,#d4efe0)] text-emerald-700 shadow-sm ring-1 ring-emerald-100">
+                            <span class="absolute inset-[5px] rounded-[1rem] border border-white/70"></span>
+                            <i class="fas fa-robot relative text-base"></i>
+                            <span class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[8px] font-black text-white">AI</span>
+                        </span>
+                        <div>
                         <p class="text-sm font-bold text-slate-800">AI Chatbot</p>
                         <p class="text-[11px] text-slate-500">Hỏi nhanh về sản phẩm và mua sắm</p>
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <button
@@ -418,10 +425,10 @@
             <button
                 type="button"
                 @click="toggle()"
-                class="flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-slate-800"
+                class="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-emerald-700"
                 title="Mở AI chatbot"
             >
-                <i class="fas fa-sparkles text-lg"></i>
+                <i class="fas fa-robot text-lg"></i>
             </button>
         </div>
     </div>

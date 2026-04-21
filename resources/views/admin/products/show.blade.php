@@ -12,7 +12,9 @@
             <div>
                 <p class="admin-kicker">Sản phẩm & kho hàng</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">{{ $product->name }}</h1>
-                <p class="admin-copy mt-3 max-w-3xl text-sm">Theo dõi hồ sơ hàng hóa, thư viện ảnh, giá bán, giá vốn và cấu hình biến thể của sản phẩm ngay trên một màn hình.</p>
+                <x-admin-info class="mt-3">
+                    Theo dõi hồ sơ hàng hóa, thư viện ảnh, giá bán, giá vốn và cấu hình biến thể của sản phẩm ngay trên một màn hình.
+                </x-admin-info>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">

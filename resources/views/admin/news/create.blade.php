@@ -8,7 +8,9 @@
             <div>
                 <p class="admin-kicker">Content & CMS</p>
                 <h1 class="admin-headline mt-2 text-4xl font-bold tracking-[-0.05em] text-[var(--admin-text)]">Tạo bài viết mới</h1>
-                <p class="admin-copy mt-3 max-w-2xl text-sm">Soạn nội dung, tối ưu SEO và cấu hình xuất bản trực tiếp từ màn quản trị.</p>
+                <x-admin-info class="mt-3">
+                    Soạn nội dung, tối ưu SEO và cấu hình xuất bản trực tiếp từ màn quản trị.
+                </x-admin-info>
             </div>
             <a href="{{ route('admin.news.index') }}" class="admin-btn-secondary">
                 <i class="fas fa-arrow-left text-sm"></i>

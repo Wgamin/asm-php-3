@@ -28,7 +28,11 @@
                     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h2 class="text-2xl font-bold text-gray-800">Thông tin giao hàng</h2>
-                            <p class="mt-2 text-sm text-gray-500">Chọn địa chỉ đã lưu trong hồ sơ để xác nhận đơn nhanh hơn.</p>
+                            <div class="mt-3">
+                                <x-admin-info>
+                                    Chọn địa chỉ đã lưu trong hồ sơ để xác nhận đơn nhanh hơn.
+                                </x-admin-info>
+                            </div>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3">
@@ -99,7 +103,11 @@
                         <div class="mb-4 flex items-start justify-between gap-4">
                             <div>
                                 <h3 class="text-xl font-bold text-gray-800">Đơn vị vận chuyển</h3>
-                                <p class="mt-1 text-sm text-gray-500">Phí ship đang được tính theo rule nội bộ cũ của hệ thống.</p>
+                                <div class="mt-3">
+                                    <x-admin-info>
+                                        Phí ship đang được tính theo rule nội bộ cũ của hệ thống.
+                                    </x-admin-info>
+                                </div>
                             </div>
                             @if($shippingQuote)
                                 <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
@@ -138,44 +146,133 @@
                     <div class="mt-8 space-y-4 border-t border-slate-200 pt-8">
                         <div>
                             <h3 class="mb-4 text-xl font-bold text-gray-800">Phương thức thanh toán</h3>
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <label class="block cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="payment_method"
-                                        value="cod"
-                                        class="peer sr-only"
-                                        {{ $selectedPaymentMethod === 'cod' ? 'checked' : '' }}
-                                    >
-                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:ring-4 peer-checked:ring-emerald-100">
-                                        <div class="flex items-start justify-between gap-4">
-                                            <div>
-                                                <p class="font-bold text-slate-800">Thanh toán khi nhận hàng</p>
-                                                <p class="mt-1 text-sm text-slate-500">Nhận hàng rồi thanh toán trực tiếp cho shipper.</p>
-                                            </div>
-                                            <div class="h-5 w-5 rounded-full border-2 border-slate-300 peer-checked:border-emerald-500 peer-checked:bg-emerald-500"></div>
-                                        </div>
-                                    </div>
-                                </label>
 
-                                <label class="block cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="payment_method"
-                                        value="vnpay"
-                                        class="peer sr-only"
-                                        {{ $selectedPaymentMethod === 'vnpay' ? 'checked' : '' }}
-                                    >
-                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition peer-checked:border-sky-500 peer-checked:bg-sky-50 peer-checked:ring-4 peer-checked:ring-sky-100">
-                                        <div class="flex items-start justify-between gap-4">
-                                            <div>
-                                                <p class="font-bold text-slate-800">VNPay</p>
-                                                <p class="mt-1 text-sm text-slate-500">Chuyển sang cổng VNPay để thanh toán online.</p>
-                                            </div>
-                                            <div class="h-5 w-5 rounded-full border-2 border-slate-300 peer-checked:border-sky-500 peer-checked:bg-sky-500"></div>
+                            <div class="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
+                                <div class="border-b border-slate-200 bg-[linear-gradient(180deg,#fafaf9,#ffffff)] px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+                                            <i class="fas fa-wallet text-lg"></i>
+                                        </span>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-900">Chọn cách thanh toán</p>
+                                            <p class="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">Thanh toán an toàn</p>
                                         </div>
                                     </div>
-                                </label>
+                                </div>
+
+                                <div class="divide-y divide-slate-100">
+                                    <label class="block cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="payment_method"
+                                            value="cod"
+                                            class="peer sr-only"
+                                            {{ $selectedPaymentMethod === 'cod' ? 'checked' : '' }}
+                                        >
+                                        <div class="flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50 peer-checked:bg-[linear-gradient(180deg,#fafaf9,#f3f4f6)]">
+                                            <span class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+                                                <i class="fas fa-money-bill-wave text-xl"></i>
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="text-base font-bold text-slate-900">Thanh toán khi nhận hàng</p>
+                                                    <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">COD</span>
+                                                </div>
+                                                <p class="mt-1 text-sm leading-6 text-slate-500">Thanh toán bằng tiền mặt sau khi nhận hàng từ shipper.</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-500 md:inline-flex">Không cần chuyển cổng</span>
+                                                <span class="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-300 bg-white transition peer-checked:border-emerald-500 peer-checked:shadow-[0_0_0_4px_rgba(16,185,129,0.14)]">
+                                                    <span class="h-3 w-3 rounded-full bg-emerald-500 opacity-0 scale-75 transition duration-150 peer-checked:scale-100 peer-checked:opacity-100"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label class="block cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="payment_method"
+                                            value="vnpay"
+                                            class="peer sr-only"
+                                            {{ $selectedPaymentMethod === 'vnpay' ? 'checked' : '' }}
+                                        >
+                                        <div class="flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50 peer-checked:bg-[linear-gradient(180deg,#fafaf9,#f3f4f6)]">
+                                            <span class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+                                                <i class="fas fa-building-columns text-xl"></i>
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="text-base font-bold text-slate-900">VNPay</p>
+                                                    <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Online</span>
+                                                </div>
+                                                <p class="mt-1 text-sm leading-6 text-slate-500">Chuyển sang cổng VNPay để thanh toán qua ATM, QR hoặc thẻ nội địa.</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-500 md:inline-flex">Cổng thanh toán</span>
+                                                <span class="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-300 bg-white transition peer-checked:border-emerald-500 peer-checked:shadow-[0_0_0_4px_rgba(16,185,129,0.14)]">
+                                                    <span class="h-3 w-3 rounded-full bg-emerald-500 opacity-0 scale-75 transition duration-150 peer-checked:scale-100 peer-checked:opacity-100"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label class="block cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="payment_method"
+                                            value="momo"
+                                            class="peer sr-only"
+                                            {{ $selectedPaymentMethod === 'momo' ? 'checked' : '' }}
+                                        >
+                                        <div class="flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50 peer-checked:bg-[linear-gradient(180deg,#fafaf9,#f3f4f6)]">
+                                            <span class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+                                                <i class="fas fa-mobile-screen-button text-xl"></i>
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="text-base font-bold text-slate-900">MoMo</p>
+                                                    <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Gateway</span>
+                                                </div>
+                                                <p class="mt-1 text-sm leading-6 text-slate-500">Chuyển sang MoMo sandbox để test ví, callback và luồng thanh toán thử.</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-500 md:inline-flex">ATM / Card</span>
+                                                <span class="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-300 bg-white transition peer-checked:border-emerald-500 peer-checked:shadow-[0_0_0_4px_rgba(16,185,129,0.14)]">
+                                                    <span class="h-3 w-3 rounded-full bg-emerald-500 opacity-0 scale-75 transition duration-150 peer-checked:scale-100 peer-checked:opacity-100"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label class="block cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="payment_method"
+                                            value="zalopay"
+                                            class="peer sr-only"
+                                            {{ $selectedPaymentMethod === 'zalopay' ? 'checked' : '' }}
+                                        >
+                                        <div class="flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50 peer-checked:bg-[linear-gradient(180deg,#fafaf9,#f3f4f6)]">
+                                            <span class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+                                                <i class="fas fa-credit-card text-xl"></i>
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="text-base font-bold text-slate-900">ZaloPay</p>
+                                                    <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Gateway</span>
+                                                </div>
+                                                <p class="mt-1 text-sm leading-6 text-slate-500">Chuyển sang ZaloPay sandbox để test thẻ ATM, tài khoản ngân hàng, thẻ quốc tế và callback thanh toán thử.</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-500 md:inline-flex">Bank / Card</span>
+                                                <span class="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-300 bg-white transition peer-checked:border-emerald-500 peer-checked:shadow-[0_0_0_4px_rgba(16,185,129,0.14)]">
+                                                    <span class="h-3 w-3 rounded-full bg-emerald-500 opacity-0 scale-75 transition duration-150 peer-checked:scale-100 peer-checked:opacity-100"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
 
                             @error('payment_method')

@@ -184,6 +184,11 @@ Xem route:
 php artisan route:list
 ```
 
+## Deploy hosting
+
+- Mau env cho InterData: [`.env.interdata.example`](.env.interdata.example)
+- Huong dan deploy subdomain InterData: [`DEPLOY_INTERDATA.md`](DEPLOY_INTERDATA.md)
+
 ## Migration nổi bật
 
 - `orders`, `order_items`

@@ -25,8 +25,12 @@
     >
         <div class="flex items-start justify-between gap-4 px-5 py-4">
             <div>
-                <h3 class="admin-headline text-base font-bold tracking-[-0.02em] text-[var(--admin-text)]">Thông báo đơn hàng</h3>
-                <p class="mt-1 text-xs text-[var(--admin-text-muted)]">Tự làm mới mỗi 5 giây</p>
+                <div class="flex items-center gap-2">
+                    <h3 class="admin-headline text-base font-bold tracking-[-0.02em] text-[var(--admin-text)]">Thông báo đơn hàng</h3>
+                    <x-admin-info>
+                        Tự làm mới mỗi 5 giây.
+                    </x-admin-info>
+                </div>
             </div>
             <button
                 type="button"

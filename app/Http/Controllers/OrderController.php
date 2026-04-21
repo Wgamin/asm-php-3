@@ -11,6 +11,7 @@ use App\Models\ProductVariant;
 use App\Models\Shipment;
 use App\Models\UserAddress;
 use App\Services\CouponService;
+use App\Services\OrderFulfillmentService;
 use App\Services\ShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -100,7 +101,12 @@ class OrderController extends Controller
         ]);
     }
 
-    public function store(Request $request, CouponService $couponService, ShippingService $shippingService)
+    public function store(
+        Request $request,
+        CouponService $couponService,
+        ShippingService $shippingService,
+        OrderFulfillmentService $orderFulfillmentService
+    )
     {
         $usesSavedAddress = $request->filled('selected_address_id');
 
@@ -110,7 +116,7 @@ class OrderController extends Controller
             'phone' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:30'],
             'address' => [Rule::requiredIf(! $usesSavedAddress), 'nullable', 'string', 'max:500'],
             'shipping_provider' => ['nullable', 'string', 'max:50'],
-            'payment_method' => ['required', 'string', Rule::in(['cod', 'vnpay'])],
+            'payment_method' => ['required', 'string', Rule::in(['cod', 'vnpay', 'momo', 'zalopay'])],
             'note' => ['nullable', 'string'],
         ]);
 
@@ -192,11 +198,23 @@ class OrderController extends Controller
             $payment = Payment::create([
                 'order_id' => $order->id,
                 'method' => $request->payment_method,
-                'provider' => $request->payment_method === 'vnpay' ? 'vnpay' : 'cash_on_delivery',
+                'provider' => match ($request->payment_method) {
+                    'vnpay' => 'vnpay',
+                    'momo' => 'momo',
+                    'zalopay' => 'zalopay',
+                    default => 'cash_on_delivery',
+                },
                 'amount' => $payableAmount,
                 'status' => 'pending',
                 'metadata' => [
-                    'label' => $request->payment_method === 'vnpay' ? 'Thanh toan online' : 'Thu tien khi giao hang',
+                    'label' => match ($request->payment_method) {
+                        'vnpay' => 'Thanh toan online VNPay',
+                        'momo' => 'Thanh toan online MoMo test',
+                        'zalopay' => 'Thanh toan online ZaloPay test',
+                        default => 'Thu tien khi giao hang',
+                    },
+                    'inventory_applied' => false,
+                    'coupon_usage_applied' => false,
                 ],
             ]);
 
@@ -229,20 +247,16 @@ class OrderController extends Controller
                     'variant_sku' => $variant?->sku,
                     'variant_values' => $line['variant_values'] ?: null,
                 ]);
-
-                if ($variant) {
-                    $variant->decrement('stock', $quantity);
-                } else {
-                    $product->decrement('stock', $quantity);
-                }
-            }
-
-            if ($coupon) {
-                $coupon->increment('used_count');
             }
 
             $order->setRelation('payment', $payment);
             $order->setRelation('shipment', $shipment);
+
+            if ($request->payment_method === 'cod') {
+                $orderFulfillmentService->apply($order);
+                $order->load('payment');
+            }
+
             $order->recordStatusHistory('system', 'Tao don hang moi', [
                 'payment_method' => $request->payment_method,
                 'coupon_code' => $coupon?->code,
@@ -266,6 +280,22 @@ class OrderController extends Controller
 
                 // Trỏ sang hàm createPayment của PaymentController
                 return app(\App\Http\Controllers\PaymentController::class)->createPayment($request);
+            }
+
+            if ($request->payment_method === 'momo') {
+                $request->merge([
+                    'order_id' => $order->id,
+                ]);
+
+                return app(\App\Http\Controllers\PaymentController::class)->createMomoPayment($request);
+            }
+
+            if ($request->payment_method === 'zalopay') {
+                $request->merge([
+                    'order_id' => $order->id,
+                ]);
+
+                return app(\App\Http\Controllers\PaymentController::class)->createZalopayPayment($request);
             }
 
             // Nếu chọn COD

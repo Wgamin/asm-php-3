@@ -22,7 +22,11 @@
 
         <div class="text-center mb-16">
             <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">So sánh chi tiết</h1>
-            <p class="text-slate-500 text-lg max-w-2xl mx-auto">Đối chiếu các thông số để tìm ra lựa chọn phù hợp nhất cho bạn.</p>
+            <div class="flex justify-center">
+                <x-admin-info>
+                    Đối chiếu các thông số để tìm ra lựa chọn phù hợp nhất cho bạn.
+                </x-admin-info>
+            </div>
 
             @if($count > 0)
                 <div class="mt-8 flex items-center justify-center gap-4">

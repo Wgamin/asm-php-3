@@ -47,6 +47,10 @@ Route::get('/gioi-thieu', function () {
 })->name('about');
 Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
 Route::post('/webhooks/orders/{order}', [OrderWebhookController::class, 'update'])->name('webhooks.orders.update');
+Route::get('/payment/momo-return', [PaymentController::class, 'momoReturn'])->name('payment.momoReturn');
+Route::post('/payment/momo/ipn', [PaymentController::class, 'momoIpn'])->name('payment.momoIpn');
+Route::get('/payment/zalopay-return', [PaymentController::class, 'zalopayReturn'])->name('payment.zalopayReturn');
+Route::post('/payment/zalopay/callback', [PaymentController::class, 'zalopayCallback'])->name('payment.zalopayCallback');
 Route::prefix('ai-chat')->as('ai-chat.')->group(function () {
     Route::get('/messages', [AiChatbotController::class, 'messages'])->name('messages');
     Route::post('/messages', [AiChatbotController::class, 'send'])->name('send');
@@ -105,6 +109,8 @@ Route::middleware('auth')->group(function () {
     // --- MỚI BỔ SUNG: CHỨC NĂNG THANH TOÁN VNPAY ---
     Route::post('/payment/vnpay', [PaymentController::class, 'createPayment'])->name('payment.vnpay');
     Route::get('/payment/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('payment.vnpayReturn');
+    Route::post('/payment/momo', [PaymentController::class, 'createMomoPayment'])->name('payment.momo');
+    Route::post('/payment/zalopay', [PaymentController::class, 'createZalopayPayment'])->name('payment.zalopay');
 
     // --- Wishlist ---
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -125,6 +131,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/realtime/orders', [AdminRealtimeController::class, 'orders'])->name('realtime.orders');
     Route::get('/chat', [AdminChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/conversations', [AdminChatController::class, 'conversations'])->name('chat.conversations');
     Route::get('/chat/{user}/messages', [AdminChatController::class, 'messages'])->name('chat.messages');
     Route::post('/chat/{user}/messages', [AdminChatController::class, 'send'])->name('chat.send');
 

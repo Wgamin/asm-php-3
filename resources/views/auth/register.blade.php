@@ -8,7 +8,11 @@
         <div class="p-8">
             <div class="text-center mb-10">
                 <h2 class="text-3xl font-bold text-slate-800">Tạo tài khoản</h2>
-                <p class="text-slate-500 mt-2 text-sm">Gia nhập cộng đồng nông sản sạch ngay hôm nay</p>
+                <div class="mt-3 flex justify-center">
+                    <x-admin-info>
+                        Gia nhập cộng đồng nông sản sạch ngay hôm nay.
+                    </x-admin-info>
+                </div>
             </div>
 
             <form action="{{ route('register') }}" method="POST" class="space-y-5">

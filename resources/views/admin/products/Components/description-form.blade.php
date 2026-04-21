@@ -5,9 +5,13 @@
     </div>
 
     <div>
-        <label class="admin-field-label">Mô tả ngắn</label>
+        <div class="flex items-center gap-2">
+            <label class="admin-field-label">Mô tả ngắn</label>
+            <x-admin-info>
+                Phần này thường xuất hiện trong danh sách sản phẩm và thẻ tóm tắt.
+            </x-admin-info>
+        </div>
         <textarea name="description" rows="3" required placeholder="Tóm tắt đặc điểm nổi bật của sản phẩm trong 1-2 câu.">{{ old('description') }}</textarea>
-        <p class="mt-2 text-xs text-[var(--admin-text-muted)]">Phần này thường xuất hiện trong danh sách sản phẩm và thẻ tóm tắt.</p>
     </div>
 
     <div>

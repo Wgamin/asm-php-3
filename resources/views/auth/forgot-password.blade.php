@@ -8,7 +8,11 @@
         <div class="p-8">
             <div class="text-center mb-8">
                 <h2 class="text-3xl font-bold text-slate-800">Quên mật khẩu?</h2>
-                <p class="text-slate-500 mt-2 text-sm">Nhập email đã đăng ký, hệ thống sẽ gửi mã OTP về hộp thư của bạn.</p>
+                <div class="mt-3 flex justify-center">
+                    <x-admin-info>
+                        Nhập email đã đăng ký, hệ thống sẽ gửi mã OTP về hộp thư của bạn.
+                    </x-admin-info>
+                </div>
             </div>
 
             @if($errors->any())

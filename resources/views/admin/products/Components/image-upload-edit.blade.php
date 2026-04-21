@@ -6,7 +6,12 @@
         </div>
 
         <div>
-            <label class="admin-field-label">Ảnh đại diện chính</label>
+            <div class="flex items-center gap-2">
+                <label class="admin-field-label">Ảnh đại diện chính</label>
+                <x-admin-info>
+                    Để trống nếu không muốn thay ảnh chính.
+                </x-admin-info>
+            </div>
             <label class="block cursor-pointer overflow-hidden rounded-[1.2rem] border border-dashed border-[rgba(112,122,108,0.3)] bg-[var(--admin-surface-low)] p-3 transition hover:border-[rgba(32,98,35,0.42)]">
                 <input type="file" name="image" accept="image/*" class="hidden" @change="previewMainImage">
                 <template x-if="mainImageUrl">
@@ -19,7 +24,6 @@
                     </div>
                 </template>
             </label>
-            <p class="mt-2 text-xs text-[var(--admin-text-muted)]">Để trống nếu không muốn thay ảnh chính.</p>
         </div>
 
         <div>

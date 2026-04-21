@@ -65,6 +65,48 @@ it('allows customers and admin to exchange support chat messages', function () {
         ->assertJsonCount(2, 'messages');
 });
 
+it('returns realtime support chat inbox entries for admin', function () {
+    $admin = User::factory()->create([
+        'role' => 'admin',
+    ]);
+    $firstCustomer = User::factory()->create([
+        'name' => 'First Customer',
+        'email' => 'first@example.com',
+    ]);
+    $secondCustomer = User::factory()->create([
+        'name' => 'Second Customer',
+        'email' => 'second@example.com',
+    ]);
+
+    $firstMessage = ChatMessage::create([
+        'sender_id' => $firstCustomer->id,
+        'recipient_id' => $admin->id,
+        'message' => 'First customer message',
+    ]);
+    $firstMessage->timestamps = false;
+    $firstMessage->forceFill([
+        'created_at' => now()->subMinutes(5),
+        'updated_at' => now()->subMinutes(5),
+    ])->save();
+
+    ChatMessage::create([
+        'sender_id' => $secondCustomer->id,
+        'recipient_id' => $admin->id,
+        'message' => 'Second customer message',
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson(route('admin.chat.conversations'))
+        ->assertOk()
+        ->assertJsonPath('customers.0.id', $secondCustomer->id)
+        ->assertJsonPath('customers.0.name', 'Second Customer')
+        ->assertJsonPath('customers.0.last_message', 'Second customer message')
+        ->assertJsonPath('customers.0.unread_count', 1)
+        ->assertJsonPath('customers.1.id', $firstCustomer->id)
+        ->assertJsonPath('customers.1.last_message', 'First customer message')
+        ->assertJsonPath('customers.1.unread_count', 1);
+});
+
 it('returns realtime new order notifications for admin topbar', function () {
     $admin = User::factory()->create([
         'role' => 'admin',

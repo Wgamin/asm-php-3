@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'webhooks/orders/*',
             'ai-chat/messages',
+            'payment/momo/ipn',
+            'payment/zalopay/callback',
         ]);
 
         $middleware->alias([
