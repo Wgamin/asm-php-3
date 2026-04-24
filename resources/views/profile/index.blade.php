@@ -5,16 +5,27 @@
 @php
     $activeTab = old('active_tab', session('profile_tab', request('tab', 'info')));
     $addressIdFromOld = (int) old('address_id', 0);
+    
+    // Đảm bảo $addresses luôn tồn tại dưới dạng collection để tránh lỗi crash trang
+    if (!isset($addresses)) {
+        $addresses = collect();
+    }
+
     if (!isset($editingAddress)) {
         $editingAddress = null;
     }
-    if (!$editingAddress && $addressIdFromOld > 0) {
+    
+    if (!$editingAddress && $addressIdFromOld > 0 && $addresses->isNotEmpty()) {
         $editingAddress = $addresses->firstWhere('id', $addressIdFromOld);
     }
+    
     if (!isset($defaultAddress)) {
-        $defaultAddress = $addresses->firstWhere('is_default', true) ?? $addresses->first();
+        $defaultAddress = $addresses->isNotEmpty() 
+            ? ($addresses->firstWhere('is_default', true) ?? $addresses->first())
+            : null;
     }
-    $wishlist = $user->wishlists;
+    
+    $wishlist = $user->wishlists ?? collect();
 @endphp
 
 @section('content')

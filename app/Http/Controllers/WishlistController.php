@@ -10,10 +10,7 @@ class WishlistController extends Controller
     // Hiển thị danh sách yêu thích
     public function index()
     {
-        $user = auth()->user()->load(['wishlists.category', 'wishlists']);
-        $orders = $user->orders()->latest()->get();
-        
-        return view('profile.index', compact('user', 'orders'));
+        return redirect()->route('profile', ['tab' => 'wishlist']);
     }
 
     // Thêm hoặc xóa sản phẩm khỏi yêu thích (Toggle)
